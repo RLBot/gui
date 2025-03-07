@@ -274,5 +274,7 @@ outer:
 		return "", errors.New("Couldn't send join message")
 	}
 
+	conn.SendPacket(nil) // Tell core that we want to disconnect
+
 	return result.Message, nil
 }

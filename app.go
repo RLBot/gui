@@ -244,6 +244,7 @@ func (a *App) StopMatch(shutdownServer bool) Result {
 	conn.SendPacket(&flat.StopCommandT{
 		ShutdownServer: shutdownServer,
 	})
+	conn.SendPacket(nil) // Tell core that we want to disconnect
 
 	return Result{true, ""}
 }
