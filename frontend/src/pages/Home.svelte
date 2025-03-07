@@ -68,7 +68,7 @@ $effect(() => {
   updateBots();
 });
 
-let bluePlayers: DraggablePlayer[] = $state([]);
+let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
 let orangePlayers: DraggablePlayer[] = $state([]);
 let showHuman = $state(true);
 $effect(() => {
@@ -84,8 +84,7 @@ $effect(() => {
 });
 let extraOptions = $state(
   JSON.parse(
-    localStorage.getItem("MS_EXTRAOPTIONS") ||
-      '{"enableStateSetting": true, "existingMatchBehavior": 0}',
+    localStorage.getItem("MS_EXTRAOPTIONS") || '{"enableStateSetting": true}',
   ),
 );
 $effect(() => {
