@@ -204,7 +204,7 @@ function ShowSelectedBotFiles() {
       <img src={bot.icon || defaultIcon} alt="icon" />
       <p>{bot.displayName}</p>
       {#if bot.uniquePathSegment}
-        <span class="unique-bot-identifier">&nbsp;({bot.uniquePathSegment})</span>
+        <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
       {/if}
       {#if bot.player && bot.player instanceof BotInfo}
         <button class="info-button" onclick={(e) => {e.stopPropagation();handleInfoClick(bot)}}>
