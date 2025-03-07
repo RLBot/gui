@@ -77,196 +77,196 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
 </script>
 
 <div class="matchSettings">
-    <h1>Match Settings</h1>
-    <div class="content">
-        <div class="settings">
-            <div class="left-controls">
-                <Select
-                    options={ALL_MAPS}
-                    bind:value={map}
-                    placeholder="Select map"
-                />
-                <Select
-                    options={Object.fromEntries(mutatorOptions.game_mode.map((x) => [x, x]))}
-                    bind:value={mode}
-                    placeholder="Select mode"
-                />
-            </div>
-            <div class="right-controls">
-                <LauncherSelector bind:visible={launcherOptionsVisible} />
-            </div>
-        </div>
-        <div class="controls">
-            <div class="left-controls">
-                <button
-                    onclick={() => {
-                        showMutators = true;
-                    }}>Mutators</button
-                >
-                <button
-                    onclick={() => {
-                        showExtraOptions = true;
-                    }}>Extra</button
-                >
-                <input
-                    type="checkbox"
-                    id="randomizeMap"
-                    bind:checked={randomizeMap}
-                />
-                <label for="randomizeMap">Randomize Map</label>
-            </div>
-            <div class="right-controls">
-                <button class="start" onclick={()=>{onStart(randomizeMap)}}>Start Match</button>
-                <button class="stop" onclick={()=>{onStop()}}>Stop</button>
-            </div>
-        </div>
+  <h1>Match Settings</h1>
+  <div class="content">
+    <div class="settings">
+      <div class="left-controls">
+        <Select
+          options={ALL_MAPS}
+          bind:value={map}
+          placeholder="Select map"
+        />
+        <Select
+          options={Object.fromEntries(mutatorOptions.game_mode.map((x) => [x, x]))}
+          bind:value={mode}
+          placeholder="Select mode"
+        />
+      </div>
+      <div class="right-controls">
+        <LauncherSelector bind:visible={launcherOptionsVisible} />
+      </div>
     </div>
+    <div class="controls">
+      <div class="left-controls">
+        <button
+          onclick={() => {
+            showMutators = true;
+          }}>Mutators</button
+        >
+        <button
+          onclick={() => {
+            showExtraOptions = true;
+          }}>Extra</button
+        >
+        <input
+          type="checkbox"
+          id="randomizeMap"
+          bind:checked={randomizeMap}
+        />
+        <label for="randomizeMap">Randomize Map</label>
+      </div>
+      <div class="right-controls">
+          <button class="start" onclick={()=>{onStart(randomizeMap)}}>Start Match</button>
+          <button class="stop" onclick={()=>{onStop()}}>Stop</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
-    <div class="mutators">
-        {#each filteredMutatorOptions as mutatorKey}
-            <div class="mutator">
-                <label
-                    style={mutators[mutatorKey] == 0 ? "color:lightgrey" : ""}
-                    for={mutatorKey}>{cleanCase(mutatorKey)}</label
-                >
-
-                <select
-                    name={mutatorKey}
-                    id={mutatorKey}
-                    bind:value={mutators[mutatorKey]}
-                    onchange={() => {selectedPreset = ""}}
-                >
-                    {#each mutatorOptions[mutatorKey] as value, i}
-                        <option value={i}>{value.replaceAll("_", " ")}</option>
-                    {/each}
-                </select>
-            </div>
-        {/each}
-    </div>
-    <div class="bottomButtons">
-        <p>Settings are saved automatically</p>
-        <NiceSelect bind:value={selectedPreset} options={gamemodes} placeholder="Select a preset" />
-        <button
-            class="mutatorResetButton"
-            onclick={resetMutators}>Reset</button
+  <div class="mutators">
+    {#each filteredMutatorOptions as mutatorKey}
+      <div class="mutator">
+        <label
+          style={mutators[mutatorKey] == 0 ? "color:lightgrey" : ""}
+          for={mutatorKey}>{cleanCase(mutatorKey)}</label
         >
-    </div>
+
+        <select
+          name={mutatorKey}
+          id={mutatorKey}
+          bind:value={mutators[mutatorKey]}
+          onchange={() => {selectedPreset = ""}}
+        >
+          {#each mutatorOptions[mutatorKey] as value, i}
+              <option value={i}>{value.replaceAll("_", " ")}</option>
+          {/each}
+        </select>
+      </div>
+    {/each}
+  </div>
+  <div class="bottomButtons">
+    <p>Settings are saved automatically</p>
+    <NiceSelect bind:value={selectedPreset} options={gamemodes} placeholder="Select a preset" />
+    <button
+      class="mutatorResetButton"
+      onclick={resetMutators}>Reset</button
+    >
+  </div>
 </Modal>
 
 <Modal title="RLBot Extra Options" bind:visible={showExtraOptions}>
-    <div class="extraoptions">
-        <p>Existing match behaviour</p>
-        <NiceSelect bind:value={extraOptions.existingMatchBehavior} options={existingMatchBehaviors} placeholder="Existing Match Behavior" />
-        <br />
-        <br />
-        <input
-            type="checkbox"
-            id="enableRendering"
-            bind:checked={extraOptions.enableRendering}
-        />
-        <label for="enableRendering">
-            Enable Rendering (bots can draw on screen)
-        </label>
-        <br />
-        <input
-            type="checkbox"
-            id="enableStateSetting"
-            bind:checked={extraOptions.enableStateSetting}
-        />
-        <label for="enableStateSetting">
-            Enable State Setting (bots can teleport)
-        </label>
-        <br />
-        <input
-            type="checkbox"
-            id="autoSaveReplay"
-            bind:checked={extraOptions.autoSaveReplay}
-        />
-        <label for="autoSaveReplay"> Auto Save Replay </label>
-        <br />
-        <input
-            type="checkbox"
-            id="skipReplays"
-            bind:checked={extraOptions.skipReplays}
-        />
-        <label for="skipReplays"> Skip Replays </label>
-        <br />
-        <input
-            type="checkbox"
-            id="instantStart"
-            bind:checked={extraOptions.instantStart}
-        />
-        <label for="instantStart"> Instant Start </label>
-        <br />
-    </div>
-    <div class="bottomButtons">
-        <p>Settings are saved automatically</p>
-    </div>
+  <div class="extraoptions">
+    <p>Existing match behaviour</p>
+    <NiceSelect bind:value={extraOptions.existingMatchBehavior} options={existingMatchBehaviors} placeholder="Existing Match Behavior" />
+    <br />
+    <br />
+    <input
+      type="checkbox"
+      id="enableRendering"
+      bind:checked={extraOptions.enableRendering}
+    />
+    <label for="enableRendering">
+      Enable Rendering (bots can draw on screen)
+    </label>
+    <br />
+    <input
+      type="checkbox"
+      id="enableStateSetting"
+      bind:checked={extraOptions.enableStateSetting}
+    />
+    <label for="enableStateSetting">
+      Enable State Setting (bots can teleport)
+    </label>
+    <br />
+    <input
+      type="checkbox"
+      id="autoSaveReplay"
+      bind:checked={extraOptions.autoSaveReplay}
+    />
+    <label for="autoSaveReplay"> Auto Save Replay </label>
+    <br />
+    <input
+      type="checkbox"
+      id="skipReplays"
+      bind:checked={extraOptions.skipReplays}
+    />
+    <label for="skipReplays"> Skip Replays </label>
+    <br />
+    <input
+      type="checkbox"
+      id="instantStart"
+      bind:checked={extraOptions.instantStart}
+    />
+    <label for="instantStart"> Instant Start </label>
+    <br />
+  </div>
+  <div class="bottomButtons">
+    <p>Settings are saved automatically</p>
+  </div>
 </Modal>
 
 <style>
-    h1 {
-        margin-bottom: 0.6rem;
-    }
-    .settings,
-    .controls {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.5rem;
-    }
-    #randomizeMap {
-        transform: scale(1.2);
-    }
-    .left-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .right-controls {
-        display: flex;
-        gap: 0.5rem;
-    }
-    .content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
+  h1 {
+    margin-bottom: 0.6rem;
+  }
+  .settings,
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  #randomizeMap {
+    transform: scale(1.2);
+  }
+  .left-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .right-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-    .mutators {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        gap: 1rem;
-    }
-    .mutator {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    .bottomButtons {
-        display: flex;
-        margin-top: 1rem;
-        gap: 0.5rem;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .bottomButtons :first-child {
-        flex-grow: 1;
-        margin-right: .5rem;
-    }
-    .mutatorResetButton {
-        background-color: red;
-    }
+  .mutators {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 1rem;
+  }
+  .mutator {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .bottomButtons {
+    display: flex;
+    margin-top: 1rem;
+    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .bottomButtons :first-child {
+    flex-grow: 1;
+    margin-right: .5rem;
+  }
+  .mutatorResetButton {
+    background-color: red;
+  }
 
-    .extraoptions > * {
-        margin-bottom: 0.5rem;
-    }
+  .extraoptions > * {
+    margin-bottom: 0.5rem;
+  }
 
-    button.start {
-        background-color: #15680e;
-    }
-    button.stop {
-        background-color: #cc1414;
-    }
+  button.start {
+    background-color: #15680e;
+  }
+  button.stop {
+    background-color: #cc1414;
+  }
 </style>

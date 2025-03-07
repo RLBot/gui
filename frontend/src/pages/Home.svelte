@@ -182,94 +182,94 @@ function handleSearch(event: Event) {
 </script>
 
 <div class="page" style={`background-image: url("${backgroundImage}")`}>
-    <div class="availableBots box">
-        <header>
-            <h1>Bots</h1>
-            <div class="dropdown">
-                <button onclick={() => { showPathsViewer = true }}>Add/Remove</button>
-            </div>
-            {#if loadingPlayers}
-                <h3>Searching...</h3>
-            {:else}
-                <button class="reloadButton" onclick={updateBots}
-                    ><img src={reloadIcon} alt="reload" /></button
-                >
-            {/if}
-            <div style="flex:1"></div>
-            <input type="text" class="botSearch" placeholder="Search..." oninput={handleSearch}/>
-        </header>
-        <BotList
-            bind:bluePlayers
-            bind:orangePlayers
-            bind:showHuman
-            items={players}
-            searchQuery={searchQuery}
-            selectedTeam={selectedTeam}
-        />
-    </div>
+  <div class="availableBots box">
+    <header>
+      <h1>Bots</h1>
+      <div class="dropdown">
+        <button onclick={() => { showPathsViewer = true }}>Add/Remove</button>
+      </div>
+      {#if loadingPlayers}
+        <h3>Searching...</h3>
+      {:else}
+        <button class="reloadButton" onclick={updateBots}
+          ><img src={reloadIcon} alt="reload" /></button
+        >
+      {/if}
+      <div style="flex:1"></div>
+      <input type="text" class="botSearch" placeholder="Search..." oninput={handleSearch}/>
+    </header>
+    <BotList
+      bind:bluePlayers
+      bind:orangePlayers
+      bind:showHuman
+      items={players}
+      searchQuery={searchQuery}
+      selectedTeam={selectedTeam}
+    />
+  </div>
 
-    <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam /></div>
+  <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam /></div>
 
-    <div class="box">
-        <MatchSettings
-            onStart={onMatchStart}
-            onStop={onMatchStop}
-            bind:map={$mapStore}
-            bind:mode
-            bind:mutators={mutatorSettings}
-            bind:extraOptions
-            bind:launcherOptionsVisible
-        />
-    </div>
+  <div class="box">
+    <MatchSettings
+      onStart={onMatchStart}
+      onStop={onMatchStop}
+      bind:map={$mapStore}
+      bind:mode
+      bind:mutators={mutatorSettings}
+      bind:extraOptions
+      bind:launcherOptionsVisible
+    />
+  </div>
 </div>
 
 <PathsViewer bind:visible={showPathsViewer} bind:paths />
 
 <style>
-    .page {
-        padding: 1rem;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-attachment: fixed;
-    }
-    .page * {
-        user-select: none;
-        -webkit-user-select: none;
-    }
-    .box {
-        border-radius: 0.4rem;
-        background-color: var(--background);
-        padding: 0.6rem;
-    }
-    .page > div:not(:first-child) {
-        margin-top: 1rem;
-    }
-    .availableBots {
-        padding-bottom: 0.6rem;
-        display: flex;
-        flex-direction: column;
-    }
-    .availableBots header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.6rem;
-    }
-    .reloadButton {
-        padding: 0px;
-    }
-    .reloadButton img {
-        filter: invert();
-    }
-    .teams {
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-    }
+  .page {
+    padding: 1rem;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  .page * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .box {
+    border-radius: 0.4rem;
+    background-color: var(--background);
+    padding: 0.6rem;
+  }
+  .page > div:not(:first-child) {
+    margin-top: 1rem;
+  }
+  .availableBots {
+    padding-bottom: 0.6rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .availableBots header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .reloadButton {
+    padding: 0px;
+  }
+  .reloadButton img {
+    filter: invert();
+  }
+  .teams {
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
 </style>

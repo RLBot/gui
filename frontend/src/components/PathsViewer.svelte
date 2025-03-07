@@ -117,99 +117,99 @@ function confirmAddBotpack() {
 </script>
 
 <Modal title="Manage Paths" bind:visible={visible}>
-    <div class="paths">
-        <div class="button-row">
-            <button onclick={addFolder}>Add folder</button>
-            <button onclick={alert.bind(null, "TODO: not implemented yet")}>Add File</button>
-            <button onclick={openAddBotpackModal}>Add Botpack</button>
-        </div>
-
-        {#each paths as path, i}
-            <div class="path">
-                <Switch bind:checked={path.visible} />
-                <pre>{path.repo ? `${path.repo} @ ${path.installPath}` : path.installPath}</pre>
-                <button class="close" onclick={() => removePath(i)}>
-                    <img src={closeIcon} alt="X" />
-                </button>
-            </div>
-        {/each}
+  <div class="paths">
+    <div class="button-row">
+      <button onclick={addFolder}>Add folder</button>
+      <button onclick={alert.bind(null, "TODO: not implemented yet")}>Add File</button>
+      <button onclick={openAddBotpackModal}>Add Botpack</button>
     </div>
+
+    {#each paths as path, i}
+      <div class="path">
+        <Switch bind:checked={path.visible} />
+        <pre>{path.repo ? `${path.repo} @ ${path.installPath}` : path.installPath}</pre>
+        <button class="close" onclick={() => removePath(i)}>
+          <img src={closeIcon} alt="X" />
+        </button>
+      </div>
+    {/each}
+  </div>
 </Modal>
 
 <Modal title="Add Botpack" bind:visible={addBotpackVisible}>
-    <div class="add-botpack">
-        <label for="path">Botpack install path</label>
-        <input type="text" id="path" placeholder="Enter install path" bind:value={installPath} />
-        <div class="radio-group">
-            <label>
-                <input type="radio" name="botpackType" value="official" bind:group={selectedBotpackType} />
-                Official RLBotPack
-            </label>
-            <label>
-                <input type="radio" name="botpackType" value="custom" bind:group={selectedBotpackType} />
-                Custom
-            </label>
-        </div>
-        {#if selectedBotpackType === "custom"}
-            <input type="text" placeholder="owner/repo" bind:value={customRepo} />
-        {/if}
-        <div class="button-row">
-            <button onclick={confirmAddBotpack}>Confirm</button>
-            <button onclick={closeAddBotpackModal}>Cancel</button>
-        </div>
+  <div class="add-botpack">
+    <label for="path">Botpack install path</label>
+    <input type="text" id="path" placeholder="Enter install path" bind:value={installPath} />
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="botpackType" value="official" bind:group={selectedBotpackType} />
+        Official RLBotPack
+      </label>
+      <label>
+        <input type="radio" name="botpackType" value="custom" bind:group={selectedBotpackType} />
+        Custom
+      </label>
     </div>
+    {#if selectedBotpackType === "custom"}
+      <input type="text" placeholder="owner/repo" bind:value={customRepo} />
+    {/if}
+    <div class="button-row">
+      <button onclick={confirmAddBotpack}>Confirm</button>
+      <button onclick={closeAddBotpackModal}>Cancel</button>
+    </div>
+  </div>
 </Modal>
 
 <style>
-    .paths {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        min-width: 70vw;
-        min-height: 50vh;
-    }
-    .button-row {
-        display: flex;
-        gap: 1rem;
-    }
-    .button-row {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-    }
-    .button-row button {
-        flex: 1;
-    }
-    .path {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        justify-content: space-between;
-    }
-    .path pre {
-        font-size: 1rem;
-        margin: 0px;
-    }
-    .path button {
-        padding: 0px;
-    }
-    .path button img {
-        filter: invert();
-    }
-    .add-botpack {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        min-width: 50vw;
-    }
-    .radio-group {
-        flex-direction: column;
-        display: flex;
-        gap: 1rem;
-    }
-    .radio-group label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+  .paths {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 70vw;
+    min-height: 50vh;
+  }
+  .button-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .button-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+  .button-row button {
+    flex: 1;
+  }
+  .path {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+  .path pre {
+    font-size: 1rem;
+    margin: 0px;
+  }
+  .path button {
+    padding: 0px;
+  }
+  .path button img {
+    filter: invert();
+  }
+  .add-botpack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 50vw;
+  }
+  .radio-group {
+    flex-direction: column;
+    display: flex;
+    gap: 1rem;
+  }
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 </style>

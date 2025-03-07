@@ -41,25 +41,25 @@ $effect(() => {
 <button onclick={() => { visible = true }}>Launcher Options</button>
 
 <Modal title="Select a launcher" bind:visible>
-    <div class="container">
-        <NiceSelect bind:value={launcher} options={launcherOptions} placeholder="Select a launcher" />
-        {#if launcher === "custom"}
-        <div class="launcherArg">
-            <label for="launcherArg">Additional argument:</label>
-            <input type="text" id="launcherArg" bind:value={localLauncherArg} placeholder="(Leave blank for default)">
-        </div>
-        {/if}
+  <div class="container">
+    <NiceSelect bind:value={launcher} options={launcherOptions} placeholder="Select a launcher" />
+    {#if launcher === "custom"}
+    <div class="launcherArg">
+      <label for="launcherArg">Additional argument:</label>
+      <input type="text" id="launcherArg" bind:value={localLauncherArg} placeholder="(Leave blank for default)">
     </div>
+    {/if}
+  </div>
 </Modal>
 
 <style>
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 .launcherArg {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 </style>
