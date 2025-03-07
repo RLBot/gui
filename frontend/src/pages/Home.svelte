@@ -40,6 +40,40 @@ let loadingPlayers = $state(false);
 let latestBotUpdateTime = null;
 let showPathsViewer = $state(false);
 
+function distinguishDuplicateBots(pool: BotInfo[]): [BotInfo, string?][] {
+  const uniqueNames = [
+    ...new Set(
+      pool.filter((bot) => bot.tomlPath).map((bot) => bot.config.settings.name),
+    ),
+  ];
+  const splitPath = (bot: BotInfo) => bot.tomlPath.split(/[\\|\/]/).reverse();
+
+  let uniquePathSegments: [BotInfo, string?][] = [];
+
+  for (const name of uniqueNames) {
+    const bots = pool.filter((bot) => bot.config.settings.name === name);
+    if (bots.length === 1) {
+      uniquePathSegments.push([bots[0]]);
+      continue;
+    }
+
+    for (let i = 0; bots.length > 0 && i < 99; i++) {
+      const pathSegments = bots.map((b) => splitPath(b)[i]);
+
+      for (const bot of bots.slice()) {
+        const path = splitPath(bot);
+        const count = pathSegments.filter((s) => s === path[i]).length;
+        if (count === 1) {
+          uniquePathSegments.push([bot, path[i]]);
+          bots.splice(bots.indexOf(bot), 1);
+        }
+      }
+    }
+  }
+
+  return uniquePathSegments;
+}
+
 async function updateBots() {
   loadingPlayers = true;
   let internalUpdateTime = new Date();
@@ -50,7 +84,7 @@ async function updateBots() {
   if (latestBotUpdateTime !== internalUpdateTime) {
     return; // if newer "search" already started, dont write old data
   }
-  players = result.map((x: BotInfo) => {
+  players = distinguishDuplicateBots(result).map(([x, uniquePathSegment]) => {
     // @ts-ignore
     const n: typeof DraggablePlayer = {
       displayName: x.config.settings.name,
@@ -58,6 +92,7 @@ async function updateBots() {
       player: new BotInfo(x),
       id: Math.random(),
       tags: x.config.details.tags,
+      uniquePathSegment,
     };
     return n;
   });

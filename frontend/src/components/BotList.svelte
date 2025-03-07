@@ -203,6 +203,9 @@ function ShowSelectedBotFiles() {
     <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => handleBotClick(bot)}>
       <img src={bot.icon || defaultIcon} alt="icon" />
       <p>{bot.displayName}</p>
+      {#if bot.uniquePathSegment}
+        <span class="unique-bot-identifier">&nbsp;({bot.uniquePathSegment})</span>
+      {/if}
       {#if bot.player && bot.player instanceof BotInfo}
         <button class="info-button" onclick={(e) => {e.stopPropagation();handleInfoClick(bot)}}>
           <img src={infoIcon} alt="i">
@@ -357,6 +360,9 @@ function ShowSelectedBotFiles() {
     max-height: 250px;
     max-width: 250px;
     width: auto;
+  }
+  .unique-bot-identifier {
+    color: #868686;
   }
   #button-group {
     display: flex;

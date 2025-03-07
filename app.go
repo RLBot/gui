@@ -259,7 +259,7 @@ func (a *App) PickFolder() string {
 
 func (a *App) PickTomlFile() string {
 	path, err := zenity.SelectFile(zenity.FileFilter{
-		Name: ".toml files",
+		Name:     ".toml files",
 		Patterns: []string{"*.toml"},
 	})
 	if err != nil {
