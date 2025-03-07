@@ -123,9 +123,9 @@ type LoadoutConfig struct {
 }
 
 type BotInfo struct {
-	Config   BotConfig     `json:"config"`
-	Loadout  LoadoutConfig `json:"loadout"`
-	TomlPath string        `json:"tomlPath"`
+	Config   BotConfig      `json:"config"`
+	Loadout  *LoadoutConfig `json:"loadout,omitempty"`
+	TomlPath string         `json:"tomlPath"`
 }
 
 func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
@@ -136,11 +136,42 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 		runCommand = botInfo.Config.Settings.RunCommandLinux
 	}
 
-	var loadout *TeamLoadoutConfig
-	if team == 0 {
-		loadout = &botInfo.Loadout.Blue
-	} else {
-		loadout = &botInfo.Loadout.Orange
+	var loadout *flat.PlayerLoadoutT = nil
+	if botInfo.Loadout != nil {
+		var teamLoadout *TeamLoadoutConfig
+		if team == 0 {
+			teamLoadout = &botInfo.Loadout.Blue
+		} else {
+			teamLoadout = &botInfo.Loadout.Orange
+		}
+
+		loadout = &flat.PlayerLoadoutT{
+			TeamColorId:     teamLoadout.TeamColorId,
+			CustomColorId:   teamLoadout.CustomColorId,
+			CarId:           teamLoadout.CarId,
+			DecalId:         teamLoadout.DecalId,
+			WheelsId:        teamLoadout.WheelsId,
+			BoostId:         teamLoadout.BoostId,
+			AntennaId:       teamLoadout.AntennaId,
+			HatId:           teamLoadout.HatId,
+			PaintFinishId:   teamLoadout.PaintFinishId,
+			CustomFinishId:  teamLoadout.CustomFinishId,
+			EngineAudioId:   teamLoadout.EngineAudioId,
+			TrailsId:        teamLoadout.TrailsId,
+			GoalExplosionId: teamLoadout.GoalExplosionId,
+			LoadoutPaint: &flat.LoadoutPaintT{
+				CarPaintId:           teamLoadout.Paint.CarPaintId,
+				DecalPaintId:         teamLoadout.Paint.DecalPaintId,
+				WheelsPaintId:        teamLoadout.Paint.WheelsPaintId,
+				BoostPaintId:         teamLoadout.Paint.BoostPaintId,
+				AntennaPaintId:       teamLoadout.Paint.AntennaPaintId,
+				HatPaintId:           teamLoadout.Paint.HatPaintId,
+				TrailsPaintId:        teamLoadout.Paint.TrailsPaintId,
+				GoalExplosionPaintId: teamLoadout.Paint.GoalExplosionPaintId,
+			},
+			PrimaryColorLookup:   &flat.ColorT{},
+			SecondaryColorLookup: &flat.ColorT{},
+		}
 	}
 
 	return &flat.PlayerConfigurationT{
@@ -153,35 +184,9 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 		Team:       team,
 		RootDir:    botInfo.Config.Settings.RootDir,
 		RunCommand: runCommand,
-		Loadout: &flat.PlayerLoadoutT{
-			TeamColorId:     loadout.TeamColorId,
-			CustomColorId:   loadout.CustomColorId,
-			CarId:           loadout.CarId,
-			DecalId:         loadout.DecalId,
-			WheelsId:        loadout.WheelsId,
-			BoostId:         loadout.BoostId,
-			AntennaId:       loadout.AntennaId,
-			HatId:           loadout.HatId,
-			PaintFinishId:   loadout.PaintFinishId,
-			CustomFinishId:  loadout.CustomFinishId,
-			EngineAudioId:   loadout.EngineAudioId,
-			TrailsId:        loadout.TrailsId,
-			GoalExplosionId: loadout.GoalExplosionId,
-			LoadoutPaint: &flat.LoadoutPaintT{
-				CarPaintId:           loadout.Paint.CarPaintId,
-				DecalPaintId:         loadout.Paint.DecalPaintId,
-				WheelsPaintId:        loadout.Paint.WheelsPaintId,
-				BoostPaintId:         loadout.Paint.BoostPaintId,
-				AntennaPaintId:       loadout.Paint.AntennaPaintId,
-				HatPaintId:           loadout.Paint.HatPaintId,
-				TrailsPaintId:        loadout.Paint.TrailsPaintId,
-				GoalExplosionPaintId: loadout.Paint.GoalExplosionPaintId,
-			},
-			PrimaryColorLookup:   &flat.ColorT{},
-			SecondaryColorLookup: &flat.ColorT{},
-		},
-		SpawnId:  0, // let core do this
-		Hivemind: botInfo.Config.Settings.Hivemind,
+		Loadout:    loadout,
+		SpawnId:    0, // let core do this
+		Hivemind:   botInfo.Config.Settings.Hivemind,
 	}
 }
 
@@ -274,7 +279,7 @@ func (a *App) GetBots(paths []string) []BotInfo {
 			conf.Settings.LogoFile = "data:" + mtype.String() + ";base64," + b64data
 		}
 
-		var loadout LoadoutConfig
+		var loadout *LoadoutConfig = nil
 		if conf.Settings.LoadoutFile != "" {
 			loadoutPath := filepath.Join(filepath.Dir(potentialConfigPath), conf.Settings.LoadoutFile)
 			loadoutData, err := os.ReadFile(loadoutPath)
@@ -283,8 +288,6 @@ func (a *App) GetBots(paths []string) []BotInfo {
 			} else {
 				toml.Decode(string(loadoutData), &loadout)
 			}
-		} else {
-			loadout = LoadoutConfig{}
 		}
 
 		infos = append(infos, BotInfo{
