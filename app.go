@@ -272,7 +272,7 @@ func (a *App) ShowPathInExplorer(path string) error {
 	}
 
 	if runtime.GOOS == "windows" {
-		cmd := exec.Command("explorer", folder)
+		cmd := exec.Command("explorer.exe", folder)
 		err := cmd.Run()
 		if err != nil {
 			return err
