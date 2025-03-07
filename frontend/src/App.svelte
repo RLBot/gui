@@ -46,10 +46,6 @@ let activePage = $state("home");
         <div class="dropmenu right">
           <button
             onclick={alert.bind(null, "TODO: not implemented yet")}
-            >Repair botpack</button
-          >
-          <button
-            onclick={alert.bind(null, "TODO: not implemented yet")}
             >State Setting Sandbox</button
           >
         </div>

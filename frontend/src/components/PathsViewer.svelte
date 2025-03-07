@@ -2,6 +2,7 @@
 import toast from "svelte-5-french-toast";
 import { App } from "../../bindings/gui";
 import closeIcon from "../assets/close.svg";
+import repairIcon from "../assets/repair.svg";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
 
@@ -35,6 +36,23 @@ setDefaultPath();
 
 function removePath(index: number) {
   paths.splice(index, 1);
+}
+
+function repairBotpack(index: number) {
+  const id = toast.loading("Re-downloading botpack...");
+
+  // @ts-ignore
+  App.RepairBotpack(paths[index].repo, paths[index].installPath)
+    .then((tagName) => {
+      paths[index].tagName = tagName;
+      toast.success("Botpack download successfully!", { id });
+    })
+    .catch((err) => {
+      toast.error(`Failed to download botpack: ${err}`, {
+        duration: 10000,
+        id,
+      });
+    });
 }
 
 function openAddBotpackModal() {
@@ -145,7 +163,14 @@ function confirmAddBotpack() {
     {#each paths as path, i}
       <div class="path">
         <pre>{path.repo ? `${path.repo} @ ${path.installPath}` : path.installPath}</pre>
-        <div><Switch bind:checked={path.visible} /></div>
+        {#if path.repo}
+          <button class="no-left-margin repair" onclick={() => repairBotpack(i)}>
+            <img src={repairIcon} alt="repair" />
+          </button>
+          <div><Switch bind:checked={path.visible} /></div>
+        {:else}
+          <div class="no-left-margin"><Switch bind:checked={path.visible} /></div>
+        {/if}
         <button class="close" onclick={() => removePath(i)}>
           <img src={closeIcon} alt="X" />
         </button>
@@ -204,7 +229,7 @@ function confirmAddBotpack() {
     gap: 1rem;
     justify-content: space-between;
   }
-  .path div {
+  .path .no-left-margin {
     margin-left: auto;
   }
   .path pre {
@@ -232,5 +257,8 @@ function confirmAddBotpack() {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+  .repair {
+    color: var(--foreground);
   }
 </style>

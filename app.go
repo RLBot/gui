@@ -89,6 +89,15 @@ func (a *App) DownloadBotpack(repo string, installPath string) (string, error) {
 	return latest_release.TagName, nil
 }
 
+func (a *App) RepairBotpack(repo string, installPath string) (string, error) {
+	err := os.RemoveAll(installPath)
+	if err != nil {
+		return "", err
+	}
+
+	return a.DownloadBotpack(repo, installPath)
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	ip := os.Getenv("RLBOT_SERVER_IP")
