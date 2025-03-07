@@ -68,6 +68,24 @@ function addFolder() {
   });
 }
 
+function addFile() {
+  App.PickTomlFile().then((result) => {
+    if (result) {
+      if (paths.some((x) => x.installPath === result)) {
+        toast.error("Path already added");
+        return;
+      }
+
+      paths.push({
+        installPath: result,
+        repo: null,
+        tagName: null,
+        visible: true,
+      });
+    }
+  });
+}
+
 function confirmAddBotpack() {
   if (!installPath) {
     toast.error("Install path cannot be blank");
@@ -120,14 +138,14 @@ function confirmAddBotpack() {
   <div class="paths">
     <div class="button-row">
       <button onclick={addFolder}>Add folder</button>
-      <button onclick={alert.bind(null, "TODO: not implemented yet")}>Add File</button>
+      <button onclick={addFile}>Add File</button>
       <button onclick={openAddBotpackModal}>Add Botpack</button>
     </div>
 
     {#each paths as path, i}
       <div class="path">
-        <Switch bind:checked={path.visible} />
         <pre>{path.repo ? `${path.repo} @ ${path.installPath}` : path.installPath}</pre>
+        <div><Switch bind:checked={path.visible} /></div>
         <button class="close" onclick={() => removePath(i)}>
           <img src={closeIcon} alt="X" />
         </button>
@@ -185,6 +203,9 @@ function confirmAddBotpack() {
     align-items: center;
     gap: 1rem;
     justify-content: space-between;
+  }
+  .path div {
+    margin-left: auto;
   }
   .path pre {
     font-size: 1rem;

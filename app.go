@@ -257,6 +257,17 @@ func (a *App) PickFolder() string {
 	return path
 }
 
+func (a *App) PickTomlFile() string {
+	path, err := zenity.SelectFile(zenity.FileFilter{
+		Name: ".toml files",
+		Patterns: []string{"*.toml"},
+	})
+	if err != nil {
+		println("ERR: File picker failed")
+	}
+	return path
+}
+
 func (a *App) ShowPathInExplorer(path string) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
