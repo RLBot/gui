@@ -3,6 +3,7 @@ import toast from "svelte-5-french-toast";
 import { App } from "../../bindings/gui";
 import closeIcon from "../assets/close.svg";
 import Modal from "./Modal.svelte";
+import Switch from "./Switch.svelte";
 
 const OFFICIAL_BOTPACK_REPO = "VirxEC/botpack-test";
 
@@ -15,6 +16,7 @@ let {
     tagName: string | null;
     repo: string | null;
     installPath: string;
+    visible: boolean;
   }[];
 } = $props();
 
@@ -56,7 +58,12 @@ function addFolder() {
         return;
       }
 
-      paths.push({ installPath: result, repo: null, tagName: null });
+      paths.push({
+        installPath: result,
+        repo: null,
+        tagName: null,
+        visible: true,
+      });
     }
   });
 }
@@ -97,7 +104,7 @@ function confirmAddBotpack() {
     .then((tagName) => {
       toast.success("Botpack downloaded successfully!", { id });
 
-      paths.push({ installPath, repo, tagName });
+      paths.push({ installPath, repo, tagName, visible: true });
       closeAddBotpackModal();
     })
     .catch((err) => {
@@ -119,6 +126,7 @@ function confirmAddBotpack() {
 
         {#each paths as path, i}
             <div class="path">
+                <Switch bind:checked={path.visible} />
                 <pre>{path.repo ? `${path.repo} @ ${path.installPath}` : path.installPath}</pre>
                 <button class="close" onclick={() => removePath(i)}>
                     <img src={closeIcon} alt="X" />

@@ -27,6 +27,7 @@ let paths: {
   tagName: string | null;
   repo: string | null;
   installPath: string;
+  visible: boolean;
 }[] = $state(
   JSON.parse(window.localStorage.getItem("BOT_SEARCH_PATHS") || "[]"),
 );
@@ -43,7 +44,9 @@ async function updateBots() {
   loadingPlayers = true;
   let internalUpdateTime = new Date();
   latestBotUpdateTime = internalUpdateTime;
-  const result = await App.GetBots(paths.map((x) => x.installPath));
+  const result = await App.GetBots(
+    paths.filter((x) => x.visible).map((x) => x.installPath),
+  );
   if (latestBotUpdateTime !== internalUpdateTime) {
     return; // if newer "search" already started, dont write old data
   }
@@ -220,7 +223,7 @@ function handleSearch(event: Event) {
     </div>
 </div>
 
-<PathsViewer bind:visible={showPathsViewer} bind:paths={paths} />
+<PathsViewer bind:visible={showPathsViewer} bind:paths />
 
 <style>
     .page {
