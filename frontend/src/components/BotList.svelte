@@ -218,6 +218,10 @@ function ShowSelectedBotFiles() {
   {/each}
 </div>
 
+{#if filteredItems.length === 0}
+  <span>No bots available for this category.</span>
+{/if}
+
 <Modal title={selectedBot ? selectedBot[1] : ""} bind:visible={showModal}>
 {#if selectedBot}
   <div class="modal-content">
@@ -256,6 +260,9 @@ function ShowSelectedBotFiles() {
 </Modal>
 
 <style>
+  span {
+    color: gray;
+  }
   .tag-buttons {
     display: flex;
     flex-direction: row;
