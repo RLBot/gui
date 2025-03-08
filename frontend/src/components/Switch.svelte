@@ -1,26 +1,27 @@
 <script>
-let { checked = $bindable() } = $props();
+let {
+  checked = $bindable(),
+  width = 48,
+  height = 28,
+  onchange = () => {},
+} = $props();
 </script>
 
-<label class="switch">
-  <input type="checkbox" bind:checked />
-  <span class="slider"></span>
+<label class="switch" style="width: {width}px; height: {height}px;">
+  <input type="checkbox" bind:checked onchange={() => onchange()}/>
+  <span class="slider" style="border-radius: {height / 2}px;"></span>
 </label>
 
 <style>
   .switch {
     position: relative;
     display: inline-block;
-    width: 48px;
-    height: 28px;
   }
-  
   .switch input {
     opacity: 0;
     width: 0;
     height: 0;
   }
-  
   .slider {
     position: absolute;
     cursor: pointer;
@@ -29,31 +30,27 @@ let { checked = $bindable() } = $props();
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: 0.4s;
+    transition: 0.1s;
     border-radius: 34px;
   }
-  
   .slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
+    height: calc(100% - 8px);
+    width: calc(50% - 4px);
     left: 4px;
     bottom: 4px;
     background-color: white;
     transition: 0.1s;
     border-radius: 50%;
   }
-  
   input:checked + .slider {
     background-color: #2196f3;
   }
-  
   input:checked + .slider {
     box-shadow: 0 0 1px #2196f3;
   }
-  
   input:checked + .slider:before {
-    transform: translateX(20px);
+    transform: translateX(100%);
   }
 </style>

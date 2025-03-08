@@ -10,21 +10,26 @@ import { flip } from "svelte/animate";
 import { App, BotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
-import type { DraggablePlayer } from "../index";
+import type { DraggablePlayer, ToggleScript } from "../index";
 import Modal from "./Modal.svelte";
+import Switch from "./Switch.svelte";
 
 let {
-  items = [],
+  bots = [],
+  scripts = [],
   showHuman = $bindable(true),
   searchQuery = "",
   selectedTeam = null,
+  enabledScripts = $bindable({}),
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
 }: {
-  items: DraggablePlayer[];
+  bots: DraggablePlayer[];
+  scripts: ToggleScript[];
   showHuman: boolean;
   searchQuery: string;
   selectedTeam: "blue" | "orange" | null;
+  enabledScripts: { [key: number]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
 } = $props();
@@ -44,20 +49,58 @@ const categories = [
   ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
 ];
 
-let filteredItems: DraggablePlayer[] = $state([]);
 let showModal = $state(false);
 let selectedBot: [BotInfo, string, string] | null = $state(null);
 
+let filteredBots: DraggablePlayer[] = $state([]);
 $effect(() => {
-  filteredItems = filterBots(selectedTags, showHuman, searchQuery);
+  filteredBots = filterBots(selectedTags, showHuman, searchQuery);
 });
+
+let filteredScripts: ToggleScript[] = $state([]);
+$effect(() => {
+  filteredScripts = filterScripts(selectedTags, searchQuery);
+});
+
+function filterScripts(filterTags: (string | null)[], searchQuery: string) {
+  if (filterTags[1]) {
+    return [];
+  }
+
+  let filtered = scripts;
+
+  if (filterTags[0]) {
+    filtered = filtered.filter((script) => {
+      switch (filterTags[0]) {
+        case categories[1][0]:
+          return !script.tags.some((tag) =>
+            [...extraModeTags, "memebot"].includes(tag),
+          );
+        case categories[1][1]:
+          return script.tags.some((tag) => extraModeTags.includes(tag));
+        case categories[1][2]:
+          return true;
+        default:
+          return true;
+      }
+    });
+  }
+
+  if (searchQuery) {
+    filtered = filtered.filter((script) =>
+      script.displayName.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }
+
+  return filtered;
+}
 
 function filterBots(
   filterTags: (string | null)[],
   showHuman: boolean,
   searchQuery: string,
 ) {
-  let filtered = items.slice(1);
+  let filtered = bots.slice(1);
 
   if (filterTags[0]) {
     filtered = filtered.filter((bot) => {
@@ -92,7 +135,7 @@ function filterBots(
   }
 
   if (showHuman) {
-    filtered = [items[0], ...filtered];
+    filtered = [bots[0], ...filtered];
   }
 
   if (searchQuery) {
@@ -117,23 +160,23 @@ function handleDndConsider(e: any) {
   const { trigger, id } = e.detail.info;
   if (trigger === TRIGGERS.DRAG_STARTED) {
     const newId = `${id}-${Math.round(Math.random() * 100000)}`;
-    const idx = filteredItems.findIndex((item) => item.id === id);
+    const idx = filteredBots.findIndex((item) => item.id === id);
     e.detail.items = e.detail.items.filter(
       (item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME],
     );
-    e.detail.items.splice(idx, 0, { ...filteredItems[idx], id: newId });
-    filteredItems = e.detail.items;
+    e.detail.items.splice(idx, 0, { ...filteredBots[idx], id: newId });
+    filteredBots = e.detail.items;
   }
 }
 function handleDndFinalize(e: any) {
-  filteredItems = e.detail.items;
+  filteredBots = e.detail.items;
 }
 
 function handleBotClick(bot: DraggablePlayer) {
   const newId = `${bot.id}-${Math.round(Math.random() * 100000)}`;
-  const idx = filteredItems.findIndex((item) => item.id === bot.id);
+  const idx = filteredBots.findIndex((item) => item.id === bot.id);
   //@ts-ignore
-  filteredItems.splice(idx, 1, { ...filteredItems[idx], id: newId });
+  filteredBots.splice(idx, 1, { ...filteredBots[idx], id: newId });
 
   if (selectedTeam === "blue") {
     bluePlayers = [bot, ...bluePlayers];
@@ -142,11 +185,20 @@ function handleBotClick(bot: DraggablePlayer) {
   }
 }
 
-function handleInfoClick(bot: DraggablePlayer) {
+function toggleScript(id: number) {
+  enabledScripts[id] = !enabledScripts[id];
+}
+
+function handleBotInfoClick(bot: DraggablePlayer) {
   if (bot.player instanceof BotInfo) {
     selectedBot = [bot.player, bot.displayName, bot.icon];
     showModal = true;
   }
+}
+
+function handleScriptInfoClick(script: ToggleScript) {
+  selectedBot = [script.config, script.displayName, script.icon];
+  showModal = true;
 }
 
 function OpenSelectedBotSource() {
@@ -188,7 +240,7 @@ function ShowSelectedBotFiles() {
 <div
   class="bots"
   use:dndzone={{
-    items: filteredItems,
+    items: filteredBots,
     flipDurationMs,
     centreDraggedOnCursor: true,
     dropTargetStyle: {},
@@ -199,7 +251,7 @@ function ShowSelectedBotFiles() {
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
-  {#each filteredItems as bot (bot.id)}
+  {#each filteredBots as bot (bot.id)}
     <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => handleBotClick(bot)}>
       <img src={bot.icon || defaultIcon} alt="icon" />
       <p>{bot.displayName}</p>
@@ -207,7 +259,7 @@ function ShowSelectedBotFiles() {
         <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
       {/if}
       {#if bot.player && bot.player instanceof BotInfo}
-        <button class="info-button" onclick={(e) => {e.stopPropagation();handleInfoClick(bot)}}>
+        <button class="info-button" onclick={(e) => {e.stopPropagation();handleBotInfoClick(bot)}}>
           <img src={infoIcon} alt="i">
         </button>
       {:else}
@@ -218,9 +270,37 @@ function ShowSelectedBotFiles() {
   {/each}
 </div>
 
-{#if filteredItems.length === 0}
+{#if filteredBots.length === 0}
   <span>No bots available for this category.</span>
 {/if}
+
+
+{#if filteredScripts.length !== 0}
+  <p id="scripts-header">Scripts</p>
+{/if}
+
+<div class="bots">
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  {#each filteredScripts as script (script.id)}
+    <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
+      <Switch
+        checked={enabledScripts[script.id]}
+        width={36}
+        height={22}
+        onchange={() => toggleScript(script.id)}
+      />
+      <img src={script.icon || defaultIcon} alt="icon" />
+      <p>{script.displayName}</p>
+      {#if script.uniquePathSegment}
+        <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
+      {/if}
+      <button class="info-button" onclick={(e) => {e.stopPropagation();handleScriptInfoClick(script)}}>
+        <img src={infoIcon} alt="i">
+      </button>
+    </div>
+  {/each}
+</div>
 
 <Modal title={selectedBot ? selectedBot[1] : ""} bind:visible={showModal}>
 {#if selectedBot}
@@ -385,5 +465,10 @@ function ShowSelectedBotFiles() {
   #toml-path {
     font-size: 0.8rem;
     color: grey;
+  }
+  #scripts-header {
+    margin-top: 12px;
+    margin-bottom: 5px;
+    font-weight: bold;
   }
 </style>

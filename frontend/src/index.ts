@@ -24,6 +24,15 @@ export interface DraggablePlayer {
   uniquePathSegment?: string;
 }
 
+export interface ToggleScript {
+  id: number;
+  displayName: string;
+  icon: string;
+  config: BotInfo;
+  tags: string[];
+  uniquePathSegment?: string;
+}
+
 export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
   let sort = "";
 

@@ -17,7 +17,11 @@ import MatchSettings from "../components/MatchSettings/Main.svelte";
 import PathsViewer from "../components/PathsViewer.svelte";
 // @ts-ignore
 import Teams from "../components/Teams/Main.svelte";
-import { type DraggablePlayer, draggablePlayerToPlayerJs } from "../index";
+import {
+  type DraggablePlayer,
+  draggablePlayerToPlayerJs,
+  type ToggleScript,
+} from "../index";
 import { mapStore } from "../settings";
 
 const backgroundImage =
@@ -33,14 +37,19 @@ let paths: {
 );
 
 let launcherOptionsVisible = $state(false);
-let players: DraggablePlayer[] = $state([...BASE_PLAYERS]);
 let selectedTeam = $state(null);
-
-let loadingPlayers = $state(false);
-let latestBotUpdateTime = null;
 let showPathsViewer = $state(false);
 
-function distinguishDuplicateBots(pool: BotInfo[]): [BotInfo, string?][] {
+let latestBotUpdateTime = null;
+let loadingPlayers = $state(false);
+let players: DraggablePlayer[] = $state([...BASE_PLAYERS]);
+
+let latestScriptUpdateTime = null;
+let loadingScripts = $state(false);
+let scripts: ToggleScript[] = $state([]);
+let enabledScripts: { [key: number]: boolean } = $state({});
+
+function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   const uniqueNames = [
     ...new Set(
       pool.filter((bot) => bot.tomlPath).map((bot) => bot.config.settings.name),
@@ -84,9 +93,8 @@ async function updateBots() {
   if (latestBotUpdateTime !== internalUpdateTime) {
     return; // if newer "search" already started, dont write old data
   }
-  players = distinguishDuplicateBots(result).map(([x, uniquePathSegment]) => {
-    // @ts-ignore
-    const n: typeof DraggablePlayer = {
+  players = distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
+    return {
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
       player: new BotInfo(x),
@@ -94,16 +102,53 @@ async function updateBots() {
       tags: x.config.details.tags,
       uniquePathSegment,
     };
-    return n;
   });
   players = [...BASE_PLAYERS, ...players];
   loadingPlayers = false;
   console.log("Loaded bots:", result);
 }
 
+async function updateScripts() {
+  loadingScripts = true;
+  let internalUpdateTime = new Date();
+  latestScriptUpdateTime = internalUpdateTime;
+  const result = await App.GetScripts(
+    paths.filter((x) => x.visible).map((x) => x.installPath),
+  );
+  if (latestScriptUpdateTime !== internalUpdateTime) {
+    return; // if newer "search" already started, dont write old data
+  }
+  scripts = distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
+    return {
+      id: Math.random(),
+      displayName: x.config.settings.name,
+      icon: x.config.settings.logoFile,
+      config: x,
+      tags: x.config.details.tags,
+      uniquePathSegment,
+    };
+  });
+
+  for (const script of scripts) {
+    if (enabledScripts[script.id] === undefined) {
+      enabledScripts[script.id] = false;
+    }
+  }
+
+  for (const id in Object.keys(enabledScripts)) {
+    if (!scripts.some((script) => script.id === Number(id))) {
+      delete enabledScripts[id];
+    }
+  }
+
+  loadingScripts = false;
+  console.log("Loaded scripts:", result);
+}
+
 $effect(() => {
-  window.localStorage.setItem("BOT_SEARCH_PATHS", JSON.stringify(paths));
+  localStorage.setItem("BOT_SEARCH_PATHS", JSON.stringify(paths));
   updateBots();
+  updateScripts();
 });
 
 let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
@@ -157,6 +202,7 @@ async function onMatchStart(randomizeMap: boolean) {
   const options: StartMatchOptions = {
     map: $mapStore,
     gameMode: mode,
+    scripts: scripts.filter((x) => enabledScripts[x.id]).map((x) => x.config),
     bluePlayers: bluePlayers.map((x: DraggablePlayer) => {
       // @ts-ignore
       return draggablePlayerToPlayerJs(x);
@@ -223,7 +269,7 @@ function handleSearch(event: Event) {
       <div class="dropdown">
         <button onclick={() => { showPathsViewer = true }}>Add/Remove</button>
       </div>
-      {#if loadingPlayers}
+      {#if loadingPlayers || loadingScripts}
         <h3>Searching...</h3>
       {:else}
         <button class="reloadButton" onclick={updateBots}
@@ -234,10 +280,12 @@ function handleSearch(event: Event) {
       <input type="text" class="botSearch" placeholder="Search..." oninput={handleSearch}/>
     </header>
     <BotList
+      bind:enabledScripts
       bind:bluePlayers
       bind:orangePlayers
       bind:showHuman
-      items={players}
+      bots={players}
+      scripts={scripts}
       searchQuery={searchQuery}
       selectedTeam={selectedTeam}
     />

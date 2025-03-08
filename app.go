@@ -157,6 +157,7 @@ type ExtraOptions struct {
 type StartMatchOptions struct {
 	Map             string                `json:"map"`
 	GameMode        string                `json:"gameMode"`
+	Scripts         []BotInfo             `json:"scripts"`
 	BluePlayers     []PlayerJs            `json:"bluePlayers"`
 	OrangePlayers   []PlayerJs            `json:"orangePlayers"`
 	MutatorSettings flat.MutatorSettingsT `json:"mutatorSettings"`
@@ -218,6 +219,11 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 
 	for i, playerInfo := range options.OrangePlayers {
 		playerConfigs[i+len(options.BluePlayers)] = playerInfo.ToPlayer().ToPlayerConfig(1)
+	}
+
+	scriptConfigs := make([]*flat.ScriptConfigurationT, len(options.Scripts))
+	for i, info := range options.Scripts {
+		scriptConfigs[i] = info.ToScriptConfig()
 	}
 
 	match := flat.MatchConfigurationT{
