@@ -35,7 +35,6 @@ let {
 } = $props();
 const flipDurationMs = 100;
 
-let selectedTags: (string | null)[] = $state([null, null]);
 const extraModeTags = [
   "hoops",
   "dropshot",
@@ -44,18 +43,37 @@ const extraModeTags = [
   "spike-rush",
   "heatseaker",
 ];
+
+let selectedTags: (string | null)[] = $state([null, null]);
 const categories = [
   ["All"],
   ["Standard", "Extra Modes", "Special bots/scripts"],
   ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
 ];
 
+let selectedSubTag: number | null = $state(null);
+const subCategories: { [x: string]: string[] } = {
+  "Extra Modes": [
+    "Hoops",
+    "Dropshot",
+    "Snow Day",
+    "Rumble",
+    "Spike Rush",
+    "Heatseeker",
+  ],
+};
+
 let showModal = $state(false);
 let selectedBot: [BotInfo, string, string] | null = $state(null);
 
 let filteredBots: DraggablePlayer[] = $state([]);
 $effect(() => {
-  filteredBots = filterBots(selectedTags, showHuman, searchQuery);
+  filteredBots = filterBots(
+    selectedTags,
+    selectedSubTag,
+    showHuman,
+    searchQuery,
+  );
 });
 
 let filteredScripts: ToggleScript[] = $state([]);
@@ -98,6 +116,7 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 
 function filterBots(
   filterTags: (string | null)[],
+  selectedSubTag: number | null,
   showHuman: boolean,
   searchQuery: string,
 ) {
@@ -135,6 +154,12 @@ function filterBots(
     });
   }
 
+  if (selectedSubTag !== null) {
+    filtered = filtered.filter((bot) =>
+      bot.tags.includes(extraModeTags[selectedSubTag]),
+    );
+  }
+
   if (showHuman) {
     filtered = [bots[0], ...filtered];
   }
@@ -149,12 +174,20 @@ function filterBots(
 }
 
 function handleTagClick(tag: string, groupIndex: number) {
+  if (groupIndex !== 2) {
+    selectedSubTag = null;
+  }
+
   if (groupIndex === 0) {
     selectedTags = [null, null];
   } else {
     selectedTags[groupIndex - 1] =
       selectedTags[groupIndex - 1] === tag ? null : tag;
   }
+}
+
+function handleSubTagClick(tag: number) {
+  selectedSubTag = selectedSubTag === tag ? null : tag;
 }
 
 function handleDndConsider(e: any) {
@@ -237,6 +270,21 @@ function ShowSelectedBotFiles() {
     </div>
   {/each}
 </div>
+
+{#if selectedTags[0] && subCategories[selectedTags[0]]}
+<div class="tag-buttons">
+  <div class="tag-group">
+    {#each subCategories[selectedTags[0]] as tag, i}
+      <button
+        onclick={() => handleSubTagClick(i)}
+        class:selected={selectedSubTag === i}
+      >
+        {tag}
+      </button>
+    {/each}
+  </div>
+</div>
+{/if}
 
 <div
   class="bots"
