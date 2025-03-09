@@ -3,8 +3,15 @@ import Home from "./pages/Home.svelte";
 import RocketHost from "./pages/RocketHost.svelte";
 import logo from "./assets/rlbot_logo.svg";
 import { Toaster } from "svelte-5-french-toast";
+import Events from "./components/Events.svelte";
+import AlarmIcon from "./assets/alarm.svg";
+import CalendarPlusIcon from "./assets/calendar-plus.svg";
 
 let activePage = $state("home");
+
+let eventsNow = $state(0);
+let eventsFuture = $state(0);
+let eventsVisible = $state(false);
 </script>
 
 <Toaster />
@@ -29,9 +36,21 @@ let activePage = $state("home");
       {/if}
     </div>
     <div class="navbuttons">
-      <button onclick={alert.bind(null, "TODO: not implemented yet")}
-        >Events</button
-      >
+      <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => { eventsVisible = true; }}>
+        Events
+
+        {#if eventsNow > 0}
+        <span>
+          <img src={AlarmIcon} alt="alarm" />
+          {eventsNow}
+        </span>
+        {:else if eventsFuture > 0}
+        <span>
+          <img src={CalendarPlusIcon} alt="calendar" />
+          {eventsFuture}
+        </span>
+        {/if}
+      </button>
       <button onclick={alert.bind(null, "TODO: not implemented yet")}
         >Story Mode</button
       >
@@ -66,6 +85,8 @@ let activePage = $state("home");
   </div>
 </main>
 
+<Events bind:visible={eventsVisible} bind:eventsNow bind:eventsFuture />
+
 <style>
   main {
     display: flex;
@@ -98,8 +119,16 @@ let activePage = $state("home");
     margin-right: 0.2rem;
     padding: 0.3rem;
   }
+  .navbuttons {
+    vertical-align: middle;
+  }
   .navbuttons > * {
     margin: 0px 0.25rem;
+  }
+  .navbuttons > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .navbar .dropmenu {
     padding: 0.2rem;
@@ -127,5 +156,23 @@ let activePage = $state("home");
     z-index: -99999;
     visibility: hidden;
     display: none;
+  }
+  #events {
+    padding: 0.3rem 0.5rem;
+  }
+  #events span {
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    background-color: red;
+    color: white;
+    padding: 0.1rem 0.3rem 0 0.3rem;
+    border-radius: 0.2rem;
+  }
+  #events img {
+    filter: invert() brightness(90%);
+    width: 20px;
+    vertical-align: middle;
+    margin-bottom: 4px;
   }
 </style>
