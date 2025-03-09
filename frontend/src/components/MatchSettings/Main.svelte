@@ -200,6 +200,13 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
     />
     <label for="instantStart"> Instant Start </label>
     <br />
+    <input
+      type="checkbox"
+      id="freeplay"
+      bind:checked={extraOptions.freeplay}
+    />
+    <label for="freeplay"> Freeplay </label>
+    <br />
   </div>
   <div class="bottomButtons">
     <p>Settings are saved automatically</p>

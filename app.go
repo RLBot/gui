@@ -146,6 +146,7 @@ type Result struct {
 }
 
 type ExtraOptions struct {
+	Freeplay              bool `json:"freeplay"`
 	EnableRendering       bool `json:"enableRendering"`
 	EnableStateSetting    bool `json:"enableStateSetting"`
 	InstantStart          bool `json:"instantStart"`
@@ -230,8 +231,10 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 		AutoStartBots:         true,
 		GameMapUpk:            options.Map,
 		PlayerConfigurations:  playerConfigs,
+		ScriptConfigurations:  scriptConfigs,
 		GameMode:              gameMode,
 		Mutators:              &options.MutatorSettings,
+		Freeplay:              options.ExtraOptions.Freeplay,
 		EnableRendering:       options.ExtraOptions.EnableRendering,
 		EnableStateSetting:    options.ExtraOptions.EnableStateSetting,
 		InstantStart:          options.ExtraOptions.InstantStart,
