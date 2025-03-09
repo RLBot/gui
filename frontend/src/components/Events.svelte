@@ -101,9 +101,9 @@ function formatFromNow(milliseconds: number) {
 }
 
 function fetchEvents() {
-  const api_key = "AIzaSyBQ40UqlMPexzWxTNd7EYtTrkoFF_DqpqM";
-  const to_check = new Date().toISOString();
-  const url = `https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin=${to_check}&key=${api_key}`;
+  const apiKey = "AIzaSyBQ40UqlMPexzWxTNd7EYtTrkoFF_DqpqM";
+  const timeMin = new Date().toISOString();
+  const url = `https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin=${timeMin}&key=${apiKey}`;
 
   fetch(url).then((response) => {
     response.json().then((data) => {
