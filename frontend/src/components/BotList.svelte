@@ -40,6 +40,7 @@ const extraModeTags = [
   "hoops",
   "dropshot",
   "snow-day",
+  "rumble",
   "spike-rush",
   "heatseaker",
 ];
