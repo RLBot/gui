@@ -152,10 +152,6 @@ function fetchEvents() {
         // @ts-ignore
         return new Date(a.remainingTimeInMs) - new Date(b.remainingTimeInMs);
       });
-
-      for (let i = 0; i < 10; i++) {
-        events.push(events[0]);
-      }
     });
   });
 }
