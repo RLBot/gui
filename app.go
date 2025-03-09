@@ -48,22 +48,9 @@ func (a *App) GetDefaultPath() string {
 }
 
 func (a *App) DownloadBotpack(repo string, installPath string) (string, error) {
-	var latest_release *GhRelease
-
-	for _, release := range a.latest_release_json {
-		if release.repo == repo {
-			latest_release = &release.content
-			break
-		}
-	}
-
-	if latest_release == nil {
-		content, err := a.GetLatestReleaseData(repo)
-		if err != nil {
-			return "", err
-		}
-
-		latest_release = content
+	latest_release, err := a.GetLatestReleaseData(repo)
+	if err != nil {
+		return "", err
 	}
 
 	var file_name string
@@ -81,7 +68,7 @@ func (a *App) DownloadBotpack(repo string, installPath string) (string, error) {
 		}
 	}
 
-	err := DownloadExtractArchive(download_url, installPath)
+	err = DownloadExtractArchive(download_url, installPath)
 	if err != nil {
 		return "", err
 	}
@@ -113,6 +100,15 @@ func NewApp() *App {
 	rlbot_address := ip + ":" + port
 
 	var latest_release_json []RawReleaseInfo
+	// read data.json into latest_release_json
+	// contents, err := os.ReadFile("data.json")
+	// if err == nil {
+	// 	gh_release, err := ParseReleaseData(contents)
+	// 	if err == nil {
+	// 		latest_release_json = append(latest_release_json, RawReleaseInfo{"VirxEC/botpack-test", gh_release})
+	// 		println("Loaded data.json")
+	// 	}
+	// }
 
 	return &App{
 		latest_release_json,

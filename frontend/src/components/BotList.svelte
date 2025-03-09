@@ -53,7 +53,7 @@ const categories = [
 
 let selectedSubTag: number | null = $state(null);
 const subCategories: { [x: string]: string[] } = {
-  "Extra Modes": [
+  [categories[1][1]]: [
     "Hoops",
     "Dropshot",
     "Snow Day",

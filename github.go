@@ -4,10 +4,12 @@ import (
 	"archive/tar"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/ulikunitz/xz"
@@ -162,6 +164,12 @@ func DownloadExtractArchive(url string, dest string) error {
 }
 
 func (a *App) GetLatestReleaseData(repo string) (*GhRelease, error) {
+	for _, release := range a.latest_release_json {
+		if release.repo == repo {
+			return &release.content, nil
+		}
+	}
+
 	latest_release_url := "https://api.github.com/repos/" + repo + "/releases/latest"
 
 	resp, err := http.Get(latest_release_url)
@@ -185,9 +193,68 @@ func (a *App) GetLatestReleaseData(repo string) (*GhRelease, error) {
 	return &a.latest_release_json[len(a.latest_release_json)-1].content, nil
 }
 
-// func (a *App) CheckForNewRelease(tag string) (bool, error) {
-// 	//go:build !production
-// 	return false, nil
+func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) (string, error) {
+	latest_release, err := a.GetLatestReleaseData(repo)
+	if err != nil {
+		return "", err
+	}
 
-// 	return false, nil
-// }
+	var file_name string
+	if runtime.GOOS == "windows" {
+		file_name = "patch_x86_64-windows.bobdiff.xz"
+	} else {
+		file_name = "patch_x86_64-linux.bobdiff.xz"
+	}
+
+	var download_url string
+	for _, asset := range latest_release.Assets {
+		if asset.Name == file_name {
+			download_url = asset.BrowserDownloadURL
+			break
+		}
+	}
+
+	resp, err := http.Get(download_url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	xzr, err := xz.NewReader(bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+
+	bytes, err := io.ReadAll(xzr)
+	if err != nil {
+		return "", err
+	}
+
+	files, err := os.ReadDir(installPath)
+	if err != nil {
+		return "", err
+	}
+
+	var dir string
+	for _, file := range files {
+		if file.IsDir() {
+			dir = file.Name()
+			break
+		}
+	}
+	if dir == "" {
+		return "", errors.New("no directory found")
+	}
+
+	err = diff_apply(filepath.Join(installPath, dir), bytes)
+	if err != nil {
+		return "", err
+	}
+
+	return latest_release.TagName, nil
+}

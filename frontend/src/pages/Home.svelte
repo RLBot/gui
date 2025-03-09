@@ -23,6 +23,7 @@ import {
   type ToggleScript,
 } from "../index";
 import { mapStore } from "../settings";
+import BotpackNotif from "../components/BotpackNotif.svelte";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -35,6 +36,67 @@ let paths: {
 }[] = $state(
   JSON.parse(window.localStorage.getItem("BOT_SEARCH_PATHS") || "[]"),
 );
+
+let botpackNotifIds: { [repo: string]: string } = {};
+
+function updateBotpack(repoName: string) {
+  const notifId = botpackNotifIds[repoName];
+  if (notifId) {
+    toast.dismiss(notifId);
+  }
+
+  const details = paths.find((x) => x.repo === repoName);
+  if (details?.repo && details.tagName) {
+    const tId = toast.loading(`Updating ${repoName}...`, {
+      position: "bottom-right",
+    });
+
+    App.UpdateBotpack(details.repo, details.installPath, details.tagName)
+      .then((newTagName) => {
+        details.tagName = newTagName;
+        toast.success(`${repoName} updated successfully`, {
+          id: tId,
+          position: "bottom-right",
+          duration: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error(`Failed to update ${repoName}: ${error}`, {
+          id: tId,
+          position: "bottom-right",
+          duration: 10000,
+        });
+      });
+  }
+}
+
+async function CheckForBotpackUpdates() {
+  for (const path of paths) {
+    if (path.visible && path.repo && path.tagName) {
+      const repoName = path.repo;
+
+      App.CheckForNewRelease(repoName, path.tagName).then((release) => {
+        if (release) {
+          // @ts-ignore
+          const tId = toast(BotpackNotif, {
+            props: {
+              repoName,
+              updateBotpack,
+            },
+            style: "max-width: 500px",
+            position: "bottom-right",
+            duration: 10000,
+          });
+
+          botpackNotifIds[repoName] = tId;
+        }
+      });
+    }
+  }
+}
+
+CheckForBotpackUpdates();
 
 let launcherOptionsVisible = $state(false);
 let selectedTeam = $state(null);
