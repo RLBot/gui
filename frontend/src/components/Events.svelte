@@ -68,8 +68,8 @@ function dateTimeCheck(today: Date, event: any) {
     }
   }
 
-  const time_untils = newDate.getTime() - today.getTime();
-  return [names, newDate, time_untils];
+  const remainingTimeInMs = newDate.getTime() - today.getTime();
+  return [names, newDate, remainingTimeInMs];
 }
 
 function formatFromNow(milliseconds: number) {
@@ -162,7 +162,7 @@ fetchEvents();
 <Modal title="Community Events" bind:visible>
   <!-- svelte-ignore a11y_invalid_attribute -->
   <div id="community-events">
-    {#if events.length === 0 }
+    {#if events.length === 0}
     <p>There are no community events at this time.</p>
     {:else}
     {#each events as event}
@@ -172,7 +172,11 @@ fetchEvents();
       {/if}
       <div>
         <h2>{ event.name }</h2>
-        {#if event.remainingTimeInMs > 0}
+        {#if !event.timeUntil}
+        <p>
+          <img src={AlarmIcon} alt="alarm" /> Starting now!
+        </p>
+        {:else if event.remainingTimeInMs > 0}
         <p>
           <img src={CalendarPlusIcon} alt="calendar" /> Starts in <b>{ event.timeUntil }</b> ({ event.time })
         </p>
