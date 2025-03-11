@@ -100,59 +100,56 @@ function formatFromNow(milliseconds: number) {
   return format;
 }
 
-function fetchEvents() {
+async function fetchEvents() {
   const apiKey = "AIzaSyBQ40UqlMPexzWxTNd7EYtTrkoFF_DqpqM";
   const timeMin = new Date().toISOString();
   const url = `https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin=${timeMin}&key=${apiKey}`;
 
-  fetch(url).then((response) => {
-    response.json().then((data) => {
-      events = [];
+  const response = await fetch(url);
+  const data = await response.json();
 
-      // compute dates and times
-      for (const event of data.items) {
-        const [names, newDate, remainingTimeInMs] = dateTimeCheck(
-          new Date(),
-          event,
-        );
+  events = [];
 
-        if (remainingTimeInMs > 0) eventsFuture += 1;
-        else eventsNow += 1;
+  // compute dates and times
+  for (const event of data.items) {
+    const [names, newDate, remainingTimeInMs] = dateTimeCheck(
+      new Date(),
+      event,
+    );
 
-        // time_untils is the time until the event in milliseconds
-        // convert this to something human readable, like "in 2 days"
-        const format = formatFromNow(Math.abs(remainingTimeInMs));
+    if (remainingTimeInMs > 0) eventsFuture += 1;
+    else eventsNow += 1;
 
-        const logoSplit = event.description
-          ? event.description.split("logo:")
-          : [];
-        const logo =
-          logoSplit.length > 1
-            ? logoSplit[1].replace("\n", "").split('href="')[1].split('"')[0]
-            : null;
+    // time_untils is the time until the event in milliseconds
+    // convert this to something human readable, like "in 2 days"
+    const format = formatFromNow(Math.abs(remainingTimeInMs));
 
-        const moreInfo =
-          logoSplit.length > 0 && logoSplit[0].includes('href="')
-            ? logoSplit[0].replace("\n", "").split('href="')[1].split('"')[0]
-            : event.description;
+    const logoSplit = event.description ? event.description.split("logo:") : [];
+    const logo =
+      logoSplit.length > 1
+        ? logoSplit[1].replace("\n", "").split('href="')[1].split('"')[0]
+        : null;
 
-        events.push({
-          name: names,
-          location: event.location,
-          time: newDate.toLocaleString(),
-          timeUntil: format,
-          remainingTimeInMs,
-          moreInfo,
-          logo,
-        });
-      }
+    const moreInfo =
+      logoSplit.length > 0 && logoSplit[0].includes('href="')
+        ? logoSplit[0].replace("\n", "").split('href="')[1].split('"')[0]
+        : event.description;
 
-      // sort community events by start time
-      events.sort((a, b) => {
-        // @ts-ignore
-        return new Date(a.remainingTimeInMs) - new Date(b.remainingTimeInMs);
-      });
+    events.push({
+      name: names,
+      location: event.location,
+      time: newDate.toLocaleString(),
+      timeUntil: format,
+      remainingTimeInMs,
+      moreInfo,
+      logo,
     });
+  }
+
+  // sort community events by start time
+  events.sort((a, b) => {
+    // @ts-ignore
+    return new Date(a.remainingTimeInMs) - new Date(b.remainingTimeInMs);
   });
 }
 
