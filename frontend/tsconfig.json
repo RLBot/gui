@@ -12,6 +12,7 @@
     "verbatimModuleSyntax": true,
     "allowJs": true,
     "checkJs": true,
+    "erasableSyntaxOnly": true,
     "outDir": "ts-dist" // shall never be written to
   },
   "include": ["src"]

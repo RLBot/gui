@@ -323,9 +323,8 @@ function ShowSelectedBotFiles() {
   <span>No bots available for this category.</span>
 {/if}
 
-
 {#if filteredScripts.length !== 0}
-  <p id="scripts-header">Scripts</p>
+  <h4 id="scripts-header">Scripts</h4>
 {/if}
 
 <div class="bots">
@@ -389,7 +388,7 @@ function ShowSelectedBotFiles() {
 </Modal>
 
 <style>
-  span {
+  .bots span {
     color: gray;
   }
   .tag-buttons {
