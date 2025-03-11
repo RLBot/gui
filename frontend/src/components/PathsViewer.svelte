@@ -26,10 +26,9 @@ let selectedBotpackType = $state("official");
 let customRepo = $state("");
 let installPath = $state("");
 
-function setDefaultPath() {
-  App.GetDefaultPath().then((result) => {
-    installPath = `${result}/RLBotPack`;
-  });
+async function setDefaultPath() {
+  const defaultPath = await App.GetDefaultPath();
+  installPath = `${defaultPath}/RLBotPack`;
 }
 
 setDefaultPath();
@@ -68,40 +67,38 @@ function closeAddBotpackModal() {
   setDefaultPath();
 }
 
-function addFolder() {
-  App.PickFolder().then((result) => {
-    if (result) {
-      if (paths.some((x) => x.installPath === result)) {
-        toast.error("Path already added");
-        return;
-      }
+function addInstallPath(installPath: string) {
+  if (paths.some((x) => x.installPath === installPath)) {
+    toast.error("Path already added");
+    return;
+  }
 
-      paths.push({
-        installPath: result,
-        repo: null,
-        tagName: null,
-        visible: true,
-      });
-    }
+  paths.push({
+    installPath,
+    visible: true,
+    tagName: null,
+    repo: null,
   });
 }
 
-function addFile() {
-  App.PickTomlFile().then((result) => {
-    if (result) {
-      if (paths.some((x) => x.installPath === result)) {
-        toast.error("Path already added");
-        return;
-      }
+async function addFolder() {
+  const result = await App.PickFolder();
 
-      paths.push({
-        installPath: result,
-        repo: null,
-        tagName: null,
-        visible: true,
-      });
-    }
-  });
+  if (!result) {
+    return;
+  }
+
+  addInstallPath(result);
+}
+
+async function addFile() {
+  const result = await App.PickTomlFile();
+
+  if (!result) {
+    return;
+  }
+
+  addInstallPath(result);
 }
 
 function confirmAddBotpack() {
