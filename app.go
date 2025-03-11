@@ -100,16 +100,6 @@ func NewApp() *App {
 	rlbot_address := ip + ":" + port
 
 	var latest_release_json []RawReleaseInfo
-	// read data.json into latest_release_json
-	// contents, err := os.ReadFile("data.json")
-	// if err == nil {
-	// 	gh_release, err := ParseReleaseData(contents)
-	// 	if err == nil {
-	// 		latest_release_json = append(latest_release_json, RawReleaseInfo{"VirxEC/botpack-test", gh_release})
-	// 		println("Loaded data.json")
-	// 	}
-	// }
-
 	return &App{
 		latest_release_json,
 		rlbot_address,
