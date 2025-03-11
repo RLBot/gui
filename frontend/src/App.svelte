@@ -119,9 +119,6 @@ let eventsVisible = $state(false);
     margin-right: 0.2rem;
     padding: 0.3rem;
   }
-  .navbuttons {
-    vertical-align: middle;
-  }
   .navbuttons > * {
     margin: 0px 0.25rem;
   }
