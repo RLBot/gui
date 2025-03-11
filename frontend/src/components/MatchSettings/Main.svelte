@@ -30,7 +30,7 @@ const existingMatchBehaviors: { [n: string]: number } = {
 };
 
 function cleanCase(toClean: string) {
-  const halfClean = toClean.replaceAll("_", " ").replace(" option", "");
+  const halfClean = toClean.replaceAll("_", " ");
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
 }
 
@@ -139,7 +139,7 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
           onchange={() => {selectedPreset = ""}}
         >
           {#each mutatorOptions[mutatorKey] as value, i}
-              <option value={i}>{value.replaceAll("_", " ")}</option>
+              <option value={i}>{value}</option>
           {/each}
         </select>
       </div>

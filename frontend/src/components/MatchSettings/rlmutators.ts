@@ -19,21 +19,17 @@ export const mutators: { [x: string]: string[] } = {
     "Unlimited",
   ],
   multi_ball: ["One", "Two", "Four", "Six"],
-  overtime_option: [
-    "Unlimited",
-    "Five Max First Score",
-    "Five Max Random Team",
-  ],
+  overtime: ["Unlimited", "Five Max First Score", "Five Max Random Team"],
   // This mutator does nothing
-  // series_length_option: [
+  // series_length: [
   //   "Unlimited",
   //   "Three Games",
   //   "Five Games",
   //   "Seven Games",
   // ],
-  game_speed_option: ["Default", "Slo Mo", "Time Warp"],
-  ball_max_speed_option: ["Default", "Slow", "Fast", "Super Fast"],
-  ball_type_option: [
+  game_speed: ["Default", "Slo Mo", "Time Warp"],
+  ball_max_speed: ["Default", "Slow", "Fast", "Super Fast"],
+  ball_type: [
     "Default",
     "Cube",
     "Puck",
@@ -44,7 +40,7 @@ export const mutators: { [x: string]: string[] } = {
     "Ekin",
     "Spooky Cube",
   ],
-  ball_weight_option: [
+  ball_weight: [
     "Default",
     "Light",
     "Heavy",
@@ -53,16 +49,16 @@ export const mutators: { [x: string]: string[] } = {
     "Beach Ball Curve",
     "Magnus FutBall",
   ],
-  ball_size_option: ["Default", "Small", "Medium", "Large", "Gigantic"],
-  ball_bounciness_option: ["Default", "Low", "High", "Super High", "Lowish"],
-  boost_amount_option: [
+  ball_size: ["Default", "Small", "Medium", "Large", "Gigantic"],
+  ball_bounciness: ["Default", "Low", "High", "Super High", "Lowish"],
+  boost_amount: [
     "Default",
     "Unlimited",
     "Slow Recharge",
     "Rapid Recharge",
     "None",
   ],
-  rumble_option: [
+  rumble: [
     "None",
     "Default",
     "Slow",
@@ -75,22 +71,22 @@ export const mutators: { [x: string]: string[] } = {
     "Tactical",
     "Batman Rumble",
   ],
-  boost_strength_option: ["1x", "1.5x", "2x", "5x", "10x"],
-  gravity_option: ["Default", "Low", "High", "Super High", "Reverse"],
-  demolish_option: [
+  boost_strength: ["1x", "1.5x", "2x", "5x", "10x"],
+  gravity: ["Default", "Low", "High", "Super High", "Reverse"],
+  demolish: [
     "Default",
     "Disabled",
     "Friendly Fire",
     "On Contact",
     "On Contact FF",
   ],
-  respawn_time_option: [
+  respawn_time: [
     "Three Seconds",
     "Two Seconds",
     "One Second",
     "Disable Goal Reset",
   ],
-  max_time_option: ["Default", "Eleven Minutes"],
-  game_event_option: ["Default", "Haunted", "Rugby"],
-  audio_option: ["Default", "Haunted"],
+  max_time: ["Default", "Eleven Minutes"],
+  game_event: ["Default", "Haunted", "Rugby"],
+  audio: ["Default", "Haunted"],
 };
