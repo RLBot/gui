@@ -20,7 +20,7 @@ import Teams from "../components/Teams/Main.svelte";
 import {
   type DraggablePlayer,
   draggablePlayerToPlayerJs,
-  type ToggleScript,
+  type ToggableScript,
 } from "../index";
 import { mapStore } from "../settings";
 import BotpackNotif from "../components/BotpackToast.svelte";
@@ -108,7 +108,7 @@ let players: DraggablePlayer[] = $state([...BASE_PLAYERS]);
 
 let latestScriptUpdateTime = null;
 let loadingScripts = $state(false);
-let scripts: ToggleScript[] = $state([]);
+let scripts: ToggableScript[] = $state([]);
 let enabledScripts: { [key: number]: boolean } = $state({});
 
 function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {

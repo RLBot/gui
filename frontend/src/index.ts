@@ -24,7 +24,7 @@ export interface DraggablePlayer {
   uniquePathSegment?: string;
 }
 
-export interface ToggleScript {
+export interface ToggableScript {
   id: number;
   displayName: string;
   icon: string;

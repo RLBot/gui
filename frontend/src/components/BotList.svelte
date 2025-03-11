@@ -10,7 +10,7 @@ import { flip } from "svelte/animate";
 import { App, BotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
-import type { DraggablePlayer, ToggleScript } from "../index";
+import type { DraggablePlayer, ToggableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
 
@@ -25,7 +25,7 @@ let {
   orangePlayers = $bindable(),
 }: {
   bots: DraggablePlayer[];
-  scripts: ToggleScript[];
+  scripts: ToggableScript[];
   showHuman: boolean;
   searchQuery: string;
   selectedTeam: "blue" | "orange" | null;
@@ -76,7 +76,7 @@ $effect(() => {
   );
 });
 
-let filteredScripts: ToggleScript[] = $state([]);
+let filteredScripts: ToggableScript[] = $state([]);
 $effect(() => {
   filteredScripts = filterScripts(selectedTags, searchQuery);
 });
@@ -219,7 +219,7 @@ function handleBotClick(bot: DraggablePlayer) {
   }
 }
 
-function toggleScript(id: number) {
+function ToggableScript(id: number) {
   enabledScripts[id] = !enabledScripts[id];
 }
 
@@ -230,7 +230,7 @@ function handleBotInfoClick(bot: DraggablePlayer) {
   }
 }
 
-function handleScriptInfoClick(script: ToggleScript) {
+function handleScriptInfoClick(script: ToggableScript) {
   selectedBot = [script.config, script.displayName, script.icon];
   showModal = true;
 }
@@ -331,12 +331,12 @@ function ShowSelectedBotFiles() {
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredScripts as script (script.id)}
-    <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
+    <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => ToggableScript(script.id)}>
       <Switch
         checked={enabledScripts[script.id]}
         width={36}
         height={22}
-        onchange={() => toggleScript(script.id)}
+        onchange={() => ToggableScript(script.id)}
       />
       <img src={script.icon || defaultIcon} alt="icon" />
       <p>{script.displayName}</p>
