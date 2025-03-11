@@ -72,7 +72,7 @@ function updateBotpack(repoName: string) {
   }
 }
 
-async function CheckForBotpackUpdates() {
+function CheckForBotpackUpdates() {
   for (const path of paths) {
     if (path.visible && path.repo && path.tagName) {
       const repoName = path.repo;
