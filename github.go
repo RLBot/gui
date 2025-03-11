@@ -200,6 +200,7 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 	}
 
 	var file_name string
+	// todo: check platform (x86_64, etc)
 	if runtime.GOOS == "windows" {
 		file_name = "patch_x86_64-windows.bobdiff.xz"
 	} else {
