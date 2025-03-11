@@ -23,7 +23,7 @@ import {
   type ToggleScript,
 } from "../index";
 import { mapStore } from "../settings";
-import BotpackNotif from "../components/BotpackNotif.svelte";
+import BotpackNotif from "../components/BotpackToast.svelte";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];

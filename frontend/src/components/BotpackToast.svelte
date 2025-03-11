@@ -20,7 +20,7 @@ let {
     height: 24px;
     margin-right: 0.25em;
   }
-  #update {
+  button#update {
     display: inline-flex;
     background-color: #4caf50;
     color: white;
@@ -30,10 +30,10 @@ let {
     align-items: center;
     margin-right: 0.25em;
   }
-  #update:hover {
+  button#update:hover {
     background-color: #388e3c;
   }
-  #update:active {
+  button#update:active {
     background-color: #2e7d32;
   }
 </style>
