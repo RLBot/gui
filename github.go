@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ulikunitz/xz"
@@ -199,6 +201,23 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 		return "", err
 	}
 
+	newest_tag := latest_release.TagName
+	if newest_tag == currentTag {
+		return "", errors.New("already up to date")
+	}
+
+	current_version := strings.Split(currentTag, "-")[1]
+	current_version_num, err := strconv.Atoi(current_version)
+	if err != nil {
+		return "", err
+	}
+
+	newest_version := strings.Split(newest_tag, "-")[1]
+	newest_version_num, err := strconv.Atoi(newest_version)
+	if err != nil {
+		return "", err
+	}
+
 	var file_name string
 	// todo: check platform (x86_64, etc)
 	if runtime.GOOS == "windows" {
@@ -207,54 +226,59 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 		file_name = "patch_x86_64-linux.bobdiff.xz"
 	}
 
-	var download_url string
+	var lastest_download_url string
 	for _, asset := range latest_release.Assets {
 		if asset.Name == file_name {
-			download_url = asset.BrowserDownloadURL
+			lastest_download_url = asset.BrowserDownloadURL
 			break
 		}
 	}
 
-	resp, err := http.Get(download_url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
+	for i := current_version_num + 1; i <= newest_version_num; i++ {
+		tag_i := strings.Replace(currentTag, current_version, strconv.Itoa(i), 1)
+		download_url := strings.Replace(lastest_download_url, newest_tag, tag_i, 1)
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	xzr, err := xz.NewReader(bytes.NewReader(body))
-	if err != nil {
-		return "", err
-	}
-
-	bytes, err := io.ReadAll(xzr)
-	if err != nil {
-		return "", err
-	}
-
-	files, err := os.ReadDir(installPath)
-	if err != nil {
-		return "", err
-	}
-
-	var dir string
-	for _, file := range files {
-		if file.IsDir() {
-			dir = file.Name()
-			break
+		resp, err := http.Get(download_url)
+		if err != nil {
+			return "", err
 		}
-	}
-	if dir == "" {
-		return "", errors.New("no directory found")
-	}
+		defer resp.Body.Close()
 
-	err = diff_apply(filepath.Join(installPath, dir), bytes)
-	if err != nil {
-		return "", err
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+
+		xzr, err := xz.NewReader(bytes.NewReader(body))
+		if err != nil {
+			return "", err
+		}
+
+		bytes, err := io.ReadAll(xzr)
+		if err != nil {
+			return "", err
+		}
+
+		files, err := os.ReadDir(installPath)
+		if err != nil {
+			return "", err
+		}
+
+		var dir string
+		for _, file := range files {
+			if file.IsDir() {
+				dir = file.Name()
+				break
+			}
+		}
+		if dir == "" {
+			return "", errors.New("no directory found")
+		}
+
+		err = diff_apply(filepath.Join(installPath, dir), bytes)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return latest_release.TagName, nil
