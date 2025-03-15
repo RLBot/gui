@@ -162,15 +162,7 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 
 	err = conn.SendPacket(&flat.MatchConfigurationT{
 		PlayerConfigurations: []*flat.PlayerConfigurationT{},
-		ScriptConfigurations: []*flat.ScriptConfigurationT{
-			{
-				Name:       "GUIv5",
-				RootDir:    "",
-				RunCommand: "",
-				SpawnId:    0,
-				AgentId:    "rlbot/gui",
-			},
-		},
+		ScriptConfigurations: []*flat.ScriptConfigurationT{},
 		GameMode:              flat.GameModeSoccer,
 		Mutators:              &flat.MutatorSettingsT{},
 		ExistingMatchBehavior: flat.ExistingMatchBehaviorRestart,
@@ -185,7 +177,7 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 	}
 
 	err = conn.SendPacket(&flat.ConnectionSettingsT{
-		AgentId:              "rlbot/gui",
+		AgentId:              "",
 		WantsBallPredictions: false,
 		WantsComms:           false,
 		CloseBetweenMatches:  false,
