@@ -70,10 +70,17 @@ function setPreset(presetData: Gamemode) {
   }
 }
 
+const filteredMutatorOptions = filterMutatorOptions();
+function filterMutatorOptions() {
+  let filtered = Object.keys(mutatorOptions).filter(
+    (key) => key !== "game_mode",
+  );
+  filtered.sort();
+
+  return filtered;
+}
+
 const ALL_MAPS = { ...MAPS_STANDARD, ...MAPS_NON_STANDARD };
-const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
-  (key) => key !== "game_mode",
-);
 </script>
 
 <div class="matchSettings">

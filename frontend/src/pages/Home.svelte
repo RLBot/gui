@@ -244,17 +244,6 @@ $effect(() => {
   localStorage.setItem("MS_MUTATORS", JSON.stringify(mutatorSettings));
 });
 
-// function loadMutators() {
-//   let mutators = JSON.parse(localStorage.getItem("MS_MUTATORS") || "{}");
-//   // delete any mutators that are no longer in the list
-//   for (const key of Object.keys(mutators)) {
-//     if (!mutatorOptions[key]) {
-//       delete mutators[key];
-//     }
-//   }
-//   return mutators;
-// }
-
 async function onMatchStart(randomizeMap: boolean) {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
