@@ -214,6 +214,11 @@ $effect(() => {
   updateScripts();
 });
 
+function loadPaths() {
+  updateBots();
+  updateScripts();
+}
+
 let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
 let orangePlayers: DraggablePlayer[] = $state([]);
 let showHuman = $state(true);
@@ -336,7 +341,7 @@ function handleSearch(event: Event) {
       {#if loadingPlayers || loadingScripts}
         <h3>Searching...</h3>
       {:else}
-        <button class="reloadButton" onclick={updateBots}
+        <button class="reloadButton" onclick={loadPaths}
           ><img src={reloadIcon} alt="reload" /></button
         >
       {/if}
