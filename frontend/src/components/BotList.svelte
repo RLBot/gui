@@ -412,13 +412,8 @@ function ShowSelectedBotFiles() {
 {#if selectedBot && selectedBot[0].loadout}
 <LoadoutEditor
   bind:visible={showLoadoutEditor}
-  name={selectedBot[1]}
   loadout={selectedBot[0].loadout}
-  onsave={(loadout) => {
-    if (selectedBot) {
-      selectedBot[0].loadout = loadout;
-    }
-  }}
+  name={selectedBot[1]}
 />
 {/if}
 

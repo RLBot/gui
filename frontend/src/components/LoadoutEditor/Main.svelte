@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LoadoutConfig, TeamLoadoutConfig } from "../../../bindings/gui";
+import { LoadoutConfig, TeamLoadoutConfig } from "../../../bindings/gui";
 import Modal from "../Modal.svelte";
 //@ts-ignore
 import ItemsCsv from "../../assets/items.csv";
@@ -8,18 +8,20 @@ import TeamEditor from "./TeamEditor.svelte";
 
 let {
   visible = $bindable(false),
-  loadout,
+  loadout = $bindable(),
   name,
-  onsave,
 }: {
   loadout: LoadoutConfig;
   name: string;
   visible: boolean;
-  onsave: (value: LoadoutConfig) => void;
 } = $props();
 
 let blueLoadout: TeamLoadoutConfig = $state(structuredClone(loadout.blueLoadout));
 let orangeLoadout: TeamLoadoutConfig = $state(structuredClone(loadout.orangeLoadout));
+$effect(() => {
+  blueLoadout = structuredClone(loadout.blueLoadout);
+  orangeLoadout = structuredClone(loadout.orangeLoadout);
+});
 
 async function getAndParseItems() {
   const resp = await fetch(ItemsCsv);
@@ -64,6 +66,13 @@ function revertChanges() {
   blueLoadout = structuredClone(loadout.blueLoadout);
   orangeLoadout = structuredClone(loadout.orangeLoadout);
 }
+
+function saveLoadout() {
+  visible = false;
+
+  loadout.blueLoadout = JSON.parse(JSON.stringify(blueLoadout));
+  loadout.orangeLoadout = JSON.parse(JSON.stringify(orangeLoadout));
+}
 </script>
 
 <Modal title={`Loadout of ${name}`} bind:visible>
@@ -87,12 +96,16 @@ function revertChanges() {
   <div id="footer">
     <div class="left"></div>
     <div class="right">
-      <button onclick={revertChanges}>Revert Changes</button>
+      <button type="submit" onclick={saveLoadout}>Save Changes</button>
+      <button type="reset" onclick={revertChanges}>Revert</button>
     </div>
   </div>
 </Modal>
 
 <style>
+  .right {
+    gap: 10px;
+  }
   #body, #footer {
     width: 100%;
     display: flex;

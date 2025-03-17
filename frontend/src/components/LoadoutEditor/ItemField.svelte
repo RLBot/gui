@@ -20,12 +20,12 @@ let {
 let itemSelection = $state(loadItemSelection());
 function loadItemSelection() {
   const loadout = value[itemType.itemKey];
-  if (loadout === 0) return;
+  if (loadout === 0) return null;
 
   const item = items.find((el) => el.id === loadout);
   if (!item) {
     console.warn(`Item with id ${loadout} not found`);
-    return;
+    return null;
   }
 
   return item.name;
@@ -47,12 +47,7 @@ $effect(() => {
 
 let selectedPaint = $state(loadPaintSelection());
 function loadPaintSelection() {
-  if (!itemType.paintKey) {
-    return;
-  }
-
-  const paint = value.paint[itemType.paintKey];
-  return paint;
+  return itemType.paintKey ? value.paint[itemType.paintKey] : null;
 }
 
 $effect(() => {
@@ -60,7 +55,7 @@ $effect(() => {
 });
 
 $effect(() => {
-  if (!selectedPaint || !itemType.paintKey) {
+  if (selectedPaint === null || !itemType.paintKey) {
     return;
   }
 
