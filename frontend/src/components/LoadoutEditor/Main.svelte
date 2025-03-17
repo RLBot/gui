@@ -99,7 +99,7 @@ function revertChanges() {
     justify-content: space-between;
   }
   #body {
-    gap: 15px;
+    gap: 30px;
     flex-wrap: wrap;
     overflow: hidden;
     align-items: center;

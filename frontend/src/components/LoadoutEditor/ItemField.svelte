@@ -3,6 +3,7 @@ import type { TeamLoadoutConfig } from "../../../bindings/gui";
 import { PAINTS } from "./colors";
 import type { ItemType } from "./itemtypes";
 import ArrowsIcon from "../../assets/arrows.svg";
+import RandomIcon from "../../assets/random.svg";
 
 let {
   value = $bindable(),
@@ -70,16 +71,24 @@ function selectedPaintColorClass() {
   const color = PAINTS.find((el) => el.id === selectedPaint);
   return color ? color.class : "";
 }
+
+function randomizeItem() {
+  const randomIndex = Math.floor(Math.random() * items.length);
+  itemSelection = items[randomIndex].name;
+}
 </script>
 
 <div id="row">
   <div class="expandable-input">
-    <label for="itemSelection">{itemType.name}</label>
+    <label for="item-selection">{itemType.name}</label>
   </div>
-  <div class="input-group shinkable-input">
+  <div id="text-input" class="input-group shinkable-input">
+    <button class="randomize" onclick={randomizeItem}>
+      <img src={RandomIcon} alt="Randomize colors" />
+    </button>
     <input
       type="text"
-      id="itemSelection"
+      id="item-selection"
       list="list{itemType.name}{team}"
       autocomplete="off"
       bind:value={itemSelection}
@@ -120,6 +129,27 @@ function selectedPaintColorClass() {
     background-position: right .75rem center;
     background-size: 8px 10px;
   }
+  button.randomize {
+    padding: 0;
+    border-radius: 0;
+    height: 100%;
+    padding: 0 0.5rem;
+  }
+  button.randomize > img {
+    filter: invert() brightness(90%);
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+  }
+  #item-selection {
+    border: none;
+    border-radius: 0;
+  }
+  #text-input {
+    border: solid 1px var(--foreground-alt);
+    background-color: var(--background-but);
+    border-radius: 0.25rem;
+  }
   #row {
     display: flex;
     justify-content: space-between;
@@ -137,7 +167,6 @@ function selectedPaintColorClass() {
   .input-group {
     display: flex;
     align-items: center;
-    gap: 10px;
   }
   .paint-group {
     gap: 10px;

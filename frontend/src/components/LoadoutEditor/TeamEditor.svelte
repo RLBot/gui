@@ -85,7 +85,7 @@ function randomizeColors() {
     height: 24px;
   }
   .team {
-    width: 500px;
+    width: 530px;
   }
   .team > div {
     display: inline-flex;
@@ -100,12 +100,6 @@ function randomizeColors() {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-  }
-  #blue {
-    margin-right: 15px;
-  }
-  #orange {
-    margin-left: 15px;
   }
   #blue-header {
     width: 100%;
