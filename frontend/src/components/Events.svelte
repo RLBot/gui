@@ -12,16 +12,6 @@ let {
   eventsFuture = $bindable(0),
 } = $props();
 
-let events: {
-  name: string;
-  location: string;
-  time: string;
-  timeUntil: string;
-  remainingTimeInMs: number;
-  moreInfo: string;
-  logo: string;
-}[] = $state([]);
-
 function dateTimeCheck(today: Date, event: any) {
   const names = event.summary;
   const start = event.start.dateTime;
@@ -108,7 +98,15 @@ async function fetchEvents() {
   const response = await fetch(url);
   const data = await response.json();
 
-  events = [];
+  const events: {
+    name: string;
+    location: string;
+    time: string;
+    timeUntil: string;
+    remainingTimeInMs: number;
+    moreInfo: string;
+    logo: string;
+  }[] = [];
 
   // compute dates and times
   for (const event of data.items) {
@@ -120,7 +118,6 @@ async function fetchEvents() {
     if (remainingTimeInMs > 0) eventsFuture += 1;
     else eventsNow += 1;
 
-    // time_untils is the time until the event in milliseconds
     // convert this to something human readable, like "in 2 days"
     const format = formatFromNow(Math.abs(remainingTimeInMs));
 
@@ -151,50 +148,54 @@ async function fetchEvents() {
     // @ts-ignore
     return new Date(a.remainingTimeInMs) - new Date(b.remainingTimeInMs);
   });
-}
 
-fetchEvents();
+  return events;
+}
 </script>
 
 <Modal title="Community Events" bind:visible>
   <!-- svelte-ignore a11y_invalid_attribute -->
   <div id="community-events">
-    {#if events.length === 0}
-    <p>There are no community events at this time.</p>
-    {:else}
-    {#each events as event}
-    <div class="event">
-      {#if event.logo}
-        <img class="event-logo" src={event.logo} alt="event logo" />
-      {/if}
-      <div>
-        <h2>{ event.name }</h2>
-        {#if !event.timeUntil}
-        <p>
-          <img src={AlarmIcon} alt="alarm" /> Starting now!
-        </p>
-        {:else if event.remainingTimeInMs > 0}
-        <p>
-          <img src={CalendarPlusIcon} alt="calendar" /> Starts in <b>{ event.timeUntil }</b> ({ event.time })
-        </p>
-        {:else}
-        <p>
-          <img src={AlarmIcon} alt="alarm" /> Started <b>{ event.timeUntil }</b> ago, but you can still join!
-        </p>
+    {#await fetchEvents()}
+      <p>Loading events...</p>
+    {:then events }
+      {#if events.length === 0}
+      <p>There are no community events at this time.</p>
+      {:else}
+      {#each events as event}
+      <div class="event">
+        {#if event.logo}
+          <img class="event-logo" src={event.logo} alt="event logo" />
         {/if}
-        <p>
-          <img src={GeoIcon} alt="location"> <a href="#" onclick={() => {Browser.OpenURL(event.location)}} target="_blank">{ event.location }</a>
-        </p>
-        {#if event.moreInfo}
-        <br>
-        <p class="more-info">
-          <img src={InfoIcon} alt="info"> <a href="#" onclick={() => {Browser.OpenURL(event.moreInfo)}} target="_blank">More info</a>
-        </p>
-        {/if}
+        <div>
+          <h2>{ event.name }</h2>
+          {#if !event.timeUntil}
+          <p>
+            <img src={AlarmIcon} alt="alarm" /> Starting now!
+          </p>
+          {:else if event.remainingTimeInMs > 0}
+          <p>
+            <img src={CalendarPlusIcon} alt="calendar" /> Starts in <b>{ event.timeUntil }</b> ({ event.time })
+          </p>
+          {:else}
+          <p>
+            <img src={AlarmIcon} alt="alarm" /> Started <b>{ event.timeUntil }</b> ago, but you can still join!
+          </p>
+          {/if}
+          <p>
+            <img src={GeoIcon} alt="location"> <a href="#" onclick={() => {Browser.OpenURL(event.location)}} target="_blank">{ event.location }</a>
+          </p>
+          {#if event.moreInfo}
+          <br>
+          <p class="more-info">
+            <img src={InfoIcon} alt="info"> <a href="#" onclick={() => {Browser.OpenURL(event.moreInfo)}} target="_blank">More info</a>
+          </p>
+          {/if}
+        </div>
       </div>
-    </div>
-    {/each}
-    {/if}
+      {/each}
+      {/if}
+    {/await}
   </div>
 </Modal>
 
