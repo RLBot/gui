@@ -148,7 +148,7 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
 
 async function updateBots() {
   loadingPlayers = true;
-  let internalUpdateTime = new Date();
+  const internalUpdateTime = new Date();
   latestBotUpdateTime = internalUpdateTime;
   const result = await App.GetBots(
     paths.filter((x) => x.visible).map((x) => x.installPath),
