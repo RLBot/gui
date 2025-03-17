@@ -2,60 +2,59 @@
 import { COLORS } from "./colors";
 
 let {
-  value,
+  value = $bindable(),
   primary,
   team,
   text,
-  onpick,
 }: {
   value: number;
   primary: boolean;
   team: string;
   text: string;
-  onpick: (value: number) => void;
 } = $props();
+
+let pickedColor = $derived(getColorStyle(value));
 
 const ROWS = 7;
 const COLUMNS = primary ? 10 : 15;
 
 function getColorStyle(colorID: number) {
-  let colors = primary ? COLORS[team] : COLORS.secondary;
-  let rgb = colors[colorID];
+  const colors = primary ? COLORS[team] : COLORS.secondary;
+  const rgb = colors[colorID];
   return rgb ? rgb.toString() : "";
-}
-
-function getColorID(row: number, column: number) {
-  return row * COLUMNS + column;
 }
 
 function pickedItemClass(colorID: number) {
   return value === colorID ? "selected-color" : "";
 }
 
-function pickColor(colorID: number) {
-  value = colorID;
-  onpick(colorID);
+const COLOR_IDS: number[][] = [];
+for (let i = 0; i < ROWS; i++) {
+  COLOR_IDS.push([]);
+  for (let j = 0; j < COLUMNS; j++) {
+    COLOR_IDS[i].push(i * COLUMNS + j);
+  }
 }
 </script>
 
 <div class="dropdown">
   <button>
-    <span class="color-indicator" style="background-color: rgb({getColorStyle(value)})"></span>
+    <span class="color-indicator" style="background-color: rgb({pickedColor})"></span>
     {text}
   </button>
   <div class="dropmenu {primary ? 'left' : 'center'}">
     <table>
       <tbody>
-      {#each Array(ROWS) as _, i}
+      {#each COLOR_IDS as idsRow}
         <tr>
-          {#each Array(COLUMNS) as _, j}
+          {#each idsRow as id}
             <td>
               <!-- svelte-ignore a11y_consider_explicit_label -->
               <button
-                style="background-color: rgb({getColorStyle(getColorID(i, j))})"
-                onclick={() => pickColor(getColorID(i, j))}
+                style="background-color: rgb({getColorStyle(id)})"
+                onclick={() => value = id}
               >
-                <div class="colorpicker-color {pickedItemClass(getColorID(i, j))}"></div>
+                <div class="colorpicker-color {pickedItemClass(id)}"></div>
               </button>
             </td>
           {/each}

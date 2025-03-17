@@ -1,35 +1,48 @@
 <script lang="ts">
-import type { TeamLoadoutConfig, TeamPaintConfig } from "../../../bindings/gui";
+import type { TeamLoadoutConfig } from "../../../bindings/gui";
 import { PAINTS } from "./colors";
 import type { ItemType } from "./itemtypes";
 import ArrowsIcon from "../../assets/arrows.svg";
 
 let {
-  value,
+  value = $bindable(),
   items,
   itemType,
   team,
-  onPickItem,
-  onPickPaint,
 }: {
   value: TeamLoadoutConfig;
   items: { id: number; name: string }[];
   itemType: ItemType;
   team: string;
-  onPickItem: (value: number) => void;
-  onPickPaint: (value: number) => void;
 } = $props();
 
 let itemSelection = $state(loadItemSelection());
 function loadItemSelection() {
-  let loadout = value[itemType.itemKey as keyof TeamLoadoutConfig];
-  let item = items.find((el) => el.id === loadout);
+  const loadout = value[itemType.itemKey];
+  if (loadout === 0) return;
+
+  const item = items.find((el) => el.id === loadout);
   if (!item) {
+    console.warn(`Item with id ${loadout} not found`);
     return;
   }
 
   return item.name;
 }
+
+$effect(() => {
+  itemSelection = loadItemSelection();
+})
+
+$effect(() => {
+  const item = items.find((el) => el.name === itemSelection);
+  if (!item) {
+    return;
+  }
+
+  // @ts-ignore
+  value[itemType.itemKey] = item.id;
+});
 
 let selectedPaint = $state(loadPaintSelection());
 function loadPaintSelection() {
@@ -37,31 +50,26 @@ function loadPaintSelection() {
     return;
   }
 
-  let paint = value.paint[itemType.paintKey as keyof TeamPaintConfig];
+  const paint = value.paint[itemType.paintKey];
   return paint;
 }
 
+$effect(() => {
+  selectedPaint = loadPaintSelection();
+});
+
+$effect(() => {
+  if (!selectedPaint || !itemType.paintKey) {
+    return;
+  }
+
+  value.paint[itemType.paintKey] = selectedPaint;
+});
+
 function selectedPaintColorClass() {
-  let color = PAINTS.find((el) => el.id === selectedPaint);
+  const color = PAINTS.find((el) => el.id === selectedPaint);
   return color ? color.class : "";
 }
-
-$effect(() => {
-  let item = items.find((el) => el.name === itemSelection);
-  if (!item) {
-    return;
-  }
-
-  onPickItem(item.id);
-});
-
-$effect(() => {
-  if (!selectedPaint) {
-    return;
-  }
-
-  onPickPaint(selectedPaint);
-});
 </script>
 
 <div id="row">

@@ -1,8 +1,10 @@
+import type { TeamLoadoutConfig, TeamPaintConfig } from "../../../bindings/gui";
+
 export interface ItemType {
   name: string;
   category: string;
-  itemKey: string;
-  paintKey: string | null;
+  itemKey: keyof TeamLoadoutConfig;
+  paintKey: keyof TeamPaintConfig | null;
 }
 
 export const ITEM_TYPES: ItemType[] = [

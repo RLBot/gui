@@ -395,25 +395,27 @@ function ShowSelectedBotFiles() {
   <div class="bot-footer">
     <p id="toml-path">{selectedBot[0].tomlPath}</p>
     <div id="button-group">
+      {#if selectedBot[0].loadout}
       <button onclick={EditSelectedBotLoadout}>Edit Loadout</button>
+      {/if}
       <button onclick={ShowSelectedBotFiles}>Show Files</button>
     </div>
   </div>
 {/if}
 </Modal>
 
+{#if selectedBot && selectedBot[0].loadout}
 <LoadoutEditor
   bind:visible={showLoadoutEditor}
-  name={selectedBot ? selectedBot[1] : ""}
-  loadoutBackup={selectedBot ? selectedBot[0].loadout ?? null : null}
-  blueLoadout={selectedBot ? structuredClone(selectedBot[0].loadout?.blueLoadout) ?? null : null}
-  orangeLoadout={selectedBot ? structuredClone(selectedBot[0].loadout?.orangeLoadout) ?? null : null}
+  name={selectedBot[1]}
+  loadout={selectedBot[0].loadout}
   onsave={(loadout) => {
     if (selectedBot) {
       selectedBot[0].loadout = loadout;
     }
   }}
 />
+{/if}
 
 <style>
   .bots span {
