@@ -21,37 +21,33 @@ let {
 let blueLoadout: TeamLoadoutConfig = $state(structuredClone(loadout.blueLoadout));
 let orangeLoadout: TeamLoadoutConfig = $state(structuredClone(loadout.orangeLoadout));
 
-let items: {
-  [x: string]: { id: number; name: string }[];
-} | null = $state(null);
-
 async function getAndParseItems() {
   const resp = await fetch(ItemsCsv);
   const csv = await resp.text();
   const lines = csv.split(/\r?\n/);
 
-  let newItems: {
+  let items: {
     [x: string]: { id: number; name: string }[];
   } = {};
 
   for (const key in ITEM_TYPES) {
     const category = ITEM_TYPES[key].category;
-    newItems[category] = [];
+    items[category] = [];
   }
 
   for (const line of lines) {
     const columns = line.split(",");
     const category = columns[1];
 
-    if (newItems[category])
-      newItems[category].push({ id: +columns[0], name: columns[3] });
+    if (items[category])
+    items[category].push({ id: +columns[0], name: columns[3] });
   }
 
   // rename duplicate item names (append them with (2), (3), ...)
-  for (const category in newItems) {
+  for (const category in items) {
     const nameCounts: { [x: string]: number } = {};
 
-    for (const item of newItems[category]) {
+    for (const item of items[category]) {
       if (nameCounts[item.name]) {
         nameCounts[item.name]++;
         item.name = `${item.name} (${nameCounts[item.name]})`;
@@ -61,10 +57,8 @@ async function getAndParseItems() {
     }
   }
 
-  items = newItems;
+  return items;
 }
-
-getAndParseItems();
 
 function revertChanges() {
   blueLoadout = structuredClone(loadout.blueLoadout);
@@ -74,19 +68,21 @@ function revertChanges() {
 
 <Modal title={`Loadout of ${name}`} bind:visible>
   <div id="body">
-    {#if visible && items}
-    <TeamEditor
-      items={items}
-      team="blue"
-      bind:loadout={blueLoadout}
-    />
+    {#await getAndParseItems() }
+      <p>Loading items...</p>
+    {:then items } 
+      <TeamEditor
+        items={items}
+        team="blue"
+        bind:loadout={blueLoadout}
+      />
 
-    <TeamEditor
-      items={items}
-      team="orange"
-      bind:loadout={orangeLoadout}
-    />
-    {/if}
+      <TeamEditor
+        items={items}
+        team="orange"
+        bind:loadout={orangeLoadout}
+      />
+    {/await}
   </div>
   <div id="footer">
     <div class="left"></div>

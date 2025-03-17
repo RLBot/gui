@@ -33,7 +33,7 @@ function filterItems(category: string) {
   });
 }
 
-function randomizeColors(team: string) {
+function randomizeColors() {
   loadout.teamColorId = Math.floor(Math.random() * COLORS[team].length);
   loadout.teamColorId = Math.floor(Math.random() * COLORS.secondary.length);
 }
@@ -57,7 +57,7 @@ function randomizeColors(team: string) {
       text="Secondary Color"
     />
 
-    <button class="randomize" onclick={() => randomizeColors(team)}>
+    <button class="randomize" onclick={randomizeColors}>
       <img src={RandomIcon} alt="Randomize colors" />
     </button>
   </div>

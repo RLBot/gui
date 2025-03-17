@@ -76,6 +76,11 @@ $effect(() => {
 });
 
 let selectedBot: [BotInfo, string, string] | null = $state(null);
+$effect(() => {
+  if (!showInfoModal && !showLoadoutEditor) {
+    selectedBot = null;
+  }
+})
 
 let filteredBots: DraggablePlayer[] = $state([]);
 $effect(() => {
