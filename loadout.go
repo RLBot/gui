@@ -79,6 +79,7 @@ func (options LoadoutPreviewOptions) GetPreviewMatch(existingMatchBehavior flat.
 		GameMode:             flat.GameModeSoccer,
 		Mutators: &flat.MutatorSettingsT{
 			MatchLength: flat.MatchLengthMutatorUnlimited,
+			BoostAmount: flat.BoostAmountMutatorUnlimitedBoost,
 		},
 		Freeplay:              false,
 		EnableRendering:       false,
@@ -153,7 +154,7 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 
 		conn.SendPacket(match)
 		conn.SendPacket(nil)
-		return nil;
+		return nil
 	}
 
 	// ensure the player is on the correct team
@@ -165,7 +166,7 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 
 		conn.SendPacket(match)
 		conn.SendPacket(nil)
-		return nil;
+		return nil
 	}
 
 	conn.SendPacket(&flat.SetLoadoutT{
@@ -176,4 +177,126 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 	conn.SendPacket(nil)
 
 	return nil
+}
+
+func (a *App) SetShowcaseType(showcaseType string) error {
+	conn, err := rlbot.Connect(a.rlbot_address)
+	if err != nil {
+		return err
+	}
+
+	conn.SendPacket(&flat.ConnectionSettingsT{
+		AgentId:              "",
+		WantsBallPredictions: false,
+		WantsComms:           false,
+		CloseBetweenMatches:  false,
+	})
+
+	conn.SendPacket(&flat.InitCompleteT{})
+
+	// ensure match is active
+	var gamePacket *flat.GamePacketT
+	for gamePacket == nil || gamePacket.MatchInfo.MatchPhase != flat.MatchPhaseActive {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return err
+		}
+
+		switch packet := packet.(type) {
+		case *flat.GamePacketT:
+			gamePacket = packet
+		}
+	}
+
+	println("Match is active")
+
+	ball := flat.DesiredPhysicsT{
+		Location:        Vector3P(0, 0, -100),
+		Velocity:        Vector3P(0, 0, 0),
+		AngularVelocity: Vector3P(0, 0, 0),
+	}
+
+	car := flat.DesiredPhysicsT{
+		Location:        Vector3P(0, 0, 20),
+		Rotation:        RotatorP(0, 0, 0),
+		Velocity:        Vector3P(0, 0, 0),
+		AngularVelocity: Vector3P(0, 0, 0),
+	}
+
+	controller := flat.ControllerStateT{}
+
+	var teamSign float32
+	if gamePacket.Players[0].Team == 0 {
+		teamSign = -1
+	} else {
+		teamSign = 1
+	}
+
+	// set initial game state
+	switch showcaseType {
+	case "boost":
+		controller.Boost = true
+		controller.Steer = 1
+
+		car.Location.Y = Float(-1140)
+		car.Velocity.X = Float(2300)
+		car.AngularVelocity.Z = Float(3.5)
+	case "throttle":
+		controller.Throttle = 1
+		controller.Steer = 0.56
+
+		car.Location.Y = Float(-1140)
+		car.Velocity.X = Float(1410)
+		car.AngularVelocity.Z = Float(1.5)
+	case "back-center-kickoff":
+		car.Location.Y = Float(4608 * teamSign)
+		car.Rotation.Yaw = Float(-0.5 * 3.14159 * teamSign)
+	case "goal-explosion":
+		car.Location.Y = Float(-2000 * teamSign)
+		car.Rotation.Yaw = Float(-0.5 * 3.14159 * teamSign)
+		car.Velocity.Y = Float(-2300 * teamSign)
+		ball.Location = Vector3P(0, -3500*teamSign, 93)
+	}
+
+	conn.SendPacket(&flat.DesiredGameStateT{
+		CarStates: []*flat.DesiredCarStateT{
+			{
+				Physics: &car,
+			},
+		},
+		BallStates: []*flat.DesiredBallStateT{
+			{
+				Physics: &ball,
+			},
+		},
+	})
+
+	conn.SendPacket(&flat.PlayerInputT{
+		PlayerIndex:     0,
+		ControllerState: &controller,
+	})
+
+	conn.SendPacket(nil)
+
+	return nil
+}
+
+func Float(x float32) *flat.FloatT {
+	return &flat.FloatT{Val: x}
+}
+
+func Vector3P(x, y, z float32) *flat.Vector3PartialT {
+	return &flat.Vector3PartialT{
+		X: Float(x),
+		Y: Float(y),
+		Z: Float(z),
+	}
+}
+
+func RotatorP(p, y, r float32) *flat.RotatorPartialT {
+	return &flat.RotatorPartialT{
+		Pitch: Float(p),
+		Yaw:   Float(y),
+		Roll:  Float(r),
+	}
 }
