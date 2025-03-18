@@ -12,6 +12,7 @@ import EyeIcon from "../../assets/eye.svg";
 import Modal from "../Modal.svelte";
 import TeamEditor from "./TeamEditor.svelte";
 import type { CsvItem } from "./items";
+import Switch from "../Switch.svelte";
 
 let {
   visible = $bindable(false),
@@ -62,9 +63,21 @@ function saveLoadout() {
     });
 }
 
-let previewMatchLaunched = false;
+let previewMatchTeam: "blue" | "orange" | null = $state(null);
+let previewOnChange = $state(localStorage.getItem("LOADOUT_PREVIEW_ON_CHANGE") === "true");
+$effect(() => {
+  localStorage.setItem("LOADOUT_PREVIEW_ON_CHANGE", previewOnChange.toString());
+});
 
-function PreviewLoadout(isBlueTeam: boolean) {
+$effect(() => {
+  if (!previewMatchTeam || !previewOnChange) {
+    return;
+  }
+
+  PreviewLoadout(previewMatchTeam)
+});
+
+function PreviewLoadout(team: "blue" | "orange") {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
     toast.error("Please select a launcher first", {
@@ -77,31 +90,31 @@ function PreviewLoadout(isBlueTeam: boolean) {
 
   const options: LoadoutPreviewOptions = {
     map: MAPS_STANDARD["DFH Stadium"],
-    loadout: isBlueTeam ? blueLoadout : orangeLoadout,
-    team: isBlueTeam ? 0 : 1,
+    loadout: team === "blue" ? blueLoadout : orangeLoadout,
+    team: team === "blue" ? 0 : 1,
     launcher,
     launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
   };
 
-  if (!previewMatchLaunched) {
+  if (!previewMatchTeam) {
     App.LaunchPreviewLoadout(
       options,
       ExistingMatchBehavior.ExistingMatchBehaviorRestart,
     )
       .then(() => {
-        previewMatchLaunched = true;
-        toast.success(
-          `Launching preview for ${isBlueTeam ? "blue" : "orange"} car`,
-        );
+        previewMatchTeam = team;
+        toast.success(`Launching preview for ${previewMatchTeam} car`);
       })
       .catch((e) => {
+        previewMatchTeam = null;
         toast.error(`Failed to launch preview: ${e}`);
       });
   } else {
     App.SetLoadout(options)
       .then(() => {
+        previewMatchTeam = team;
         toast.success(
-          `Preview updated for ${isBlueTeam ? "blue" : "orange"} car`,
+          `Preview updated for ${team} car`,
         );
       })
       .catch((e) => {
@@ -127,14 +140,27 @@ function PreviewLoadout(isBlueTeam: boolean) {
   </div>
   <div id="footer">
     <div class="left">
-      <button id="preview-blue" onclick={() => PreviewLoadout(true)}>
+      <h3>Preview in game:</h3>
+      <button id="preview-blue" onclick={() => PreviewLoadout("blue")}>
         <img src={EyeIcon} alt="eye">
-        Preview blue car in game
+        Blue car
       </button>
-      <button id="preview-orange" onclick={() => PreviewLoadout(false)}>
+      <button id="preview-orange" onclick={() => PreviewLoadout("orange")}>
         <img src={EyeIcon} alt="eye">
-        Preview orange car in game
+        Orange car
       </button>
+      {#if previewMatchTeam}
+      <button id="preview-on-change" onclick={() => previewOnChange = !previewOnChange}>
+        Auto-preview
+        <Switch
+          checked={previewOnChange}
+          onchange={() => previewOnChange = !previewOnChange}
+          stopClickPropagation={true}
+          height={24}
+          width={40}
+        />
+      </button>
+      {/if}
     </div>
     <div class="right">
       <button type="submit" onclick={saveLoadout}>Save and close</button>
@@ -145,9 +171,16 @@ function PreviewLoadout(isBlueTeam: boolean) {
 
 <style>
   .left, .right {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
   }
+  #footer h3 {
+    white-space: nowrap;
+  }
   button {
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
   }
@@ -163,6 +196,10 @@ function PreviewLoadout(isBlueTeam: boolean) {
   button#preview-orange {
     color: #FF9800;
     border: #FF9800 1px solid;
+  }
+  button#preview-on-change {
+    border: var(--foreground) 1px solid;
+    gap: 10px;
   }
   /* filters calculated with https://codepen.io/sosuke/pen/Pjoqqp */
   button#preview-blue > img {
@@ -184,6 +221,9 @@ function PreviewLoadout(isBlueTeam: boolean) {
     justify-content: center;
   }
   #footer {
+    display: flex;
+    flex-wrap: wrap;
     margin-top: 10px;
+    gap: 10px;
   }
 </style>

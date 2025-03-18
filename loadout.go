@@ -153,11 +153,19 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 
 		conn.SendPacket(match)
 		conn.SendPacket(nil)
+		return nil;
 	}
 
 	// ensure the player is on the correct team
 	if gamePacket.Players[0].Team != options.Team {
-		return a.LaunchPreviewLoadout(options, flat.ExistingMatchBehaviorContinueAndSpawn)
+		match, err := options.GetPreviewMatch(flat.ExistingMatchBehaviorContinueAndSpawn)
+		if err != nil {
+			return err
+		}
+
+		conn.SendPacket(match)
+		conn.SendPacket(nil)
+		return nil;
 	}
 
 	conn.SendPacket(&flat.SetLoadoutT{
