@@ -1,9 +1,10 @@
 <script lang="ts">
-import type { CsvItem, TeamLoadoutConfig } from "../../../bindings/gui";
-import { PAINTS } from "./colors";
-import type { ItemType } from "./itemtypes";
+import type { TeamLoadoutConfig } from "../../../bindings/gui";
 import ArrowsIcon from "../../assets/arrows.svg";
 import RandomIcon from "../../assets/random.svg";
+import { PAINTS } from "./colors";
+import type { CsvItem } from "./items";
+import type { ItemType } from "./itemtypes";
 
 let {
   value = $bindable(),

@@ -1,10 +1,17 @@
 <script lang="ts">
 import toast from "svelte-5-french-toast";
-import { App, LoadoutConfig, TeamLoadoutConfig } from "../../../bindings/gui";
+import { ExistingMatchBehavior } from "../../../bindings/github.com/swz-git/go-interface/flat/models";
+import {
+  App,
+  LoadoutConfig,
+  LoadoutPreviewOptions,
+  TeamLoadoutConfig,
+} from "../../../bindings/gui";
+import { MAPS_STANDARD } from "../../arena-names";
+import EyeIcon from "../../assets/eye.svg";
 import Modal from "../Modal.svelte";
-//@ts-ignore
-import { type CsvItem } from "./itemtypes";
 import TeamEditor from "./TeamEditor.svelte";
+import type { CsvItem } from "./items";
 
 let {
   visible = $bindable(false),
@@ -54,6 +61,54 @@ function saveLoadout() {
       toast.error(`Failed to save the loadout of ${name}: ${e}`);
     });
 }
+
+let previewMatchLaunched = false;
+
+function PreviewLoadout(isBlueTeam: boolean) {
+  const launcher = localStorage.getItem("MS_LAUNCHER");
+  if (!launcher) {
+    toast.error("Please select a launcher first", {
+      position: "bottom-right",
+      duration: 5000,
+    });
+
+    return;
+  }
+
+  const options: LoadoutPreviewOptions = {
+    map: MAPS_STANDARD["DFH Stadium"],
+    loadout: isBlueTeam ? blueLoadout : orangeLoadout,
+    team: isBlueTeam ? 0 : 1,
+    launcher,
+    launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
+  };
+
+  if (!previewMatchLaunched) {
+    App.LaunchPreviewLoadout(
+      options,
+      ExistingMatchBehavior.ExistingMatchBehaviorRestart,
+    )
+      .then(() => {
+        previewMatchLaunched = true;
+        toast.success(
+          `Launching preview for ${isBlueTeam ? "blue" : "orange"} car`,
+        );
+      })
+      .catch((e) => {
+        toast.error(`Failed to launch preview: ${e}`);
+      });
+  } else {
+    App.SetLoadout(options)
+      .then(() => {
+        toast.success(
+          `Preview updated for ${isBlueTeam ? "blue" : "orange"} car`,
+        );
+      })
+      .catch((e) => {
+        toast.error(`Failed to update preview: ${e}`);
+      });
+  }
+}
 </script>
 
 <Modal title={`Loadout of ${name}`} bind:visible>
@@ -71,7 +126,16 @@ function saveLoadout() {
     />
   </div>
   <div id="footer">
-    <div class="left"></div>
+    <div class="left">
+      <button id="preview-blue" onclick={() => PreviewLoadout(true)}>
+        <img src={EyeIcon} alt="eye">
+        Preview blue car in game
+      </button>
+      <button id="preview-orange" onclick={() => PreviewLoadout(false)}>
+        <img src={EyeIcon} alt="eye">
+        Preview orange car in game
+      </button>
+    </div>
     <div class="right">
       <button type="submit" onclick={saveLoadout}>Save and close</button>
       <button type="reset" onclick={revertChanges}>Revert changes</button>
@@ -80,8 +144,32 @@ function saveLoadout() {
 </Modal>
 
 <style>
-  .right {
+  .left, .right {
     gap: 10px;
+  }
+  button {
+    display: inline-flex;
+    align-items: center;
+  }
+  button > img {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+  }
+  button#preview-blue {
+    color: #2196F3;
+    border: #2196F3 1px solid;
+  }
+  button#preview-orange {
+    color: #FF9800;
+    border: #FF9800 1px solid;
+  }
+  /* filters calculated with https://codepen.io/sosuke/pen/Pjoqqp */
+  button#preview-blue > img {
+    filter: invert(52%) sepia(37%) saturate(5199%) hue-rotate(185deg) brightness(99%) contrast(93%);
+  }
+  button#preview-orange > img {
+    filter: invert(79%) sepia(58%) saturate(5589%) hue-rotate(0deg) brightness(103%) contrast(104%);
   }
   #body, #footer {
     width: 100%;

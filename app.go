@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/BurntSushi/toml"
 	"github.com/ncruces/zenity"
 	rlbot "github.com/swz-git/go-interface"
 	"github.com/swz-git/go-interface/flat"
@@ -29,25 +28,6 @@ func (a *App) IgnoreMe(
 	_ PsyonixBotInfo,
 	_ HumanInfo,
 ) {
-}
-
-func (a *App) SaveLoadoutToFile(basePath string, loadoutFile string, loadout LoadoutConfig) error {
-	baseDir := filepath.Dir(basePath)
-	fullPath := filepath.Join(baseDir, loadoutFile)
-
-	file, err := os.Create(fullPath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	fileContents, err := toml.Marshal(loadout)
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(fileContents)
-	return err
 }
 
 func (a *App) GetDefaultPath() string {
