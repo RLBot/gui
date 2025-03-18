@@ -33,7 +33,7 @@ function loadItemSelection() {
 
 $effect(() => {
   itemSelection = loadItemSelection();
-})
+});
 
 $effect(() => {
   const item = items.find((el) => el.name === itemSelection);

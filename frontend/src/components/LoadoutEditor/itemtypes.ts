@@ -1,5 +1,11 @@
 import type { TeamLoadoutConfig, TeamPaintConfig } from "../../../bindings/gui";
 
+export interface CsvItem {
+  id: number;
+  uuid: string;
+  name: string;
+}
+
 export interface ItemType {
   name: string;
   category: string;

@@ -12,10 +12,10 @@ let {
   loadout = $bindable(),
 }: {
   items: {
-    [x: string]: { id: number; name: string }[]
-  },
-  team: string
-  loadout: TeamLoadoutConfig
+    [x: string]: { id: number; name: string }[];
+  };
+  team: string;
+  loadout: TeamLoadoutConfig;
 } = $props();
 
 function filterItems(category: string) {
