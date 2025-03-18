@@ -1,9 +1,10 @@
 <script lang="ts">
+import type { TeamLoadoutConfig } from "../../../bindings/gui";
+import RandomIcon from "../../assets/random.svg";
 import ColorPicker from "./ColorPicker.svelte";
 import ItemField from "./ItemField.svelte";
-import RandomIcon from "../../assets/random.svg";
-import type { CsvItem, TeamLoadoutConfig } from "../../../bindings/gui";
 import { COLORS, PAINTS } from "./colors";
+import type { CsvItem } from "./items";
 import { ITEM_TYPES } from "./itemtypes";
 
 let {
@@ -35,7 +36,7 @@ function filterItems(category: string) {
 
 function randomizeTeamLoadout() {
   loadout.teamColorId = Math.floor(Math.random() * COLORS[team].length);
-  loadout.teamColorId = Math.floor(Math.random() * COLORS.secondary.length);
+  loadout.customColorId = Math.floor(Math.random() * COLORS.secondary.length);
 
   for (const itemType of ITEM_TYPES) {
     const items = filterItems(itemType.category);
@@ -64,7 +65,7 @@ function randomizeTeamLoadout() {
     />
 
     <ColorPicker
-      bind:value={loadout.teamColorId}
+      bind:value={loadout.customColorId}
       team={null}
       text="Secondary Color"
     />
