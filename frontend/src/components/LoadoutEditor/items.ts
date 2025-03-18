@@ -9,20 +9,20 @@ export interface CsvItem {
 }
 
 function toTitleCase(str: string) {
-  return str.replace(
-    /\w\S*/g,
-    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
-  );
+  return str
+    .replaceAll("_", " ")
+    .replace(
+      /\w\S*/g,
+      (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
+    )
+    .trim();
 }
 
 function renameItem(item: CsvItem, category: string) {
   const uuidParts = item.uuid.split(".").pop();
   if (!uuidParts) return item.name;
 
-  let specifier = uuidParts
-    .toLowerCase()
-    .replace(category.toLowerCase(), "")
-    .replaceAll("_", " ");
+  let specifier = uuidParts.toLowerCase().replace(category.toLowerCase(), "");
 
   const nameParts = item.name.split(":");
   if (nameParts.length > 1) {
@@ -30,7 +30,7 @@ function renameItem(item: CsvItem, category: string) {
     specifier = specifier.replace(bodyName, "");
   }
 
-  return `${item.name} (${toTitleCase(specifier.trim())})`;
+  return `${item.name} (${toTitleCase(specifier)})`;
 }
 
 export async function getAndParseItems() {

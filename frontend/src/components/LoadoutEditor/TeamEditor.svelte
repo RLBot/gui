@@ -19,7 +19,7 @@ let {
 } = $props();
 
 function filterItems(category: string) {
-  if (category !== "Skin") return items[category];
+  if (category !== "Skin" || loadout.carId === 0) return items[category];
 
   const bodyName = items.Body.find((el) => el.id === loadout.carId)?.name;
 

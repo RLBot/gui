@@ -36,6 +36,12 @@ $effect(() => {
 });
 
 $effect(() => {
+  if (itemSelection === "") {
+    // @ts-ignore
+    value[itemType.itemKey] = 0;
+    return;
+  }
+
   const item = items.find((el) => el.name === itemSelection);
   if (!item) {
     return;
