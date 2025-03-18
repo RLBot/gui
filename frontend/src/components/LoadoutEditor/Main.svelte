@@ -1,5 +1,6 @@
 <script lang="ts">
-import { LoadoutConfig, TeamLoadoutConfig } from "../../../bindings/gui";
+import toast from "svelte-5-french-toast";
+import { App, LoadoutConfig, TeamLoadoutConfig } from "../../../bindings/gui";
 import Modal from "../Modal.svelte";
 //@ts-ignore
 import { type CsvItem } from "./itemtypes";
@@ -8,11 +9,15 @@ import TeamEditor from "./TeamEditor.svelte";
 let {
   visible = $bindable(false),
   loadout = $bindable(),
+  basePath,
+  loadoutFile,
   items,
   name,
 }: {
   visible: boolean;
   loadout: LoadoutConfig;
+  basePath: string;
+  loadoutFile: string;
   items: {
     [x: string]: CsvItem[];
   };
@@ -36,11 +41,18 @@ function revertChanges() {
 }
 
 function saveLoadout() {
-  visible = false;
-
   // structuredClone doesn't work here, likely because of $state
   loadout.blueLoadout = JSON.parse(JSON.stringify(blueLoadout));
   loadout.orangeLoadout = JSON.parse(JSON.stringify(orangeLoadout));
+
+  App.SaveLoadoutToFile(basePath, loadoutFile, loadout)
+    .then(() => {
+      visible = false;
+      toast.success(`Saved the loadout of ${name}`);
+    })
+    .catch((e) => {
+      toast.error(`Failed to save the loadout of ${name}: ${e}`);
+    });
 }
 </script>
 

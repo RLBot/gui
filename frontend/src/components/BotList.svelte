@@ -38,6 +38,11 @@ let {
 } = $props();
 const flipDurationMs = 100;
 
+// let favorites = $state(JSON.parse(localStorage.getItem("FAVORITES") || "[]"));
+// $effect(() => {
+//   localStorage.setItem("FAVORITES", JSON.stringify(favorites));
+// });
+
 let selectedTags: (string | null)[] = $state([null, null]);
 const categories = [
   ["All"],
@@ -121,8 +126,6 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
           );
         case categories[1][2]:
           return true;
-        // case categories[2][0]:
-        //   return false;
       }
     });
   }
@@ -216,8 +219,10 @@ function handleDndFinalize(e: any) {
 function handleBotClick(bot: DraggablePlayer) {
   const newId = `${bot.id}-${Math.round(Math.random() * 100000)}`;
   const idx = filteredBots.findIndex((item) => item.id === bot.id);
-  //@ts-ignore
-  filteredBots.splice(idx, 1, { ...filteredBots[idx], id: newId });
+  if (idx !== -1) {
+    // @ts-ignore
+    filteredBots[idx] = { ...filteredBots[idx], id: newId };
+  }
 
   if (selectedTeam === "blue") {
     bluePlayers = [bot, ...bluePlayers];
@@ -409,6 +414,8 @@ function ShowSelectedBotFiles() {
     {#if selectedBot && selectedBot[0].loadout}
     <LoadoutEditor
       bind:visible={showLoadoutEditor}
+      basePath={selectedBot[0].tomlPath}
+      loadoutFile={selectedBot[0].config.settings.loadoutFile}
       loadout={selectedBot[0].loadout}
       items={items}
       name={selectedBot[1]}
