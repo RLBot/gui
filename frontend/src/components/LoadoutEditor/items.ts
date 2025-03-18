@@ -79,6 +79,9 @@ export async function getAndParseItems() {
         nameCounts[item.name] = [true, i];
       }
     }
+
+    // sort category items by name
+    items[category].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   return items;
