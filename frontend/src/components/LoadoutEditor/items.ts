@@ -16,10 +16,10 @@ function toTitleCase(str: string) {
 }
 
 function renameItem(item: CsvItem, category: string) {
-  let specifier = item.uuid.split(".").pop();
-  if (!specifier) return item.name;
+  const uuidParts = item.uuid.split(".").pop();
+  if (!uuidParts) return item.name;
 
-  specifier = specifier
+  let specifier = uuidParts
     .toLowerCase()
     .replace(category.toLowerCase(), "")
     .replaceAll("_", " ");

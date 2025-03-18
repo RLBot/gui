@@ -3,23 +3,21 @@ import { COLORS } from "./colors";
 
 let {
   value = $bindable(),
-  primary,
   team,
   text,
 }: {
   value: number;
-  primary: boolean;
-  team: string;
+  team: string | null;
   text: string;
 } = $props();
 
 let pickedColor = $derived(getColorStyle(value));
 
 const ROWS = 7;
-const COLUMNS = primary ? 10 : 15;
+const COLUMNS = team ? 10 : 15;
 
 function getColorStyle(colorID: number) {
-  const colors = primary ? COLORS[team] : COLORS.secondary;
+  const colors = team ? COLORS[team] : COLORS.secondary;
   const rgb = colors[colorID];
   return rgb ? rgb.toString() : "";
 }
@@ -42,7 +40,7 @@ for (let i = 0; i < ROWS; i++) {
     <span class="color-indicator" style="background-color: rgb({pickedColor})"></span>
     {text}
   </button>
-  <div class="dropmenu {primary ? 'left' : 'center'}">
+  <div class="dropmenu {team ? 'left' : 'center'}">
     <table>
       <tbody>
       {#each COLOR_IDS as idsRow}

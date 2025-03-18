@@ -45,15 +45,13 @@ function randomizeColors() {
   <div class="team-colors">
     <ColorPicker 
       bind:value={loadout.teamColorId}
-      primary={true}
       team={team}
       text="Primary Color"
     />
 
     <ColorPicker
       bind:value={loadout.teamColorId}
-      primary={false}
-      team={team}
+      team={null}
       text="Secondary Color"
     />
 
