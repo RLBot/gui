@@ -2,7 +2,7 @@
 import ColorPicker from "./ColorPicker.svelte";
 import ItemField from "./ItemField.svelte";
 import RandomIcon from "../../assets/random.svg";
-import type { TeamLoadoutConfig } from "../../../bindings/gui";
+import type { CsvItem, TeamLoadoutConfig } from "../../../bindings/gui";
 import { COLORS } from "./colors";
 import { ITEM_TYPES } from "./itemtypes";
 
@@ -12,7 +12,7 @@ let {
   loadout = $bindable(),
 }: {
   items: {
-    [x: string]: { id: number; name: string }[];
+    [x: string]: CsvItem[];
   };
   team: string;
   loadout: TeamLoadoutConfig;

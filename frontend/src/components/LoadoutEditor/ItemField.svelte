@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { TeamLoadoutConfig } from "../../../bindings/gui";
+import type { CsvItem, TeamLoadoutConfig } from "../../../bindings/gui";
 import { PAINTS } from "./colors";
 import type { ItemType } from "./itemtypes";
 import ArrowsIcon from "../../assets/arrows.svg";
@@ -12,7 +12,7 @@ let {
   team,
 }: {
   value: TeamLoadoutConfig;
-  items: { id: number; name: string }[];
+  items: CsvItem[];
   itemType: ItemType;
   team: string;
 } = $props();
@@ -55,6 +55,7 @@ $effect(() => {
 });
 
 $effect(() => {
+  // selectedPaint can be 0, so explicitly check for null
   if (selectedPaint === null || !itemType.paintKey) {
     return;
   }
