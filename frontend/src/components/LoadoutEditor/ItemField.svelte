@@ -88,6 +88,7 @@ function randomizeItem() {
       autocomplete="off"
       bind:value={itemSelection}
       onmousedown={() => itemSelection = ""}
+      title={itemSelection}
     >
     <datalist id="list{itemType.name}{team}">
       {#each items as item}
