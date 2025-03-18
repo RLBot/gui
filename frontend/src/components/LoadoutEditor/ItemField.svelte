@@ -11,11 +11,13 @@ let {
   items,
   itemType,
   team,
+  onchange,
 }: {
   value: TeamLoadoutConfig;
   items: CsvItem[];
   itemType: ItemType;
   team: string;
+  onchange: () => void;
 } = $props();
 
 let itemSelection = $state(loadItemSelection());
@@ -50,6 +52,7 @@ $effect(() => {
 
   // @ts-ignore
   value[itemType.itemKey] = item.id;
+  onchange();
 });
 
 let selectedPaint = $state(loadPaintSelection());
@@ -68,6 +71,7 @@ $effect(() => {
   }
 
   value.paint[itemType.paintKey] = selectedPaint;
+  onchange();
 });
 
 function selectedPaintColorClass() {

@@ -179,6 +179,112 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 	return nil
 }
 
+func WaitForMatchStart(conn *rlbot.RLBotConnection) (*flat.GamePacketT, error) {
+	var gamePacket *flat.GamePacketT
+	var fieldInfo *flat.FieldInfoT
+	for fieldInfo == nil || gamePacket == nil || gamePacket.MatchInfo.MatchPhase != flat.MatchPhaseActive {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return nil, err
+		}
+
+		switch packet := packet.(type) {
+		case *flat.FieldInfoT:
+			fieldInfo = packet
+		case *flat.GamePacketT:
+			gamePacket = packet
+		}
+	}
+
+	return gamePacket, nil
+}
+
+func (a *App) StaticSetter() error {
+	conn, err := rlbot.Connect(a.rlbot_address)
+	if err != nil {
+		return err
+	}
+
+	conn.SendPacket(&flat.ConnectionSettingsT{
+		AgentId:              "",
+		WantsBallPredictions: false,
+		WantsComms:           false,
+		CloseBetweenMatches:  true,
+	})
+
+	conn.SendPacket(&flat.InitCompleteT{})
+
+	_, err = WaitForMatchStart(&conn)
+	if err != nil {
+		return err
+	}
+
+	gameState := flat.DesiredGameStateT{
+		CarStates: []*flat.DesiredCarStateT{
+			{
+				Physics: &flat.DesiredPhysicsT{
+					Location:        Vector3P(0, 0, 20),
+					Rotation:        RotatorP(0, 0, 0),
+					Velocity:        Vector3P(0, 0, 0),
+					AngularVelocity: Vector3P(0, 0, 0),
+				},
+			},
+		},
+	}
+
+	for {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return err
+		}
+
+		switch packet.(type) {
+		case nil:
+			return nil
+		case *flat.GamePacketT:
+			conn.SendPacket(&gameState)
+		}
+	}
+}
+
+func (a *App) SetPreviewInput(controller flat.ControllerStateT) error {
+	conn, err := rlbot.Connect(a.rlbot_address)
+	if err != nil {
+		return err
+	}
+
+	conn.SendPacket(&flat.ConnectionSettingsT{
+		AgentId:              "",
+		WantsBallPredictions: false,
+		WantsComms:           false,
+		CloseBetweenMatches:  true,
+	})
+
+	conn.SendPacket(&flat.InitCompleteT{})
+
+	_, err = WaitForMatchStart(&conn)
+	if err != nil {
+		return err
+	}
+
+	for {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return err
+		}
+
+		switch packet.(type) {
+		case nil:
+			return nil
+		case *flat.GamePacketT:
+			conn.SendPacket(&flat.PlayerInputT{
+				PlayerIndex: 0,
+				ControllerState: &controller,
+			})
+		}
+	}
+}
+
 func (a *App) SetShowcaseType(showcaseType string) error {
 	conn, err := rlbot.Connect(a.rlbot_address)
 	if err != nil {
@@ -194,18 +300,9 @@ func (a *App) SetShowcaseType(showcaseType string) error {
 
 	conn.SendPacket(&flat.InitCompleteT{})
 
-	// ensure match is active
-	var gamePacket *flat.GamePacketT
-	for gamePacket == nil || gamePacket.MatchInfo.MatchPhase != flat.MatchPhaseActive {
-		packet, err := conn.RecvPacket()
-		if err != nil {
-			return err
-		}
-
-		switch packet := packet.(type) {
-		case *flat.GamePacketT:
-			gamePacket = packet
-		}
+	gamePacket, err := WaitForMatchStart(&conn)
+	if err != nil {
+		return err
 	}
 
 	ball := flat.DesiredPhysicsT{
@@ -232,6 +329,10 @@ func (a *App) SetShowcaseType(showcaseType string) error {
 
 	// set initial game state
 	switch showcaseType {
+	case "static":
+		controller.Boost = true
+
+		go a.StaticSetter()
 	case "boost":
 		controller.Boost = true
 		controller.Steer = 1
@@ -269,12 +370,9 @@ func (a *App) SetShowcaseType(showcaseType string) error {
 		},
 	})
 
-	conn.SendPacket(&flat.PlayerInputT{
-		PlayerIndex:     0,
-		ControllerState: &controller,
-	})
-
 	conn.SendPacket(nil)
+
+	go a.SetPreviewInput(controller)
 
 	return nil
 }

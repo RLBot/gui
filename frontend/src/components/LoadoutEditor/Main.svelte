@@ -72,6 +72,7 @@ const showcaseTypes = [
   { id: "goal-explosion", name: "Goal explosion" },
 ];
 
+let lastShowcaseType: string | null = null;
 let selectedShowcaseType: string = $state(
   localStorage.getItem("LOADOUT_SHOWCASE_TYPE") || "static",
 );
@@ -79,6 +80,9 @@ $effect(() => {
   localStorage.setItem("LOADOUT_SHOWCASE_TYPE", selectedShowcaseType);
 });
 
+const autoPreviewSetCooldownMS = 100;
+
+let lastPreviewSetTime = 0;
 let previewMatchTeam: "blue" | "orange" | null = $state(null);
 let previewOnChange = $state(
   localStorage.getItem("LOADOUT_PREVIEW_ON_CHANGE") === "true",
@@ -87,23 +91,19 @@ $effect(() => {
   localStorage.setItem("LOADOUT_PREVIEW_ON_CHANGE", previewOnChange.toString());
 });
 
-$effect(() => {
-  if (!previewMatchTeam || !previewOnChange) {
+function onLoadoutChange(team: "blue" | "orange") {
+  if (previewMatchTeam !== team || !previewOnChange) {
+    return;
+  }
+
+  if (Date.now() - lastPreviewSetTime < autoPreviewSetCooldownMS) {
     return;
   }
 
   PreviewLoadout(previewMatchTeam);
-});
+}
 
-$effect(() => {
-  if (!previewMatchTeam || !previewOnChange) {
-    return;
-  }
-
-  App.SetShowcaseType(selectedShowcaseType);
-});
-
-async function PreviewLoadout(team: "blue" | "orange") {
+function PreviewLoadout(team: "blue" | "orange") {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
     toast.error("Please select a launcher first", {
@@ -122,25 +122,38 @@ async function PreviewLoadout(team: "blue" | "orange") {
     launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
   };
 
-  try {
-    if (!previewMatchTeam) {
-      await App.LaunchPreviewLoadout(
-        options,
-        ExistingMatchBehavior.ExistingMatchBehaviorRestart,
-      );
-      previewMatchTeam = team;
-      toast.success(`Launching preview for ${previewMatchTeam} car`);
-    } else {
-      await App.SetLoadout(options);
-      previewMatchTeam = team;
-      toast.success(`Preview updated for ${team} car`);
-    }
+  lastPreviewSetTime = Date.now();
 
-    App.SetShowcaseType(selectedShowcaseType);
-  } catch (e) {
+  LaunchMatch(options, team).catch((e) => {
     previewMatchTeam = null;
     toast.error(`Preview failed: ${e}`);
+  });
+}
+
+async function LaunchMatch(options: LoadoutPreviewOptions, team: "blue" | "orange") {
+  if (!previewMatchTeam) {
+    await App.LaunchPreviewLoadout(
+      options,
+      ExistingMatchBehavior.ExistingMatchBehaviorRestart,
+    );
+
+    toast.success(`Launching preview for ${team} car`);
+  } else {
+    if (lastShowcaseType !== selectedShowcaseType) {
+      await App.LaunchPreviewLoadout(
+        options,
+        ExistingMatchBehavior.ExistingMatchBehaviorContinueAndSpawn,
+      );
+    } else {
+      await App.SetLoadout(options);
+    }
+
+    toast.success(`Preview updated for ${team} car`);
   }
+
+  previewMatchTeam = team;
+  lastShowcaseType = selectedShowcaseType;
+  App.SetShowcaseType(selectedShowcaseType);
 }
 </script>
 
@@ -150,12 +163,14 @@ async function PreviewLoadout(team: "blue" | "orange") {
       items={items}
       team="blue"
       bind:loadout={blueLoadout}
+      onchange={() => onLoadoutChange("blue")}
     />
 
     <TeamEditor
       items={items}
       team="orange"
       bind:loadout={orangeLoadout}
+      onchange={() => onLoadoutChange("orange")}
     />
   </div>
   <div id="footer">

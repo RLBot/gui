@@ -11,12 +11,14 @@ let {
   items,
   team,
   loadout = $bindable(),
+  onchange,
 }: {
   items: {
     [x: string]: CsvItem[];
   };
   team: string;
   loadout: TeamLoadoutConfig;
+  onchange: () => void;
 } = $props();
 
 function filterItems(category: string) {
@@ -62,12 +64,14 @@ function randomizeTeamLoadout() {
       bind:value={loadout.teamColorId}
       team={team}
       text="Primary Color"
+      onchange={onchange}
     />
 
     <ColorPicker
       bind:value={loadout.customColorId}
       team={null}
       text="Secondary Color"
+      onchange={onchange}
     />
 
     <button class="randomize" onclick={randomizeTeamLoadout} title="Randomize entire {team} team loadout">
@@ -81,6 +85,7 @@ function randomizeTeamLoadout() {
         itemType={itemType}
         team={team}
         bind:value={loadout}
+        onchange={onchange}
       />
     {/each}
   </div>

@@ -5,10 +5,12 @@ let {
   value = $bindable(),
   team,
   text,
+  onchange,
 }: {
   value: number;
   team: string | null;
   text: string;
+  onchange: () => void;
 } = $props();
 
 let pickedColor = $derived(getColorStyle(value));
@@ -33,6 +35,11 @@ for (let i = 0; i < ROWS; i++) {
     COLOR_IDS[i].push(i * COLUMNS + j);
   }
 }
+
+function handleClick(id: number) {
+  value = id;
+  onchange();
+}
 </script>
 
 <div class="dropdown">
@@ -50,7 +57,7 @@ for (let i = 0; i < ROWS; i++) {
               <!-- svelte-ignore a11y_consider_explicit_label -->
               <button
                 style="background-color: rgb({getColorStyle(id)})"
-                onclick={() => value = id}
+                onclick={() => handleClick(id)}
               >
                 <div class="colorpicker-color {pickedItemClass(id)}"></div>
               </button>
