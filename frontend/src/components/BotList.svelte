@@ -5,7 +5,6 @@ import {
   SHADOW_ITEM_MARKER_PROPERTY_NAME,
   TRIGGERS,
   dndzone,
-  type Item,
 } from "svelte-dnd-action";
 import { flip } from "svelte/animate";
 import { App, BotInfo } from "../../bindings/gui";
@@ -16,9 +15,7 @@ import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
 //@ts-ignore
 import LoadoutEditor from "./LoadoutEditor/Main.svelte";
-//@ts-ignore
-import ItemsCsv from "../assets/items.csv";
-import { ITEM_TYPES, type CsvItem } from "./LoadoutEditor/itemtypes";
+import { getAndParseItems } from "./LoadoutEditor/items";
 
 let {
   bots = [],
@@ -282,81 +279,6 @@ function ShowSelectedBotFiles() {
       toast.error(err, { duration: 10000 }),
     );
   }
-}
-
-function toTitleCase(str: string) {
-  return str.replace(
-    /\w\S*/g,
-    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
-  );
-}
-
-function renameItem(item: Item, category: string) {
-  let specifier = item.uuid
-    .split(".")
-    .pop()
-    .toLowerCase()
-    .replace(category.toLowerCase(), "")
-    .replaceAll("_", " ");
-
-  const nameParts = item.name.split(":");
-  if (nameParts.length > 1) {
-    const bodyName = nameParts[0].toLowerCase();
-    specifier = specifier.replace(bodyName, "");
-  }
-
-  return `${item.name} (${toTitleCase(specifier.trim())})`;
-}
-
-async function getAndParseItems() {
-  const resp = await fetch(ItemsCsv);
-  const csv = await resp.text();
-  const lines = csv.split(/\r?\n/);
-
-  let items: {
-    [x: string]: CsvItem[];
-  } = {};
-
-  for (const key in ITEM_TYPES) {
-    const category = ITEM_TYPES[key].category;
-    items[category] = [];
-  }
-
-  for (const line of lines) {
-    const columns = line.split(",");
-    const category = columns[1];
-
-    if (items[category])
-      items[category].push({
-        id: +columns[0],
-        uuid: columns[2],
-        name: columns[3],
-      });
-  }
-
-  // rename duplicate item names
-  for (const category in items) {
-    const nameCounts: { [x: string]: [boolean, number] } = {};
-
-    for (const [i, item] of items[category].entries()) {
-      if (nameCounts[item.name]) {
-        const [needsHandling, idx] = nameCounts[item.name];
-
-        item.name = renameItem(item, category);
-
-        // rename the original item as well
-        if (needsHandling) {
-          const item = items[category][idx];
-          nameCounts[item.name] = [false, idx];
-          item.name = renameItem(item, category);
-        }
-      } else {
-        nameCounts[item.name] = [true, i];
-      }
-    }
-  }
-
-  return items;
 }
 </script>
 
