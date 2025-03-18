@@ -26,6 +26,7 @@ let {
   enabledScripts = $bindable({}),
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
+  map,
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -35,6 +36,7 @@ let {
   enabledScripts: { [key: number]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
+  map: string,
 } = $props();
 const flipDurationMs = 100;
 
@@ -419,6 +421,7 @@ function ShowSelectedBotFiles() {
       loadout={selectedBot[0].loadout}
       items={items}
       name={selectedBot[1]}
+      map={map}
     />
     {/if}
   {/await}

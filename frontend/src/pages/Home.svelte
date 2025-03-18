@@ -357,6 +357,7 @@ function handleSearch(event: Event) {
       scripts={scripts}
       searchQuery={searchQuery}
       selectedTeam={selectedTeam}
+      map={$mapStore}
     />
   </div>
 

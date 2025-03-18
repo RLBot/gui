@@ -22,6 +22,7 @@ let {
   loadoutFile,
   items,
   name,
+  map,
 }: {
   visible: boolean;
   loadout: LoadoutConfig;
@@ -31,6 +32,7 @@ let {
     [x: string]: CsvItem[];
   };
   name: string;
+  map: string;
 } = $props();
 
 let blueLoadout: TeamLoadoutConfig = $state(
@@ -115,7 +117,7 @@ function PreviewLoadout(team: "blue" | "orange") {
   }
 
   const options: LoadoutPreviewOptions = {
-    map: MAPS_STANDARD["DFH Stadium"],
+    map,
     loadout: team === "blue" ? blueLoadout : orangeLoadout,
     team: team === "blue" ? 0 : 1,
     launcher,
@@ -130,7 +132,10 @@ function PreviewLoadout(team: "blue" | "orange") {
   });
 }
 
-async function LaunchMatch(options: LoadoutPreviewOptions, team: "blue" | "orange") {
+async function LaunchMatch(
+  options: LoadoutPreviewOptions,
+  team: "blue" | "orange",
+) {
   if (!previewMatchTeam) {
     await App.LaunchPreviewLoadout(
       options,
