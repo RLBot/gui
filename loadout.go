@@ -278,7 +278,7 @@ func (a *App) SetPreviewInput(controller flat.ControllerStateT) error {
 			return nil
 		case *flat.GamePacketT:
 			conn.SendPacket(&flat.PlayerInputT{
-				PlayerIndex: 0,
+				PlayerIndex:     0,
 				ControllerState: &controller,
 			})
 		}
