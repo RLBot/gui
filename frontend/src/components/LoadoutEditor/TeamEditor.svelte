@@ -3,7 +3,7 @@ import ColorPicker from "./ColorPicker.svelte";
 import ItemField from "./ItemField.svelte";
 import RandomIcon from "../../assets/random.svg";
 import type { CsvItem, TeamLoadoutConfig } from "../../../bindings/gui";
-import { COLORS } from "./colors";
+import { COLORS, PAINTS } from "./colors";
 import { ITEM_TYPES } from "./itemtypes";
 
 let {
@@ -33,9 +33,23 @@ function filterItems(category: string) {
   });
 }
 
-function randomizeColors() {
+function randomizeTeamLoadout() {
   loadout.teamColorId = Math.floor(Math.random() * COLORS[team].length);
   loadout.teamColorId = Math.floor(Math.random() * COLORS.secondary.length);
+
+  for (const itemType of ITEM_TYPES) {
+    const items = filterItems(itemType.category);
+    const randomItem = items[Math.floor(Math.random() * items.length)];
+
+    // @ts-ignore
+    loadout[itemType.itemKey] = randomItem.id;
+
+    if (itemType.paintKey) {
+      loadout.paint[itemType.paintKey] = Math.floor(
+        Math.random() * PAINTS.length,
+      );
+    }
+  }
 }
 </script>
 
@@ -55,7 +69,7 @@ function randomizeColors() {
       text="Secondary Color"
     />
 
-    <button class="randomize" onclick={randomizeColors}>
+    <button class="randomize" onclick={randomizeTeamLoadout} title="Randomize entire {team} team loadout">
       <img src={RandomIcon} alt="Randomize colors" />
     </button>
   </div>

@@ -18,7 +18,8 @@ const COLUMNS = team ? 10 : 15;
 
 function getColorStyle(colorID: number) {
   const colors = team ? COLORS[team] : COLORS.secondary;
-  return colors[colorID].toString();
+  const rgb = colors[colorID];
+  return rgb ? rgb.toString() : "";
 }
 
 function pickedItemClass(colorID: number) {

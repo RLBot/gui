@@ -61,8 +61,8 @@ function saveLoadout() {
   <div id="footer">
     <div class="left"></div>
     <div class="right">
-      <button type="submit" onclick={saveLoadout}>Save Changes</button>
-      <button type="reset" onclick={revertChanges}>Revert</button>
+      <button type="submit" onclick={saveLoadout}>Save and close</button>
+      <button type="reset" onclick={revertChanges}>Revert changes</button>
     </div>
   </div>
 </Modal>
