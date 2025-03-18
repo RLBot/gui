@@ -161,8 +161,8 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 	}
 
 	err = conn.SendPacket(&flat.MatchConfigurationT{
-		PlayerConfigurations: []*flat.PlayerConfigurationT{},
-		ScriptConfigurations: []*flat.ScriptConfigurationT{},
+		PlayerConfigurations:  []*flat.PlayerConfigurationT{},
+		ScriptConfigurations:  []*flat.ScriptConfigurationT{},
 		GameMode:              flat.GameModeSoccer,
 		Mutators:              &flat.MutatorSettingsT{},
 		ExistingMatchBehavior: flat.ExistingMatchBehaviorRestart,
