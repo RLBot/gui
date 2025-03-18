@@ -8,11 +8,12 @@ import {
   TeamLoadoutConfig,
 } from "../../../bindings/gui";
 import { MAPS_STANDARD } from "../../arena-names";
+import ArrowsIcon from "../../assets/arrows.svg";
 import EyeIcon from "../../assets/eye.svg";
 import Modal from "../Modal.svelte";
+import Switch from "../Switch.svelte";
 import TeamEditor from "./TeamEditor.svelte";
 import type { CsvItem } from "./items";
-import Switch from "../Switch.svelte";
 
 let {
   visible = $bindable(false),
@@ -63,8 +64,25 @@ function saveLoadout() {
     });
 }
 
+const showcaseTypes = [
+  { id: "static", name: "Static" },
+  { id: "throttle", name: "Drive around center" },
+  { id: "boost", name: "Boost around center" },
+  { id: "back-center-kickoff", name: "Back center kickoff" },
+  { id: "goal-explosion", name: "Goal explosion" },
+];
+
+let selectedShowcaseType: string = $state(
+  localStorage.getItem("LOADOUT_SHOWCASE_TYPE") || "static",
+);
+$effect(() => {
+  localStorage.setItem("LOADOUT_SHOWCASE_TYPE", selectedShowcaseType);
+});
+
 let previewMatchTeam: "blue" | "orange" | null = $state(null);
-let previewOnChange = $state(localStorage.getItem("LOADOUT_PREVIEW_ON_CHANGE") === "true");
+let previewOnChange = $state(
+  localStorage.getItem("LOADOUT_PREVIEW_ON_CHANGE") === "true",
+);
 $effect(() => {
   localStorage.setItem("LOADOUT_PREVIEW_ON_CHANGE", previewOnChange.toString());
 });
@@ -74,10 +92,18 @@ $effect(() => {
     return;
   }
 
-  PreviewLoadout(previewMatchTeam)
+  PreviewLoadout(previewMatchTeam);
 });
 
-function PreviewLoadout(team: "blue" | "orange") {
+$effect(() => {
+  if (!previewMatchTeam || !previewOnChange) {
+    return;
+  }
+
+  App.SetShowcaseType(selectedShowcaseType);
+});
+
+async function PreviewLoadout(team: "blue" | "orange") {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
     toast.error("Please select a launcher first", {
@@ -96,30 +122,24 @@ function PreviewLoadout(team: "blue" | "orange") {
     launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
   };
 
-  if (!previewMatchTeam) {
-    App.LaunchPreviewLoadout(
-      options,
-      ExistingMatchBehavior.ExistingMatchBehaviorRestart,
-    )
-      .then(() => {
-        previewMatchTeam = team;
-        toast.success(`Launching preview for ${previewMatchTeam} car`);
-      })
-      .catch((e) => {
-        previewMatchTeam = null;
-        toast.error(`Failed to launch preview: ${e}`);
-      });
-  } else {
-    App.SetLoadout(options)
-      .then(() => {
-        previewMatchTeam = team;
-        toast.success(
-          `Preview updated for ${team} car`,
-        );
-      })
-      .catch((e) => {
-        toast.error(`Failed to update preview: ${e}`);
-      });
+  try {
+    if (!previewMatchTeam) {
+      await App.LaunchPreviewLoadout(
+        options,
+        ExistingMatchBehavior.ExistingMatchBehaviorRestart,
+      );
+      previewMatchTeam = team;
+      toast.success(`Launching preview for ${previewMatchTeam} car`);
+    } else {
+      await App.SetLoadout(options);
+      previewMatchTeam = team;
+      toast.success(`Preview updated for ${team} car`);
+    }
+
+    App.SetShowcaseType(selectedShowcaseType);
+  } catch (e) {
+    previewMatchTeam = null;
+    toast.error(`Preview failed: ${e}`);
   }
 }
 </script>
@@ -149,7 +169,6 @@ function PreviewLoadout(team: "blue" | "orange") {
         <img src={EyeIcon} alt="eye">
         Orange car
       </button>
-      {#if previewMatchTeam}
       <button id="preview-on-change" onclick={() => previewOnChange = !previewOnChange}>
         Auto-preview
         <Switch
@@ -160,7 +179,14 @@ function PreviewLoadout(team: "blue" | "orange") {
           width={40}
         />
       </button>
-      {/if}
+      <select
+        bind:value={selectedShowcaseType}
+        style="background-image: url({ArrowsIcon})"
+      >
+        {#each showcaseTypes as showcaseType}
+          <option value={showcaseType.id}>{showcaseType.name}</option>
+        {/each}
+      </select>
     </div>
     <div class="right">
       <button type="submit" onclick={saveLoadout}>Save and close</button>
@@ -170,6 +196,20 @@ function PreviewLoadout(team: "blue" | "orange") {
 </Modal>
 
 <style>
+  select {
+    display: inline-block;
+    padding: .375rem 1.75rem .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    border: 1px solid #ced4da;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 8px 10px;
+  }
   .left, .right {
     display: inline-flex;
     flex-wrap: wrap;

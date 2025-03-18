@@ -208,8 +208,6 @@ func (a *App) SetShowcaseType(showcaseType string) error {
 		}
 	}
 
-	println("Match is active")
-
 	ball := flat.DesiredPhysicsT{
 		Location:        Vector3P(0, 0, -100),
 		Velocity:        Vector3P(0, 0, 0),
