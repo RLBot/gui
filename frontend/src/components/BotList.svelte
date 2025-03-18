@@ -38,24 +38,14 @@ let {
 } = $props();
 const flipDurationMs = 100;
 
-const extraModeTags = [
-  "hoops",
-  "dropshot",
-  "snow-day",
-  "rumble",
-  "spike-rush",
-  "heatseaker",
-];
-
 let selectedTags: (string | null)[] = $state([null, null]);
 const categories = [
   ["All"],
   ["Standard", "Extra Modes", "Special bots/scripts"],
-  ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
+  ["Favorites"],
 ];
-
-let selectedSubTag: number | null = $state(null);
 const subCategories: { [x: string]: string[] } = {
+  [categories[1][0]]: ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
   [categories[1][1]]: [
     "Hoops",
     "Dropshot",
@@ -63,6 +53,17 @@ const subCategories: { [x: string]: string[] } = {
     "Rumble",
     "Spike Rush",
     "Heatseeker",
+  ],
+};
+const subCategoryTags = {
+  [categories[1][0]]: ["1v1", "teamplay", "goalie"],
+  [categories[1][1]]: [
+    "hoops",
+    "dropshot",
+    "snow-day",
+    "rumble",
+    "spike-rush",
+    "heatseaker",
   ],
 };
 
@@ -92,12 +93,7 @@ $effect(() => {
 
 let filteredBots: DraggablePlayer[] = $state([]);
 $effect(() => {
-  filteredBots = filterBots(
-    selectedTags,
-    selectedSubTag,
-    showHuman,
-    searchQuery,
-  );
+  filteredBots = filterBots(selectedTags, showHuman, searchQuery);
 });
 
 let filteredScripts: ToggleableScript[] = $state([]);
@@ -117,14 +113,16 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
       switch (filterTags[0]) {
         case categories[1][0]:
           return !script.tags.some((tag) =>
-            [...extraModeTags, "memebot"].includes(tag),
+            [...subCategoryTags[categories[1][1]], "memebot"].includes(tag),
           );
         case categories[1][1]:
-          return script.tags.some((tag) => extraModeTags.includes(tag));
+          return script.tags.some((tag) =>
+            subCategoryTags[categories[1][1]].includes(tag),
+          );
         case categories[1][2]:
           return true;
-        default:
-          return true;
+        // case categories[2][0]:
+        //   return false;
       }
     });
   }
@@ -140,48 +138,38 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 
 function filterBots(
   filterTags: (string | null)[],
-  selectedSubTag: number | null,
   showHuman: boolean,
   searchQuery: string,
 ) {
   let filtered = bots.slice(1);
 
-  if (filterTags[0]) {
+  const mainTag = filterTags[0];
+  if (mainTag) {
     filtered = filtered.filter((bot) => {
-      switch (filterTags[0]) {
+      switch (mainTag) {
         case categories[1][0]:
           return !bot.tags.some((tag) =>
-            [...extraModeTags, "memebot", "human"].includes(tag),
+            [...subCategoryTags[categories[1][1]], "memebot", "human"].includes(
+              tag,
+            ),
           );
         case categories[1][1]:
-          return bot.tags.some((tag) => extraModeTags.includes(tag));
+          return bot.tags.some((tag) =>
+            subCategoryTags[categories[1][1]].includes(tag),
+          );
         case categories[1][2]:
           return bot.tags.some((tag) => tag === "memebot");
-        default:
-          return true;
       }
     });
-  }
 
-  if (filterTags[1]) {
-    filtered = filtered.filter((bot) => {
-      switch (filterTags[1]) {
-        case categories[2][0]:
-          return bot.tags.some((tag) => tag === "1v1");
-        case categories[2][1]:
-          return bot.tags.some((tag) => tag === "teamplay");
-        case categories[2][2]:
-          return bot.tags.some((tag) => tag === "goalie");
-        default:
-          return true;
-      }
-    });
-  }
-
-  if (selectedSubTag !== null) {
-    filtered = filtered.filter((bot) =>
-      bot.tags.includes(extraModeTags[selectedSubTag]),
-    );
+    const subTag = filterTags[1];
+    if (subTag) {
+      filtered = filtered.filter((bot) => {
+        return bot.tags.includes(
+          subCategoryTags[mainTag][subCategories[mainTag].indexOf(subTag)],
+        );
+      });
+    }
   }
 
   if (showHuman) {
@@ -197,21 +185,16 @@ function filterBots(
   return filtered;
 }
 
-function handleTagClick(tag: string, groupIndex: number) {
-  if (groupIndex !== 2) {
-    selectedSubTag = null;
-  }
-
-  if (groupIndex === 0) {
+function handleTagClick(tag: string) {
+  if (tag === categories[0][0] || selectedTags[0] === tag) {
     selectedTags = [null, null];
   } else {
-    selectedTags[groupIndex - 1] =
-      selectedTags[groupIndex - 1] === tag ? null : tag;
+    selectedTags = [tag, null];
   }
 }
 
-function handleSubTagClick(tag: number) {
-  selectedSubTag = selectedSubTag === tag ? null : tag;
+function handleSubTagClick(tag: string) {
+  selectedTags[1] = selectedTags[1] === tag ? null : tag;
 }
 
 function handleDndConsider(e: any) {
@@ -283,12 +266,12 @@ function ShowSelectedBotFiles() {
 </script>
 
 <div class="tag-buttons">
-  {#each categories as tagGroup, groupIndex}
+  {#each categories as tagGroup}
     <div class="tag-group">
       {#each tagGroup as tag}
         <button
-          onclick={() => handleTagClick(tag, groupIndex)}
-          class:selected={tag === categories[0][0] ? selectedTags.every(t => t == null) : selectedTags[groupIndex-1] === tag}
+          onclick={() => handleTagClick(tag)}
+          class:selected={tag === categories[0][0] ? selectedTags.every(t => t == null) : selectedTags[0] === tag}
         >
           {tag}
         </button>
@@ -300,10 +283,10 @@ function ShowSelectedBotFiles() {
 {#if selectedTags[0] && subCategories[selectedTags[0]]}
 <div class="tag-buttons">
   <div class="tag-group">
-    {#each subCategories[selectedTags[0]] as tag, i}
+    {#each subCategories[selectedTags[0]] as tag}
       <button
-        onclick={() => handleSubTagClick(i)}
-        class:selected={selectedSubTag === i}
+        onclick={() => handleSubTagClick(tag)}
+        class:selected={selectedTags[1] === tag}
       >
         {tag}
       </button>
