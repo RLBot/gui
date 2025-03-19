@@ -123,8 +123,8 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
     filtered = filtered.filter((script) => {
       switch (filterTags[0]) {
         case categories[1][0]:
-          return !script.tags.some((tag) =>
-            [...subCategoryTags[categories[1][1]], "memebot"].includes(tag),
+          return script.tags.some((tag) =>
+            subCategoryTags[categories[1][0]].includes(tag),
           );
         case categories[1][1]:
           return script.tags.some((tag) =>
@@ -159,10 +159,8 @@ function filterBots(
     filtered = filtered.filter((bot) => {
       switch (mainTag) {
         case categories[1][0]:
-          return !bot.tags.some((tag) =>
-            [...subCategoryTags[categories[1][1]], "memebot", "human"].includes(
-              tag,
-            ),
+          return bot.tags.some((tag) =>
+            subCategoryTags[categories[1][0]].includes(tag),
           );
         case categories[1][1]:
           return bot.tags.some((tag) =>
