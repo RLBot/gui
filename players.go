@@ -231,7 +231,7 @@ type BotDetails struct {
 	// Programming language the bot is written in.
 	// (RLGym for example is also valid even though it is written in Python)
 	Language string `toml:"language" json:"language"`
-	// ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseaker, memebot
+	// ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseeker, memebot
 	// NOTE: Only add the goalie tag if your bot only plays as a goalie; this directly contrasts with the teamplay tag!
 	// NOTE: Only add a tag for a special game mode if you bot properly supports it
 	Tags []string `toml:"tags" json:"tags"`

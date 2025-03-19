@@ -74,7 +74,7 @@ const subCategoryTags = {
     "snow-day",
     "rumble",
     "spike-rush",
-    "heatseaker",
+    "heatseeker",
   ],
 };
 
