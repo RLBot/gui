@@ -182,7 +182,7 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 func WaitForMatchStart(conn *rlbot.RLBotConnection) (*flat.GamePacketT, error) {
 	var gamePacket *flat.GamePacketT
 	var fieldInfo *flat.FieldInfoT
-	for fieldInfo == nil || gamePacket == nil || gamePacket.MatchInfo.MatchPhase != flat.MatchPhaseActive {
+	for fieldInfo == nil || gamePacket == nil {
 		packet, err := conn.RecvPacket()
 		if err != nil {
 			return nil, err
@@ -191,6 +191,19 @@ func WaitForMatchStart(conn *rlbot.RLBotConnection) (*flat.GamePacketT, error) {
 		switch packet := packet.(type) {
 		case *flat.FieldInfoT:
 			fieldInfo = packet
+		case *flat.GamePacketT:
+			gamePacket = packet
+		}
+	}
+
+	// while the match isn't active
+	for !(gamePacket.MatchInfo.MatchPhase == flat.MatchPhaseActive || gamePacket.MatchInfo.MatchPhase == flat.MatchPhaseKickoff) {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return nil, err
+		}
+
+		switch packet := packet.(type) {
 		case *flat.GamePacketT:
 			gamePacket = packet
 		}
