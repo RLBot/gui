@@ -10,6 +10,8 @@ import { flip } from "svelte/animate";
 import { App, BotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
+import starIcon from "../assets/star.svg";
+import filledStarIcon from "../assets/starFilled.svg";
 import type { DraggablePlayer, ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
@@ -36,14 +38,16 @@ let {
   enabledScripts: { [key: number]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
-  map: string,
+  map: string;
 } = $props();
 const flipDurationMs = 100;
 
-// let favorites = $state(JSON.parse(localStorage.getItem("FAVORITES") || "[]"));
-// $effect(() => {
-//   localStorage.setItem("FAVORITES", JSON.stringify(favorites));
-// });
+let favorites: string[] = $state(
+  JSON.parse(localStorage.getItem("FAVORITES") || "[]"),
+);
+$effect(() => {
+  localStorage.setItem("FAVORITES", JSON.stringify(favorites));
+});
 
 let selectedTags: (string | null)[] = $state([null, null]);
 const categories = [
@@ -128,6 +132,8 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
           );
         case categories[1][2]:
           return true;
+        case categories[2][0]:
+          return favorites.includes(script.config.tomlPath);
       }
     });
   }
@@ -164,6 +170,10 @@ function filterBots(
           );
         case categories[1][2]:
           return bot.tags.some((tag) => tag === "memebot");
+        case categories[2][0]:
+          return bot.player instanceof BotInfo
+            ? favorites.includes(bot.player.tomlPath)
+            : false;
       }
     });
 
@@ -270,6 +280,18 @@ function ShowSelectedBotFiles() {
     );
   }
 }
+
+function SelectedToggleFavorite() {
+  if (!selectedBot) return;
+
+  const path = selectedBot[0].tomlPath;
+  const index = favorites.indexOf(path);
+  if (index !== -1) {
+    favorites.splice(index, 1);
+  } else {
+    favorites.push(path);
+  }
+}
 </script>
 
 <div class="tag-buttons">
@@ -366,7 +388,29 @@ function ShowSelectedBotFiles() {
   {/each}
 </div>
 
-<Modal title={selectedBot ? selectedBot[1] : ""} bind:visible={showInfoModal}>
+{#snippet botInfoTitle()}
+{#if selectedBot}
+  {@const isFavorite = favorites.includes(selectedBot[0].tomlPath)}
+  <span id="bot-info-title">
+    {selectedBot[1]}
+    <input
+      type="checkbox"
+      checked={isFavorite}
+      onchange={SelectedToggleFavorite}
+      id="favorite-checkbox"
+    >
+    <label for="favorite-checkbox">
+      {#if isFavorite}
+        <img src={filledStarIcon} alt="unmark as favorite">
+      {:else}
+        <img src={starIcon} alt="mark as favorite">
+      {/if}
+    </label>
+  </span>
+{/if}
+{/snippet}
+
+<Modal title={botInfoTitle} bind:visible={showInfoModal}>
 {#if selectedBot}
   <div class="modal-content">
     <div class="bot-left-column">
@@ -412,7 +456,7 @@ function ShowSelectedBotFiles() {
 {#if everSelectedBot}
   <!-- svelte-ignore block_empty -->
   {#await getAndParseItems() }
-  {:then items } 
+  {:then items }
     {#if selectedBot && selectedBot[0].loadout}
     <LoadoutEditor
       bind:visible={showLoadoutEditor}
@@ -572,5 +616,22 @@ function ShowSelectedBotFiles() {
     margin-top: 12px;
     margin-bottom: 5px;
     font-weight: bold;
+  }
+  #bot-info-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #bot-info-title label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  #bot-info-title input {
+    display: none;
+  }
+  #bot-info-title img {
+    filter: invert();
+    height: 24px;
   }
 </style>
