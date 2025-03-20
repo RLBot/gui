@@ -426,6 +426,7 @@ function handleSearch(event: Event) {
     filter: invert();
   }
   .teams {
+    min-height: 93px;
     overflow: auto;
     display: flex;
     flex-direction: column;

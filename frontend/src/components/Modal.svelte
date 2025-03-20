@@ -80,7 +80,8 @@ function handleMouseDown(e: MouseEvent) {
   }
   .modalBody {
     padding: 1rem;
-    max-width: 80vw;
+    max-width: 90vw;
     max-height: 80vh;
+    overflow-y: auto;
   }
 </style>

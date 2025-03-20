@@ -125,6 +125,10 @@ input {
 .dropdown > .dropmenu.left {
   left: 0px;
 }
+.dropdown > .dropmenu.center {
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 .dropdown:focus-within > .dropmenu {
   opacity: 1;
