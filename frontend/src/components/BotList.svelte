@@ -410,8 +410,8 @@ function SelectedToggleFavorite() {
 
 <Modal title={botInfoTitle} bind:visible={showInfoModal}>
 {#if selectedBot}
-  <div class="modal-content">
-    <div class="bot-left-column">
+  <div class="info-layout">
+    <div class="info-main">
       <p>Developers: {selectedBot[0].config.details.developer}</p>
       <p>Description: {selectedBot[0].config.details.description}</p>
       <p>Fun fact: {selectedBot[0].config.details.funFact}</p>
@@ -431,19 +431,21 @@ function SelectedToggleFavorite() {
       </div>
       {/if}
     </div>
+
     {#if selectedBot[2]}
-    <div class="bot-right-column">
+    <div class="info-logo">
       <img src={selectedBot[2]} alt="icon" />
     </div>
     {/if}
-  </div>
-  <div class="bot-footer">
-    <p id="toml-path">{selectedBot[0].tomlPath}</p>
-    <div id="button-group">
-      {#if selectedBot[0].loadout}
-      <button onclick={EditSelectedBotLoadout}>Edit Loadout</button>
-      {/if}
-      <button onclick={ShowSelectedBotFiles}>Show Files</button>
+
+    <div class="info-extra">
+      <p class="toml-path">{selectedBot[0].tomlPath}</p>
+      <div class="button-group">
+        {#if selectedBot[0].loadout}
+        <button onclick={EditSelectedBotLoadout}>Edit Loadout</button>
+        {/if}
+        <button onclick={ShowSelectedBotFiles}>Show Files</button>
+      </div>
     </div>
   </div>
 {/if}
@@ -549,6 +551,7 @@ function SelectedToggleFavorite() {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    margin-top: auto;
   }
   .tag {
     background-color: grey;
@@ -557,56 +560,65 @@ function SelectedToggleFavorite() {
     border-radius: 0.25rem;
     margin: 0 0.3rem;
   }
-  .modal-content {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    max-width: 900px;
-  }
-  @media (max-width: 800px) {
-    .modal-content {
-      flex-wrap: wrap;
+  .info-layout {
+      display: grid;
+      gap: 1rem;
+      max-width: 800px;
     }
-    .bot-right-column {
-      width: 100%;
+    .info-layout {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "main"
+        "logo"
+        "extra";
     }
-  }
-  .bot-left-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .bot-right-column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .bot-right-column img {
-    max-height: 250px;
-    max-width: 250px;
-    width: auto;
-  }
-  .bot-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
+    @media (min-width: 850px) {
+      .info-layout {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "main logo"
+          "extra logo";
+      }
+    }
+    .info-main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      grid-area: main;
+    }
+    .info-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      grid-area: extra;
+    }
+    .info-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      grid-area: logo;
+    }
+    .info-logo img {
+      max-width: 250px;
+      max-height: 250px;
+      width: auto;
+      height: auto;
+    }
   .unique-bot-identifier {
     color: #868686;
   }
-  #button-group {
+  .button-group {
     display: flex;
     gap: 1rem;
   }
-  #button-group button {
+  .button-group button {
     background: var(--background-alt);
     color: var(--foreground);
     cursor: pointer;
     font-size: 1rem;
     align-self: flex-start;
   }
-  #toml-path {
+  .toml-path {
     font-size: 0.8rem;
     color: grey;
   }
