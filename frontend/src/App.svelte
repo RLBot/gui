@@ -1,11 +1,11 @@
 <script lang="ts">
-import Home from "./pages/Home.svelte";
-import RocketHost from "./pages/RocketHost.svelte";
-import logo from "./assets/rlbot_logo.svg";
 import { Toaster } from "svelte-5-french-toast";
-import Events from "./components/Events.svelte";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
+import logo from "./assets/rlbot_logo.svg";
+import Events from "./components/Events.svelte";
+import Home from "./pages/Home.svelte";
+import RocketHost from "./pages/RocketHost.svelte";
 
 let activePage = $state("home");
 
@@ -36,7 +36,7 @@ let eventsVisible = $state(false);
       {/if}
     </div>
     <div class="navbuttons">
-      <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => { eventsVisible = true; }}>
+      <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => eventsVisible = true}>
         Events
 
         {#if eventsNow > 0}

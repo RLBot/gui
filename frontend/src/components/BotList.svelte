@@ -12,6 +12,7 @@ import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
+import { BASE_PLAYERS } from "../base-players";
 import type { DraggablePlayer, ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
@@ -22,7 +23,7 @@ import { getAndParseItems } from "./LoadoutEditor/items";
 let {
   bots = [],
   scripts = [],
-  showHuman = $bindable(true),
+  showHuman = $bindable(),
   searchQuery = "",
   selectedTeam = null,
   enabledScripts = $bindable({}),
@@ -152,7 +153,7 @@ function filterBots(
   showHuman: boolean,
   searchQuery: string,
 ) {
-  let filtered = bots.slice(1);
+  let filtered = bots.slice();
 
   const mainTag = filterTags[0];
   if (mainTag) {
@@ -186,7 +187,7 @@ function filterBots(
   }
 
   if (showHuman) {
-    filtered = [bots[0], ...filtered];
+    filtered = [BASE_PLAYERS[0], ...filtered];
   }
 
   if (searchQuery) {

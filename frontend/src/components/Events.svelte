@@ -119,7 +119,6 @@ async function fetchEvents() {
   const data = await response.json();
 
   const events: {
-    id: number;
     name: string;
     location: string;
     time: string;
@@ -129,7 +128,7 @@ async function fetchEvents() {
   }[] = [];
 
   // compute dates and times
-  for (const [id, event] of data.items.entries()) {
+  for (const event of data.items) {
     const [name, newDate] = dateTimeCheck(today, event);
 
     const remainingTimeInMs = newDate.getTime() - today.getTime();
@@ -148,7 +147,6 @@ async function fetchEvents() {
         : event.description;
 
     events.push({
-      id,
       name,
       location: event.location,
       time: newDate.toLocaleString(),
@@ -177,7 +175,7 @@ async function fetchEvents() {
       {#if events.length === 0}
         <p>There are no community events at this time.</p>
       {:else}
-      {#each events as event (event.id)}
+      {#each events as event}
         {@const remainingTimeInMs = event.date.getTime() - now.getTime()}
         {@const timeUntil = formatFromNow(Math.abs(remainingTimeInMs))}
         <div class="event">
