@@ -1,7 +1,8 @@
 package main
 
 /*
-#cgo windows LDFLAGS: ./bob-diff/bob_diff.lib -ldl
+#cgo windows CFLAGS: -I./bob-diff
+#cgo windows LDFLAGS: ./bob-diff/libbob_diff_win.a -lntdll -luserenv
 #cgo linux LDFLAGS: ./bob-diff/libbob_diff.a -ldl
 #include "./bob-diff/bob_diff.h"
 #include <stdlib.h>
