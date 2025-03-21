@@ -20,12 +20,7 @@ export const mutators: { [x: string]: string[] } = {
   ],
   multi_ball: ["One", "Two", "Four", "Six"],
   overtime: ["Unlimited", "Five Max First Score", "Five Max Random Team"],
-  series_length: [
-    "Unlimited",
-    "Three Games",
-    "Five Games",
-    "Seven Games",
-  ],
+  series_length: ["Unlimited", "Three Games", "Five Games", "Seven Games"],
   game_speed: ["Default", "Slo Mo", "Time Warp"],
   ball_max_speed: ["Default", "Slow", "Fast", "Super Fast"],
   ball_type: [

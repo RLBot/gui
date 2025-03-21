@@ -1,6 +1,10 @@
 <script lang="ts">
 import close from "../assets/close.svg";
-let { title = "Modal", visible = $bindable(true), children }: {
+let {
+  title = "Modal",
+  visible = $bindable(true),
+  children,
+}: {
   title?: string | (() => any);
   visible?: boolean;
   children?: () => any;
