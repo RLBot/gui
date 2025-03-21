@@ -80,7 +80,18 @@ function filterMutatorOptions() {
   return filtered;
 }
 
-const ALL_MAPS = { ...MAPS_STANDARD, ...MAPS_NON_STANDARD };
+function getMaps() {
+  const standardMaps = Object.entries(MAPS_STANDARD).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+  const nonStandardMaps = Object.entries(MAPS_NON_STANDARD).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+
+  return Object.fromEntries([...standardMaps, ...nonStandardMaps]);
+}
+
+const ALL_MAPS = getMaps();
 </script>
 
 <div class="matchSettings">
