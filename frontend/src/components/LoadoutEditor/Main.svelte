@@ -163,7 +163,7 @@ async function LaunchMatch(
 </script>
 
 <Modal title={`Loadout of ${name}`} bind:visible>
-  <div id="body">
+  <div id="team-editors">
     <TeamEditor
       items={items}
       team="blue"
@@ -235,6 +235,8 @@ async function LaunchMatch(
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
+    justify-content: center;
+    margin: 0 auto;
   }
   #footer h3 {
     white-space: nowrap;
@@ -268,22 +270,19 @@ async function LaunchMatch(
   button#preview-orange > img {
     filter: invert(79%) sepia(58%) saturate(5589%) hue-rotate(0deg) brightness(103%) contrast(104%);
   }
-  #body, #footer {
-    width: 100%;
+  #team-editors, #footer {
     display: flex;
-    justify-content: space-between;
-  }
-  #body {
-    gap: 30px;
     flex-wrap: wrap;
-    overflow: hidden;
     align-items: center;
+  }
+  #team-editors {
+    gap: 30px;
     justify-content: center;
   }
   #footer {
-    display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
     margin-top: 10px;
     gap: 10px;
+    width: 100%;
   }
 </style>

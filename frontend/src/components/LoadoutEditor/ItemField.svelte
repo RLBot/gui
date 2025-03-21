@@ -86,10 +86,10 @@ function randomizeItem() {
 </script>
 
 <div id="row">
-  <div class="expandable-input">
+  <div class="input-group">
     <label for="item-selection">{itemType.name}</label>
   </div>
-  <div id="text-input" class="input-group shinkable-input">
+  <div id="text-input" class="input-group">
     <button class="randomize" onclick={randomizeItem}>
       <img src={RandomIcon} alt="Randomize colors" />
     </button>
@@ -159,18 +159,12 @@ function randomizeItem() {
     border-radius: 0.25rem;
   }
   #row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
+    display: grid;
+    grid-template-columns: 0.75fr 1fr 1fr;
     gap: 10px;
   }
   .hidden {
     visibility: hidden;
-  }
-  .expandable-input {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
   }
   .input-group {
     display: flex;
