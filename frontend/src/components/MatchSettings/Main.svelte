@@ -146,7 +146,7 @@ const ALL_MAPS = getMaps();
     {#each filteredMutatorOptions as mutatorKey}
       <div class="mutator">
         <label
-          style={mutators[mutatorKey] == 0 ? "color:lightgrey" : ""}
+          class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
           for={mutatorKey}>{cleanCase(mutatorKey)}</label
         >
 
@@ -261,13 +261,24 @@ const ALL_MAPS = getMaps();
 
   .mutators {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto auto auto;
     gap: 1rem;
+  }
+  @media (max-width: 800px) {
+    .mutators {
+      grid-template-columns: auto auto auto;
+    }
   }
   .mutator {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+  }
+  .mutator label {
+    color:lightgrey;
+  }
+  label.mutatorChanged {
+    color: orange;
   }
   .bottomButtons {
     display: flex;
