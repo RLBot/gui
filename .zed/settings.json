@@ -16,6 +16,11 @@
     "source.fixAll.biome": true,
     "source.organizeImports.biome": true
   },
+  "languages": {
+    "Svelte": {
+      "tab_size": 2
+    }
+  },
   "formatter": {
     "language_server": {
       "name": "biome"

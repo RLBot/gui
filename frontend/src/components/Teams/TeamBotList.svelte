@@ -1,9 +1,9 @@
 <script lang="ts">
 import { dndzone } from "svelte-dnd-action";
 import { flip } from "svelte/animate";
+import type { DraggablePlayer } from "../..";
 import closeIcon from "../../assets/close.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
-import type { DraggablePlayer } from "../..";
 
 const flipDurationMs = 100;
 
