@@ -90,7 +90,7 @@ export const mutators: { [x: string]: string[] } = {
     "On Contact",
     "On Contact FF",
     "On Ball Contact",
-    "On Ball Contact FF"
+    "On Ball Contact FF",
   ],
   respawn_time: [
     "Three Seconds",

@@ -33,6 +33,9 @@ function renameItem(item: CsvItem, category: string) {
   return `${item.name} (${toTitleCase(specifier)})`;
 }
 
+// this is "Black Market Drop", "Exotic Drop" etc that have the category "Body" for some reason
+const EXCLUDE_ITEMS = [5364, 5365, 5366, 5367, 5368, 5369];
+
 export async function getAndParseItems() {
   const resp = await fetch(ItemsCsv);
   const csv = await resp.text();
@@ -50,10 +53,11 @@ export async function getAndParseItems() {
   for (const line of lines) {
     const columns = line.split(",");
     const category = columns[1];
+    const id = +columns[0];
 
-    if (items[category])
+    if (items[category] && !EXCLUDE_ITEMS.includes(id))
       items[category].push({
-        id: +columns[0],
+        id,
         uuid: columns[2],
         name: columns[3],
       });
