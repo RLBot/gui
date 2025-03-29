@@ -51,14 +51,24 @@ $effect(() => {
 });
 
 let selectedTags: (string | null)[] = $state([null, null]);
-const categories = [
-  ["All"],
-  ["Standard", "Extra Modes", "Special bots/scripts"],
-  ["Favorites"],
+
+const Category = {
+  All: "All",
+  Standard: "Standard",
+  ExtraModes: "Extra Modes",
+  Special: "Special bots/scripts",
+  Favorites: "Favorites",
+};
+
+const categories: string[][] = [
+  [Category.All],
+  [Category.Standard, Category.ExtraModes, Category.Special],
+  [Category.Favorites],
 ];
+
 const subCategories: { [x: string]: string[] } = {
-  [categories[1][0]]: ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
-  [categories[1][1]]: [
+  [Category.Standard]: ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
+  [Category.ExtraModes]: [
     "Hoops",
     "Dropshot",
     "Snow Day",
@@ -67,9 +77,10 @@ const subCategories: { [x: string]: string[] } = {
     "Heatseeker",
   ],
 };
-const subCategoryTags = {
-  [categories[1][0]]: ["1v1", "teamplay", "goalie"],
-  [categories[1][1]]: [
+
+const subCategoryTags: { [x: string]: string[] } = {
+  [Category.Standard]: ["1v1", "teamplay", "goalie"],
+  [Category.ExtraModes]: [
     "hoops",
     "dropshot",
     "snow-day",
@@ -77,6 +88,7 @@ const subCategoryTags = {
     "spike-rush",
     "heatseeker",
   ],
+  [Category.Special]: ["memebot"],
 };
 
 let showLoadoutEditor = $state(false);
@@ -120,20 +132,18 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 
   let filtered = scripts;
 
-  if (filterTags[0]) {
+  const mainTag = filterTags[0];
+  if (mainTag) {
     filtered = filtered.filter((script) => {
-      switch (filterTags[0]) {
-        case categories[1][0]:
+      switch (mainTag) {
+        case Category.Standard:
+        case Category.ExtraModes:
           return script.tags.some((tag) =>
-            subCategoryTags[categories[1][0]].includes(tag),
+            subCategoryTags[mainTag].includes(tag),
           );
-        case categories[1][1]:
-          return script.tags.some((tag) =>
-            subCategoryTags[categories[1][1]].includes(tag),
-          );
-        case categories[1][2]:
+        case Category.Special:
           return true;
-        case categories[2][0]:
+        case Category.Favorites:
           return favorites.includes(script.config.tomlPath);
       }
     });
@@ -159,17 +169,11 @@ function filterBots(
   if (mainTag) {
     filtered = filtered.filter((bot) => {
       switch (mainTag) {
-        case categories[1][0]:
-          return bot.tags.some((tag) =>
-            subCategoryTags[categories[1][0]].includes(tag),
-          );
-        case categories[1][1]:
-          return bot.tags.some((tag) =>
-            subCategoryTags[categories[1][1]].includes(tag),
-          );
-        case categories[1][2]:
-          return bot.tags.some((tag) => tag === "memebot");
-        case categories[2][0]:
+        case Category.Standard:
+        case Category.ExtraModes:
+        case Category.Special:
+          return bot.tags.some((tag) => subCategoryTags[mainTag].includes(tag));
+        case Category.Favorites:
           return bot.player instanceof BotInfo
             ? favorites.includes(bot.player.tomlPath)
             : false;
@@ -200,7 +204,7 @@ function filterBots(
 }
 
 function handleTagClick(tag: string) {
-  if (tag === categories[0][0] || selectedTags[0] === tag) {
+  if (tag === Category.All || selectedTags[0] === tag) {
     selectedTags = [null, null];
   } else {
     selectedTags = [tag, null];
@@ -299,7 +303,7 @@ function SelectedToggleFavorite() {
       {#each tagGroup as tag}
         <button
           onclick={() => handleTagClick(tag)}
-          class:selected={tag === categories[0][0] ? selectedTags.every(t => t == null) : selectedTags[0] === tag}
+          class:selected={tag === Category.All ? selectedTags.every(t => t == null) : selectedTags[0] === tag}
         >
           {tag}
         </button>
