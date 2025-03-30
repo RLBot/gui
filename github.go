@@ -249,12 +249,7 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 			return "", err
 		}
 
-		xzr, err := xz.NewReader(bytes.NewReader(body))
-		if err != nil {
-			return "", err
-		}
-
-		bytes, err := io.ReadAll(xzr)
+		bytes, err := io.ReadAll(bytes.NewReader(body))
 		if err != nil {
 			return "", err
 		}
