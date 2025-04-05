@@ -144,7 +144,10 @@ async function LaunchMatch(
 
     toast.success(`Launching preview for ${team} car`);
   } else {
-    if (lastShowcaseType !== selectedShowcaseType) {
+    if (
+      lastShowcaseType !== selectedShowcaseType ||
+      previewMatchTeam !== team
+    ) {
       await App.LaunchPreviewLoadout(
         options,
         ExistingMatchBehavior.ExistingMatchBehaviorContinueAndSpawn,
@@ -158,7 +161,7 @@ async function LaunchMatch(
 
   previewMatchTeam = team;
   lastShowcaseType = selectedShowcaseType;
-  App.SetShowcaseType(selectedShowcaseType);
+  App.SetShowcaseType(selectedShowcaseType, team === "blue" ? 0 : 1);
 }
 </script>
 
