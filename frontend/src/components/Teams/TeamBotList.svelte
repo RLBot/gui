@@ -4,11 +4,15 @@ import { flip } from "svelte/animate";
 import type { DraggablePlayer } from "../..";
 import closeIcon from "../../assets/close.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
+
 const flipDurationMs = 100;
+
+let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
+
 function handleSort(e: any) {
   items = e.detail.items;
 }
-let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
+
 function remove(id: number): any {
   items = items.filter((x) => x.id !== id);
 }
@@ -38,7 +42,7 @@ function remove(id: number): any {
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         {#each items as bot (bot.id)}
             <!-- TODO: maybe remove stopPropagation and instead require a click on the team header -->
-            <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={e => e.stopPropagation()}>
+            <div class="bot" animate:flip={{ duration: items.length < 16 ? flipDurationMs : 0 }} onclick={e => e.stopPropagation()}>
                 <img src={bot?.icon || defaultIcon} alt="icon" />
                 <p>{bot?.displayName}</p>
                 <div style="flex: 1;"></div>
