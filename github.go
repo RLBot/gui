@@ -221,9 +221,9 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 	var file_name string
 	// todo: check platform (x86_64, etc)
 	if runtime.GOOS == "windows" {
-		file_name = "patch_x86_64-windows.bobdiff.xz"
+		file_name = "patch_x86_64-windows.bobdiff"
 	} else {
-		file_name = "patch_x86_64-linux.bobdiff.xz"
+		file_name = "patch_x86_64-linux.bobdiff"
 	}
 
 	var lastest_download_url string
@@ -249,12 +249,7 @@ func (a *App) UpdateBotpack(repo string, installPath string, currentTag string) 
 			return "", err
 		}
 
-		xzr, err := xz.NewReader(bytes.NewReader(body))
-		if err != nil {
-			return "", err
-		}
-
-		bytes, err := io.ReadAll(xzr)
+		bytes, err := io.ReadAll(bytes.NewReader(body))
 		if err != nil {
 			return "", err
 		}
