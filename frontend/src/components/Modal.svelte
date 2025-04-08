@@ -1,6 +1,14 @@
 <script lang="ts">
 import close from "../assets/close.svg";
-let { title = "Modal", visible = $bindable(true), children } = $props();
+let {
+  title = "Modal",
+  visible = $bindable(true),
+  children,
+}: {
+  title?: string | (() => any);
+  visible?: boolean;
+  children?: () => any;
+} = $props();
 
 let wrap: EventTarget;
 
@@ -21,7 +29,13 @@ function handleMouseDown(e: MouseEvent) {
 <div class={"modalContainer " + (visible ? "" : "hidden")} bind:this={wrap} onclick={handleOuter} onmousedown={handleMouseDown}>
   <div class="modal">
     <header>
-      <h2>{title}</h2>
+      <h2>
+        {#if typeof title === "string"}
+          {title}
+        {:else}
+          {@render title()}
+        {/if}
+      </h2>
       <button
         onclick={() => {
           visible = false;
@@ -80,7 +94,8 @@ function handleMouseDown(e: MouseEvent) {
   }
   .modalBody {
     padding: 1rem;
-    max-width: 80vw;
+    max-width: 90vw;
     max-height: 80vh;
+    overflow-y: auto;
   }
 </style>
