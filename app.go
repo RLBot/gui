@@ -214,7 +214,8 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 	}
 
 	match := flat.MatchConfigurationT{
-		AutoStartBots:         true,
+		AutoStartAgents:       true,
+		WaitForAgents:         true,
 		GameMapUpk:            options.Map,
 		PlayerConfigurations:  playerConfigs,
 		ScriptConfigurations:  scriptConfigs,
