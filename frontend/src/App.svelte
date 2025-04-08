@@ -36,7 +36,7 @@ let eventsVisible = $state(false);
       {/if}
     </div>
     <div class="navbuttons">
-      <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => { eventsVisible = true; }}>
+      <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => eventsVisible = true}>
         Events
 
         {#if eventsNow > 0}

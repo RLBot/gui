@@ -10,6 +10,9 @@ import { flip } from "svelte/animate";
 import { App, BotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
+import starIcon from "../assets/star.svg";
+import filledStarIcon from "../assets/starFilled.svg";
+import { BASE_PLAYERS } from "../base-players";
 import type { DraggablePlayer, ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
@@ -17,12 +20,13 @@ import Switch from "./Switch.svelte";
 let {
   bots = [],
   scripts = [],
-  showHuman = $bindable(true),
+  showHuman = $bindable(),
   searchQuery = "",
   selectedTeam = null,
   enabledScripts = $bindable({}),
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
+  map,
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -32,28 +36,36 @@ let {
   enabledScripts: { [key: number]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
+  map: string;
 } = $props();
 const flipDurationMs = 100;
 
-const extraModeTags = [
-  "hoops",
-  "dropshot",
-  "snow-day",
-  "rumble",
-  "spike-rush",
-  "heatseaker",
-];
+let favorites: string[] = $state(
+  JSON.parse(localStorage.getItem("FAVORITES") || "[]"),
+);
+$effect(() => {
+  localStorage.setItem("FAVORITES", JSON.stringify(favorites));
+});
 
 let selectedTags: (string | null)[] = $state([null, null]);
-const categories = [
-  ["All"],
-  ["Standard", "Extra Modes", "Special bots/scripts"],
-  ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
+
+const Category = {
+  All: "All",
+  Standard: "Standard",
+  ExtraModes: "Extra Modes",
+  Special: "Special bots/scripts",
+  Favorites: "Favorites",
+};
+
+const categories: string[][] = [
+  [Category.All],
+  [Category.Standard, Category.ExtraModes, Category.Special],
+  [Category.Favorites],
 ];
 
-let selectedSubTag: number | null = $state(null);
 const subCategories: { [x: string]: string[] } = {
-  [categories[1][1]]: [
+  [Category.Standard]: ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
+  [Category.ExtraModes]: [
     "Hoops",
     "Dropshot",
     "Snow Day",
@@ -63,17 +75,39 @@ const subCategories: { [x: string]: string[] } = {
   ],
 };
 
-let showModal = $state(false);
+const subCategoryTags: { [x: string]: string[] } = {
+  [Category.Standard]: ["1v1", "teamplay", "goalie"],
+  [Category.ExtraModes]: [
+    "hoops",
+    "dropshot",
+    "snow-day",
+    "rumble",
+    "spike-rush",
+    "heatseeker",
+  ],
+  [Category.Special]: ["memebot"],
+};
+
+let showLoadoutEditor = $state(false);
+let showInfoModal = $state(false);
+let infoModalWasOpen = false;
+$effect(() => {
+  if (!showLoadoutEditor && infoModalWasOpen) {
+    showInfoModal = true;
+    infoModalWasOpen = false;
+  }
+});
+
 let selectedBot: [BotInfo, string, string] | null = $state(null);
+$effect(() => {
+  if (!showInfoModal && !showLoadoutEditor) {
+    selectedBot = null;
+  }
+});
 
 let filteredBots: DraggablePlayer[] = $state([]);
 $effect(() => {
-  filteredBots = filterBots(
-    selectedTags,
-    selectedSubTag,
-    showHuman,
-    searchQuery,
-  );
+  filteredBots = filterBots(selectedTags, showHuman, searchQuery);
 });
 
 let filteredScripts: ToggleableScript[] = $state([]);
@@ -88,19 +122,19 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 
   let filtered = scripts;
 
-  if (filterTags[0]) {
+  const mainTag = filterTags[0];
+  if (mainTag) {
     filtered = filtered.filter((script) => {
-      switch (filterTags[0]) {
-        case categories[1][0]:
-          return !script.tags.some((tag) =>
-            [...extraModeTags, "memebot"].includes(tag),
+      switch (mainTag) {
+        case Category.Standard:
+        case Category.ExtraModes:
+          return script.tags.some((tag) =>
+            subCategoryTags[mainTag].includes(tag),
           );
-        case categories[1][1]:
-          return script.tags.some((tag) => extraModeTags.includes(tag));
-        case categories[1][2]:
+        case Category.Special:
           return true;
-        default:
-          return true;
+        case Category.Favorites:
+          return favorites.includes(script.config.tomlPath);
       }
     });
   }
@@ -116,52 +150,38 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 
 function filterBots(
   filterTags: (string | null)[],
-  selectedSubTag: number | null,
   showHuman: boolean,
   searchQuery: string,
 ) {
-  let filtered = bots.slice(1);
+  let filtered = bots.slice();
 
-  if (filterTags[0]) {
+  const mainTag = filterTags[0];
+  if (mainTag) {
     filtered = filtered.filter((bot) => {
-      switch (filterTags[0]) {
-        case categories[1][0]:
-          return !bot.tags.some((tag) =>
-            [...extraModeTags, "memebot", "human"].includes(tag),
-          );
-        case categories[1][1]:
-          return bot.tags.some((tag) => extraModeTags.includes(tag));
-        case categories[1][2]:
-          return bot.tags.some((tag) => tag === "memebot");
-        default:
-          return true;
+      switch (mainTag) {
+        case Category.Standard:
+        case Category.ExtraModes:
+        case Category.Special:
+          return bot.tags.some((tag) => subCategoryTags[mainTag].includes(tag));
+        case Category.Favorites:
+          return bot.player instanceof BotInfo
+            ? favorites.includes(bot.player.tomlPath)
+            : false;
       }
     });
-  }
 
-  if (filterTags[1]) {
-    filtered = filtered.filter((bot) => {
-      switch (filterTags[1]) {
-        case categories[2][0]:
-          return bot.tags.some((tag) => tag === "1v1");
-        case categories[2][1]:
-          return bot.tags.some((tag) => tag === "teamplay");
-        case categories[2][2]:
-          return bot.tags.some((tag) => tag === "goalie");
-        default:
-          return true;
-      }
-    });
-  }
-
-  if (selectedSubTag !== null) {
-    filtered = filtered.filter((bot) =>
-      bot.tags.includes(extraModeTags[selectedSubTag]),
-    );
+    const subTag = filterTags[1];
+    if (subTag) {
+      filtered = filtered.filter((bot) => {
+        return bot.tags.includes(
+          subCategoryTags[mainTag][subCategories[mainTag].indexOf(subTag)],
+        );
+      });
+    }
   }
 
   if (showHuman) {
-    filtered = [bots[0], ...filtered];
+    filtered = [BASE_PLAYERS[0], ...filtered];
   }
 
   if (searchQuery) {
@@ -173,21 +193,16 @@ function filterBots(
   return filtered;
 }
 
-function handleTagClick(tag: string, groupIndex: number) {
-  if (groupIndex !== 2) {
-    selectedSubTag = null;
-  }
-
-  if (groupIndex === 0) {
+function handleTagClick(tag: string) {
+  if (tag === Category.All || selectedTags[0] === tag) {
     selectedTags = [null, null];
   } else {
-    selectedTags[groupIndex - 1] =
-      selectedTags[groupIndex - 1] === tag ? null : tag;
+    selectedTags = [tag, null];
   }
 }
 
-function handleSubTagClick(tag: number) {
-  selectedSubTag = selectedSubTag === tag ? null : tag;
+function handleSubTagClick(tag: string) {
+  selectedTags[1] = selectedTags[1] === tag ? null : tag;
 }
 
 function handleDndConsider(e: any) {
@@ -209,8 +224,10 @@ function handleDndFinalize(e: any) {
 function handleBotClick(bot: DraggablePlayer) {
   const newId = `${bot.id}-${Math.round(Math.random() * 100000)}`;
   const idx = filteredBots.findIndex((item) => item.id === bot.id);
-  //@ts-ignore
-  filteredBots.splice(idx, 1, { ...filteredBots[idx], id: newId });
+  if (idx !== -1) {
+    // @ts-ignore
+    filteredBots[idx] = { ...filteredBots[idx], id: newId };
+  }
 
   if (selectedTeam === "blue") {
     bluePlayers = [bot, ...bluePlayers];
@@ -226,13 +243,13 @@ function toggleScript(id: number) {
 function handleBotInfoClick(bot: DraggablePlayer) {
   if (bot.player instanceof BotInfo) {
     selectedBot = [bot.player, bot.displayName, bot.icon];
-    showModal = true;
+    showInfoModal = true;
   }
 }
 
 function handleScriptInfoClick(script: ToggleableScript) {
   selectedBot = [script.config, script.displayName, script.icon];
-  showModal = true;
+  showInfoModal = true;
 }
 
 function OpenSelectedBotSource() {
@@ -241,9 +258,11 @@ function OpenSelectedBotSource() {
   }
 }
 
-function EditSelectedBotAppearance() {
+function EditSelectedBotLoadout() {
   if (selectedBot) {
-    alert.bind(null, "Not implemented yet")();
+    infoModalWasOpen = showInfoModal;
+    showInfoModal = false;
+    showLoadoutEditor = true;
   }
 }
 
@@ -254,15 +273,27 @@ function ShowSelectedBotFiles() {
     );
   }
 }
+
+function SelectedToggleFavorite() {
+  if (!selectedBot) return;
+
+  const path = selectedBot[0].tomlPath;
+  const index = favorites.indexOf(path);
+  if (index !== -1) {
+    favorites.splice(index, 1);
+  } else {
+    favorites.push(path);
+  }
+}
 </script>
 
 <div class="tag-buttons">
-  {#each categories as tagGroup, groupIndex}
+  {#each categories as tagGroup}
     <div class="tag-group">
       {#each tagGroup as tag}
         <button
-          onclick={() => handleTagClick(tag, groupIndex)}
-          class:selected={tag === categories[0][0] ? selectedTags.every(t => t == null) : selectedTags[groupIndex-1] === tag}
+          onclick={() => handleTagClick(tag)}
+          class:selected={tag === Category.All ? selectedTags.every(t => t == null) : selectedTags[0] === tag}
         >
           {tag}
         </button>
@@ -274,10 +305,10 @@ function ShowSelectedBotFiles() {
 {#if selectedTags[0] && subCategories[selectedTags[0]]}
 <div class="tag-buttons">
   <div class="tag-group">
-    {#each subCategories[selectedTags[0]] as tag, i}
+    {#each subCategories[selectedTags[0]] as tag}
       <button
-        onclick={() => handleSubTagClick(i)}
-        class:selected={selectedSubTag === i}
+        onclick={() => handleSubTagClick(tag)}
+        class:selected={selectedTags[1] === tag}
       >
         {tag}
       </button>
@@ -350,10 +381,32 @@ function ShowSelectedBotFiles() {
   {/each}
 </div>
 
-<Modal title={selectedBot ? selectedBot[1] : ""} bind:visible={showModal}>
+{#snippet botInfoTitle()}
 {#if selectedBot}
-  <div class="modal-content">
-    <div class="bot-left-column">
+  {@const isFavorite = favorites.includes(selectedBot[0].tomlPath)}
+  <span id="bot-info-title">
+    {selectedBot[1]}
+    <input
+      type="checkbox"
+      checked={isFavorite}
+      onchange={SelectedToggleFavorite}
+      id="favorite-checkbox"
+    >
+    <label for="favorite-checkbox">
+      {#if isFavorite}
+        <img src={filledStarIcon} alt="unmark as favorite">
+      {:else}
+        <img src={starIcon} alt="mark as favorite">
+      {/if}
+    </label>
+  </span>
+{/if}
+{/snippet}
+
+<Modal title={botInfoTitle} bind:visible={showInfoModal}>
+{#if selectedBot}
+  <div class="info-layout">
+    <div class="info-main">
       <p>Developers: {selectedBot[0].config.details.developer}</p>
       <p>Description: {selectedBot[0].config.details.description}</p>
       <p>Fun fact: {selectedBot[0].config.details.funFact}</p>
@@ -372,17 +425,23 @@ function ShowSelectedBotFiles() {
         {/each}
       </div>
       {/if}
-      <p id="toml-path">{selectedBot[0].tomlPath}</p>
-      <div id="button-group">
-        <button onclick={EditSelectedBotAppearance}>Edit Appearance</button>
-        <button onclick={ShowSelectedBotFiles}>Show Files</button>
-      </div>
     </div>
+
     {#if selectedBot[2]}
-    <div class="bot-right-column">
+    <div class="info-logo">
       <img src={selectedBot[2]} alt="icon" />
     </div>
     {/if}
+
+    <div class="info-extra">
+      <p class="toml-path">{selectedBot[0].tomlPath}</p>
+      <div class="button-group">
+        {#if selectedBot[0].loadout}
+        <button onclick={EditSelectedBotLoadout}>Edit Loadout</button>
+        {/if}
+        <button onclick={ShowSelectedBotFiles}>Show Files</button>
+      </div>
+    </div>
   </div>
 {/if}
 </Modal>
@@ -465,52 +524,76 @@ function ShowSelectedBotFiles() {
   }
   .tags {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    margin-top: auto;
   }
   .tag {
     background-color: grey;
     color: white;
     padding: 0.2rem 0.5rem;
     border-radius: 0.25rem;
+    margin: 0 0.3rem;
   }
-  .modal-content {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-  }
-  .bot-left-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 60vw;
-  }
-  .bot-right-column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .bot-right-column img {
-    max-height: 250px;
-    max-width: 250px;
-    width: auto;
-  }
+  .info-layout {
+      display: grid;
+      gap: 1rem;
+      max-width: 800px;
+    }
+    .info-layout {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "main"
+        "logo"
+        "extra";
+    }
+    @media (min-width: 850px) {
+      .info-layout {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "main logo"
+          "extra logo";
+      }
+    }
+    .info-main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      grid-area: main;
+    }
+    .info-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      grid-area: extra;
+    }
+    .info-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      grid-area: logo;
+    }
+    .info-logo img {
+      max-width: 250px;
+      max-height: 250px;
+      width: auto;
+      height: auto;
+    }
   .unique-bot-identifier {
     color: #868686;
   }
-  #button-group {
+  .button-group {
     display: flex;
     gap: 1rem;
   }
-  #button-group button {
+  .button-group button {
     background: var(--background-alt);
     color: var(--foreground);
     cursor: pointer;
     font-size: 1rem;
     align-self: flex-start;
   }
-  #toml-path {
+  .toml-path {
     font-size: 0.8rem;
     color: grey;
   }
@@ -518,5 +601,22 @@ function ShowSelectedBotFiles() {
     margin-top: 12px;
     margin-bottom: 5px;
     font-weight: bold;
+  }
+  #bot-info-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #bot-info-title label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  #bot-info-title input {
+    display: none;
+  }
+  #bot-info-title img {
+    filter: invert();
+    height: 24px;
   }
 </style>
