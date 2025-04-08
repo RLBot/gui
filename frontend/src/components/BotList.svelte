@@ -16,6 +16,9 @@ import { BASE_PLAYERS } from "../base-players";
 import type { DraggablePlayer, ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
+//@ts-ignore
+import LoadoutEditor from "./LoadoutEditor/Main.svelte";
+import { getAndParseItems } from "./LoadoutEditor/items";
 
 let {
   bots = [],
@@ -95,6 +98,13 @@ $effect(() => {
   if (!showLoadoutEditor && infoModalWasOpen) {
     showInfoModal = true;
     infoModalWasOpen = false;
+  }
+});
+
+let everSelectedBot = $state(false);
+$effect(() => {
+  if (selectedBot) {
+    everSelectedBot = true;
   }
 });
 
@@ -445,6 +455,26 @@ function SelectedToggleFavorite() {
   </div>
 {/if}
 </Modal>
+
+<!-- prevent loading the items if unneeded,
+ but also prevent loading the items more than once -->
+{#if everSelectedBot}
+  <!-- svelte-ignore block_empty -->
+  {#await getAndParseItems() }
+  {:then items }
+    {#if selectedBot && selectedBot[0].loadout}
+    <LoadoutEditor
+      bind:visible={showLoadoutEditor}
+      basePath={selectedBot[0].tomlPath}
+      loadoutFile={selectedBot[0].config.settings.loadoutFile}
+      loadout={selectedBot[0].loadout}
+      items={items}
+      name={selectedBot[1]}
+      map={map}
+    />
+    {/if}
+  {/await}
+{/if}
 
 <style>
   .bots span {
