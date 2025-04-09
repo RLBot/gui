@@ -199,6 +199,24 @@ const ALL_MAPS = getMaps();
     <br />
     <input
       type="checkbox"
+      id="autoStartAgents"
+      bind:checked={extraOptions.autoStartAgents}
+    />
+    <label for="autoStartAgents">
+      Auto-start agents
+    </label>
+    <br />
+    <input
+      type="checkbox"
+      id="waitForAgents"
+      bind:checked={extraOptions.waitForAgents}
+    />
+    <label for="waitForAgents">
+      Wait for agents to connect
+    </label>
+    <br />
+    <input
+      type="checkbox"
       id="autoSaveReplay"
       bind:checked={extraOptions.autoSaveReplay}
     />

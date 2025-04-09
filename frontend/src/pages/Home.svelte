@@ -5,6 +5,7 @@ import toast from "svelte-5-french-toast";
 import {
   App,
   BotInfo,
+  ExtraOptions,
   type StartMatchOptions,
 } from "../../bindings/gui/index.js";
 import arenaImages from "../arena-images";
@@ -232,12 +233,29 @@ let mode = $state(localStorage.getItem("MS_MODE") || "Soccer");
 $effect(() => {
   localStorage.setItem("MS_MODE", mode);
 });
-let extraOptions = $state(
-  JSON.parse(
-    localStorage.getItem("MS_EXTRAOPTIONS") ||
-      '{"enableStateSetting": true,"existingMatchBehavior": 0}',
-  ),
-);
+
+function loadExtraOptions(): ExtraOptions {
+  let extraOptions = JSON.parse(
+    localStorage.getItem("MS_EXTRAOPTIONS") || '{"existingMatchBehavior": 0}',
+  );
+
+  // old versions of the GUI will have MS_EXTRAOPTIONS but might not have these values,
+  // and they should default to true
+  const newDefaultTrue = [
+    "autoStartAgents",
+    "waitForAgents",
+    "enableStateSetting",
+  ];
+  for (const item of newDefaultTrue) {
+    if (extraOptions[item] === undefined) {
+      extraOptions[item] = true;
+    }
+  }
+
+  return extraOptions;
+}
+
+let extraOptions = $state(loadExtraOptions());
 $effect(() => {
   localStorage.setItem("MS_EXTRAOPTIONS", JSON.stringify(extraOptions));
 });

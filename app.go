@@ -139,6 +139,8 @@ type ExtraOptions struct {
 	SkipReplays           bool `json:"skipReplays"`
 	AutoSaveReplay        bool `json:"autoSaveReplay"`
 	ExistingMatchBehavior byte `json:"existingMatchBehavior"`
+	AutoStartAgents       bool `json:"autoStartAgents"`
+	WaitForAgents         bool `json:"waitForAgents"`
 }
 
 type StartMatchOptions struct {
@@ -214,8 +216,8 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 	}
 
 	match := flat.MatchConfigurationT{
-		AutoStartAgents:       true,
-		WaitForAgents:         true,
+		AutoStartAgents:       options.ExtraOptions.AutoStartAgents,
+		WaitForAgents:         options.ExtraOptions.WaitForAgents,
 		GameMapUpk:            options.Map,
 		PlayerConfigurations:  playerConfigs,
 		ScriptConfigurations:  scriptConfigs,
