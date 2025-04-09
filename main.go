@@ -31,7 +31,7 @@ func main() {
 		Title:     "RLBotGUI",
 		Width:     1300,
 		Height:    870,
-		MinWidth:  600,
+		MinWidth:  650,
 		MinHeight: 400,
 		// AssetServer: &assetserver.Options{
 		// 	Assets: assets,

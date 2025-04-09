@@ -3,11 +3,14 @@ let {
   checked = $bindable(),
   width = 48,
   height = 28,
+  stopClickPropagation = false,
   onchange = () => {},
 } = $props();
 </script>
 
-<label class="switch" style="width: {width}px; height: {height}px;">
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<label class="switch" style="width: {width}px; height: {height}px;" onclick={e => stopClickPropagation && e.stopPropagation()}>
   <input type="checkbox" bind:checked onchange={() => onchange()}/>
   <span class="slider" style="border-radius: {height / 2}px;"></span>
 </label>

@@ -105,7 +105,16 @@ let showPathsViewer = $state(false);
 
 let latestBotUpdateTime = null;
 let loadingPlayers = $state(false);
-let players: DraggablePlayer[] = $state([...BASE_PLAYERS]);
+
+let players: DraggablePlayer[] = $state(BASE_PLAYERS.slice(1));
+let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
+let orangePlayers: DraggablePlayer[] = $state([]);
+let showHuman = $derived(
+  !(
+    bluePlayers.some((x) => x.tags.includes("human")) ||
+    orangePlayers.some((x) => x.tags.includes("human"))
+  ),
+);
 
 let latestScriptUpdateTime = null;
 let loadingScripts = $state(false);
@@ -148,7 +157,7 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
 
 async function updateBots() {
   loadingPlayers = true;
-  let internalUpdateTime = new Date();
+  const internalUpdateTime = new Date();
   latestBotUpdateTime = internalUpdateTime;
   const result = await App.GetBots(
     paths.filter((x) => x.visible).map((x) => x.installPath),
@@ -166,9 +175,10 @@ async function updateBots() {
       uniquePathSegment,
     };
   });
-  players = [...BASE_PLAYERS, ...players];
+
+  let basePlayers = showHuman ? BASE_PLAYERS : BASE_PLAYERS.slice(1);
+  players = [...basePlayers, ...players];
   loadingPlayers = false;
-  console.log("Loaded bots:", result);
 }
 
 async function updateScripts() {
@@ -205,7 +215,6 @@ async function updateScripts() {
   }
 
   loadingScripts = false;
-  console.log("Loaded scripts:", result);
 }
 
 $effect(() => {
@@ -214,15 +223,10 @@ $effect(() => {
   updateScripts();
 });
 
-let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
-let orangePlayers: DraggablePlayer[] = $state([]);
-let showHuman = $state(true);
-$effect(() => {
-  showHuman = !(
-    bluePlayers.some((x) => x.tags.includes("human")) ||
-    orangePlayers.some((x) => x.tags.includes("human"))
-  );
-});
+function loadPaths() {
+  updateBots();
+  updateScripts();
+}
 
 let mode = $state(localStorage.getItem("MS_MODE") || "Soccer");
 $effect(() => {
@@ -243,17 +247,6 @@ let mutatorSettings = $state(
 $effect(() => {
   localStorage.setItem("MS_MUTATORS", JSON.stringify(mutatorSettings));
 });
-
-// function loadMutators() {
-//   let mutators = JSON.parse(localStorage.getItem("MS_MUTATORS") || "{}");
-//   // delete any mutators that are no longer in the list
-//   for (const key of Object.keys(mutators)) {
-//     if (!mutatorOptions[key]) {
-//       delete mutators[key];
-//     }
-//   }
-//   return mutators;
-// }
 
 async function onMatchStart(randomizeMap: boolean) {
   const launcher = localStorage.getItem("MS_LAUNCHER");
@@ -347,7 +340,7 @@ function handleSearch(event: Event) {
       {#if loadingPlayers || loadingScripts}
         <h3>Searching...</h3>
       {:else}
-        <button class="reloadButton" onclick={updateBots}
+        <button class="reloadButton" onclick={loadPaths}
           ><img src={reloadIcon} alt="reload" /></button
         >
       {/if}
@@ -363,6 +356,7 @@ function handleSearch(event: Event) {
       scripts={scripts}
       searchQuery={searchQuery}
       selectedTeam={selectedTeam}
+      map={$mapStore}
     />
   </div>
 
@@ -426,6 +420,7 @@ function handleSearch(event: Event) {
     filter: invert();
   }
   .teams {
+    min-height: 93px;
     overflow: auto;
     display: flex;
     flex-direction: column;

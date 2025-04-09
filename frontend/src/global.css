@@ -81,6 +81,9 @@ button {
   font-size: 1rem;
   transition: 150ms;
 }
+button[type="submit"] {
+  background-color: #1a6a1d;
+}
 button:hover {
   box-shadow: 0px 0px 8rem 0px rgba(150, 150, 150, 0.25) inset;
 }
@@ -124,6 +127,10 @@ input {
 }
 .dropdown > .dropmenu.left {
   left: 0px;
+}
+.dropdown > .dropmenu.center {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .dropdown:focus-within > .dropmenu {
