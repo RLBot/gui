@@ -43,8 +43,11 @@ function remove(id: number): any {
         {#each items as bot (bot.id)}
             <!-- TODO: maybe remove stopPropagation and instead require a click on the team header -->
             <div class="bot" animate:flip={{ duration: items.length < 16 ? flipDurationMs : 0 }} onclick={e => e.stopPropagation()}>
-                <img src={bot?.icon || defaultIcon} alt="icon" />
-                <p>{bot?.displayName}</p>
+                <img src={bot.icon || defaultIcon} alt="icon" />
+                <p>{bot.displayName}</p>
+                {#if bot.uniquePathSegment}
+                  <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
+                {/if}
                 <div style="flex: 1;"></div>
                 <button class="close" onclick={remove.bind(null, bot.id)}>
                     <img src={closeIcon} alt="X" />
@@ -101,5 +104,8 @@ function remove(id: number): any {
         height: 100%;
         width: auto;
         filter: invert();
+    }
+    .unique-bot-identifier {
+      color: #868686;
     }
 </style>
