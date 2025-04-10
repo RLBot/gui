@@ -13,7 +13,7 @@ function handleSort(e: any) {
   items = e.detail.items;
 }
 
-function remove(id: number): any {
+function remove(id: string): any {
   items = items.filter((x) => x.id !== id);
 }
 </script>
@@ -33,7 +33,7 @@ function remove(id: number): any {
             items,
             flipDurationMs,
             dropTargetStyle: {},
-            dropTargetClasses: ["dropTarget"],
+            dropTargetClasses: ["dropTarget"]
         }}
         onconsider={handleSort}
         onfinalize={handleSort}

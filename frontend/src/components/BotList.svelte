@@ -13,7 +13,7 @@ import defaultIcon from "../assets/rlbot_mono.png";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
 import { BASE_PLAYERS } from "../base-players";
-import type { DraggablePlayer, ToggleableScript } from "../index";
+import { uuidv4, type DraggablePlayer, type ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
 
@@ -33,7 +33,7 @@ let {
   showHuman: boolean;
   searchQuery: string;
   selectedTeam: "blue" | "orange" | null;
-  enabledScripts: { [key: number]: boolean };
+  enabledScripts: { [key: string]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
   map: string;
@@ -208,7 +208,7 @@ function handleSubTagClick(tag: string) {
 function handleDndConsider(e: any) {
   const { trigger, id } = e.detail.info;
   if (trigger === TRIGGERS.DRAG_STARTED) {
-    const newId = `${id}-${Math.round(Math.random() * 100000)}`;
+    const newId = uuidv4();
     const idx = filteredBots.findIndex((item) => item.id === id);
     e.detail.items = e.detail.items.filter(
       (item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME],
@@ -217,26 +217,22 @@ function handleDndConsider(e: any) {
     filteredBots = e.detail.items;
   }
 }
+
 function handleDndFinalize(e: any) {
   filteredBots = e.detail.items;
 }
 
 function handleBotClick(bot: DraggablePlayer) {
-  const newId = `${bot.id}-${Math.round(Math.random() * 100000)}`;
-  const idx = filteredBots.findIndex((item) => item.id === bot.id);
-  if (idx !== -1) {
-    // @ts-ignore
-    filteredBots[idx] = { ...filteredBots[idx], id: newId };
-  }
+  const newId = uuidv4();
 
   if (selectedTeam === "blue") {
-    bluePlayers = [bot, ...bluePlayers];
+    bluePlayers = [{ ...bot, id: newId }, ...bluePlayers];
   } else if (selectedTeam === "orange") {
-    orangePlayers = [bot, ...orangePlayers];
+    orangePlayers = [{ ...bot, id: newId }, ...orangePlayers];
   }
 }
 
-function toggleScript(id: number) {
+function toggleScript(id: string) {
   enabledScripts[id] = !enabledScripts[id];
 }
 

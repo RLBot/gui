@@ -24,6 +24,7 @@ import {
   type DraggablePlayer,
   type ToggleableScript,
   draggablePlayerToPlayerJs,
+  uuidv4,
 } from "../index";
 import { mapStore } from "../settings";
 
@@ -120,7 +121,7 @@ let showHuman = $derived(
 let latestScriptUpdateTime = null;
 let loadingScripts = $state(false);
 let scripts: ToggleableScript[] = $state([]);
-let enabledScripts: { [key: number]: boolean } = $state({});
+let enabledScripts: { [key: string]: boolean } = $state({});
 
 function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   const uniqueNames = [
@@ -171,7 +172,7 @@ async function updateBots() {
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
       player: new BotInfo(x),
-      id: Math.random(),
+      id: uuidv4(),
       tags: x.config.details.tags,
       uniquePathSegment,
     };
@@ -194,7 +195,7 @@ async function updateScripts() {
   }
   scripts = distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
     return {
-      id: Math.random(),
+      id: uuidv4(),
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
       config: x,
@@ -210,7 +211,7 @@ async function updateScripts() {
   }
 
   for (const id in Object.keys(enabledScripts)) {
-    if (!scripts.some((script) => script.id === Number(id))) {
+    if (!scripts.some((script) => script.id === id)) {
       delete enabledScripts[id];
     }
   }
