@@ -26,7 +26,6 @@ let {
   enabledScripts = $bindable({}),
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
-  map,
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -36,7 +35,6 @@ let {
   enabledScripts: { [key: string]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
-  map: string;
 } = $props();
 const flipDurationMs = 100;
 
