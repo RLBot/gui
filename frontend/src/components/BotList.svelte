@@ -105,22 +105,23 @@ $effect(() => {
   }
 });
 
-let filteredBots: DraggablePlayer[] = $state([]);
-$effect(() => {
-  filteredBots = filterBots(selectedTags, showHuman, searchQuery);
-});
+let filteredBots: DraggablePlayer[] = $derived.by(() =>
+  filterBots(bots, selectedTags, showHuman, searchQuery),
+);
+let filteredScripts: ToggleableScript[] = $derived.by(() =>
+  filterScripts(scripts, selectedTags, searchQuery),
+);
 
-let filteredScripts: ToggleableScript[] = $state([]);
-$effect(() => {
-  filteredScripts = filterScripts(selectedTags, searchQuery);
-});
-
-function filterScripts(filterTags: (string | null)[], searchQuery: string) {
+function filterScripts(
+  allScripts: ToggleableScript[],
+  filterTags: (string | null)[],
+  searchQuery: string,
+) {
   if (filterTags[1]) {
     return [];
   }
 
-  let filtered = scripts;
+  let filtered = allScripts;
 
   const mainTag = filterTags[0];
   if (mainTag) {
@@ -149,11 +150,12 @@ function filterScripts(filterTags: (string | null)[], searchQuery: string) {
 }
 
 function filterBots(
+  allBots: DraggablePlayer[],
   filterTags: (string | null)[],
   showHuman: boolean,
   searchQuery: string,
 ) {
-  let filtered = bots;
+  let filtered = allBots;
 
   const mainTag = filterTags[0];
   if (mainTag) {
@@ -208,18 +210,19 @@ function handleSubTagClick(tag: string) {
 function handleDndConsider(e: any) {
   const { trigger, id } = e.detail.info;
   if (trigger === TRIGGERS.DRAG_STARTED) {
-    const newId = uuidv4();
     const idx = filteredBots.findIndex((item) => item.id === id);
     e.detail.items = e.detail.items.filter(
       (item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME],
     );
-    e.detail.items.splice(idx, 0, { ...filteredBots[idx], id: newId });
-    filteredBots = e.detail.items;
-  }
-}
+    const newItem = { ...filteredBots[idx], id: uuidv4() };
+    e.detail.items.splice(idx, 0, newItem);
 
-function handleDndFinalize(e: any) {
-  filteredBots = e.detail.items;
+    const botIndex = bots.findIndex((bot) => bot.id === id);
+    if (botIndex !== -1) {
+      // trigger an update of filteredBots by updating bots
+      bots = [...bots.slice(0, botIndex), newItem, ...bots.slice(botIndex + 1)];
+    }
+  }
 }
 
 function handleBotClick(bot: DraggablePlayer) {
@@ -323,7 +326,6 @@ function SelectedToggleFavorite() {
     dropTargetClasses: ["dropTarget"],
   }}
   onconsider={handleDndConsider}
-  onfinalize={handleDndFinalize}
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
