@@ -180,14 +180,12 @@ function filterBots(
     }
   }
 
-  if (showHuman) {
-    filtered = [BASE_PLAYERS[0], ...filtered];
-  }
-
   if (searchQuery) {
     filtered = filtered.filter((bot) =>
       bot.displayName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
+  } else if (showHuman) {
+    filtered = [BASE_PLAYERS[0], ...filtered];
   }
 
   return filtered;
