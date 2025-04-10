@@ -210,17 +210,14 @@ function handleSubTagClick(tag: string) {
 function handleDndConsider(e: any) {
   const { trigger, id } = e.detail.info;
   if (trigger === TRIGGERS.DRAG_STARTED) {
-    const idx = filteredBots.findIndex((item) => item.id === id);
-    e.detail.items = e.detail.items.filter(
-      (item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME],
-    );
-    const newItem = { ...filteredBots[idx], id: uuidv4() };
-    e.detail.items.splice(idx, 0, newItem);
-
-    const botIndex = bots.findIndex((bot) => bot.id === id);
-    if (botIndex !== -1) {
+    const idx = bots.findIndex((bot) => bot.id === id);
+    if (idx !== -1) {
       // trigger an update of filteredBots by updating bots
-      bots = [...bots.slice(0, botIndex), newItem, ...bots.slice(botIndex + 1)];
+      bots = [
+        ...bots.slice(0, idx),
+        { ...bots[idx], id: uuidv4() },
+        ...bots.slice(idx + 1),
+      ];
     }
   }
 }
