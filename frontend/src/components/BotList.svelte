@@ -86,19 +86,10 @@ const subCategoryTags: { [x: string]: string[] } = {
   [Category.Special]: ["memebot"],
 };
 
-let showLoadoutEditor = $state(false);
 let showInfoModal = $state(false);
-let infoModalWasOpen = false;
-$effect(() => {
-  if (!showLoadoutEditor && infoModalWasOpen) {
-    showInfoModal = true;
-    infoModalWasOpen = false;
-  }
-});
-
 let selectedBot: [BotInfo, string, string] | null = $state(null);
 $effect(() => {
-  if (!showInfoModal && !showLoadoutEditor) {
+  if (!showInfoModal) {
     selectedBot = null;
   }
 });
@@ -252,9 +243,7 @@ function OpenSelectedBotSource() {
 
 function EditSelectedBotLoadout() {
   if (selectedBot) {
-    infoModalWasOpen = showInfoModal;
-    showInfoModal = false;
-    showLoadoutEditor = true;
+    alert.bind(null, "Not implemented yet")();
   }
 }
 
