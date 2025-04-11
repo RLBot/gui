@@ -91,14 +91,20 @@ async function addFolder() {
   addInstallPath(result);
 }
 
-async function addFile() {
-  const result = await App.PickTomlFile();
+function addFile() {
+  App.PickRLBotToml()
+    .then((result) => {
+      if (!result) {
+        return;
+      }
 
-  if (!result) {
-    return;
-  }
-
-  addInstallPath(result);
+      addInstallPath(result);
+    })
+    .catch((error) => {
+      toast.error(
+        "Failed to add file: Only bot.toml or script.toml files are allowed",
+      );
+    });
 }
 
 function confirmAddBotpack() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -264,15 +265,21 @@ func (a *App) PickFolder() string {
 	return path
 }
 
-func (a *App) PickTomlFile() string {
+func (a *App) PickRLBotToml() (string, error) {
 	path, err := zenity.SelectFile(zenity.FileFilter{
 		Name:     ".toml files",
 		Patterns: []string{"*.toml"},
 	})
 	if err != nil {
-		println("ERR: File picker failed")
+		return "", nil
 	}
-	return path
+
+	filename := filepath.Base(path)
+	if filename == "bot.toml" || filename == "script.toml" || strings.HasSuffix(filename, ".bot.toml") || strings.HasSuffix(filename, ".script.toml") {
+		return path, nil
+	}
+
+	return "", fmt.Errorf("invalid file name")
 }
 
 func (a *App) ShowPathInExplorer(path string) error {
