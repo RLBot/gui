@@ -1,4 +1,4 @@
-import type { DraggablePlayer } from ".";
+import { uuidv4, type DraggablePlayer } from ".";
 import { HumanInfo, PsyonixBotInfo } from "../bindings/gui";
 import controller from "./assets/controller.svg";
 
@@ -6,14 +6,14 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
   {
     displayName: "Human",
     icon: controller,
-    id: Math.random(),
+    id: uuidv4(),
     player: new HumanInfo(),
     tags: ["human"],
   },
   {
     displayName: "Psyonix Beginner",
     icon: "",
-    id: Math.random(),
+    id: uuidv4(),
     player: new PsyonixBotInfo({
       skill: 0,
     }),
@@ -22,7 +22,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
   {
     displayName: "Psyonix Rookie",
     icon: "",
-    id: Math.random(),
+    id: uuidv4(),
     player: new PsyonixBotInfo({
       skill: 1,
     }),
@@ -31,7 +31,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
   {
     displayName: "Psyonix Pro",
     icon: "",
-    id: Math.random(),
+    id: uuidv4(),
     player: new PsyonixBotInfo({
       skill: 2,
     }),
@@ -40,7 +40,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
   {
     displayName: "Psyonix Allstar",
     icon: "",
-    id: Math.random(),
+    id: uuidv4(),
     player: new PsyonixBotInfo({
       skill: 3,
     }),

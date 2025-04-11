@@ -178,8 +178,7 @@ async function updateBots() {
     };
   });
 
-  let basePlayers = showHuman ? BASE_PLAYERS : BASE_PLAYERS.slice(1);
-  players = [...basePlayers, ...players];
+  players = [...BASE_PLAYERS.slice(1), ...players];
   loadingPlayers = false;
 }
 
@@ -375,7 +374,6 @@ function handleSearch(event: Event) {
       scripts={scripts}
       searchQuery={searchQuery}
       selectedTeam={selectedTeam}
-      map={$mapStore}
     />
   </div>
 
