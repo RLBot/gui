@@ -16,6 +16,9 @@ import { BASE_PLAYERS } from "../base-players";
 import { uuidv4, type DraggablePlayer, type ToggleableScript } from "../index";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
+//@ts-ignore
+import LoadoutEditor from "./LoadoutEditor/Main.svelte";
+import { getAndParseItems } from "./LoadoutEditor/items";
 
 let {
   bots = [],
@@ -26,6 +29,7 @@ let {
   enabledScripts = $bindable({}),
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
+  map,
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -35,6 +39,7 @@ let {
   enabledScripts: { [key: string]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
+  map: string,
 } = $props();
 const flipDurationMs = 100;
 
@@ -87,9 +92,25 @@ const subCategoryTags: { [x: string]: string[] } = {
 };
 
 let showInfoModal = $state(false);
+let showLoadoutEditor = $state(false);
+let infoModalWasOpen = false;
+$effect(() => {
+  if (!showLoadoutEditor && infoModalWasOpen) {
+    showInfoModal = true;
+    infoModalWasOpen = false;
+  }
+});
+
+let everSelectedBot = $state(false);
+$effect(() => {
+  if (selectedBot) {
+    everSelectedBot = true;
+  }
+});
+
 let selectedBot: [BotInfo, string, string] | null = $state(null);
 $effect(() => {
-  if (!showInfoModal) {
+  if (!showInfoModal && !showLoadoutEditor) {
     selectedBot = null;
   }
 });
@@ -247,7 +268,9 @@ function OpenSelectedBotSource() {
 
 function EditSelectedBotLoadout() {
   if (selectedBot) {
-    alert.bind(null, "Not implemented yet")();
+    infoModalWasOpen = showInfoModal;
+    showInfoModal = false;
+    showLoadoutEditor = true;
   }
 }
 
@@ -429,6 +452,25 @@ function SelectedToggleFavorite() {
   </div>
 {/if}
 </Modal>
+
+<!-- prevent loading the items if unneeded,
+ but also prevent loading the items more than once -->
+{#if everSelectedBot}
+  <!-- svelte-ignore block_empty -->
+  {#await getAndParseItems() then items}
+    {#if selectedBot && selectedBot[0].loadout}
+      <LoadoutEditor
+        bind:visible={showLoadoutEditor}
+        basePath={selectedBot[0].tomlPath}
+        loadoutFile={selectedBot[0].config.settings.loadoutFile}
+        loadout={selectedBot[0].loadout}
+        {items}
+        name={selectedBot[1]}
+        {map}
+      />
+    {/if}
+  {/await}
+{/if}
 
 <style>
   .bots span {
