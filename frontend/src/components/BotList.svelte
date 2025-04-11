@@ -94,10 +94,10 @@ $effect(() => {
   }
 });
 
-let filteredBots: DraggablePlayer[] = $derived.by(() =>
+const filteredBots: DraggablePlayer[] = $derived.by(() =>
   filterBots(bots, selectedTags, showHuman, searchQuery),
 );
-let filteredScripts: ToggleableScript[] = $derived.by(() =>
+const filteredScripts: ToggleableScript[] = $derived.by(() =>
   filterScripts(scripts, selectedTags, searchQuery),
 );
 

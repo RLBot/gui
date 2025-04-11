@@ -4,7 +4,7 @@ let {
   options = $bindable(),
   placeholder = $bindable(),
 } = $props();
-let options_entries = $derived(Object.entries(options));
+const options_entries = $derived(Object.entries(options));
 </script>
 
 <label class="select" for="slct">
