@@ -70,10 +70,28 @@ function setPreset(presetData: Gamemode) {
   }
 }
 
-const ALL_MAPS = { ...MAPS_STANDARD, ...MAPS_NON_STANDARD };
-const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
-  (key) => key !== "game_mode",
-);
+const filteredMutatorOptions = filterMutatorOptions();
+function filterMutatorOptions() {
+  let filtered = Object.keys(mutatorOptions).filter(
+    (key) => key !== "game_mode",
+  );
+  filtered.sort();
+
+  return filtered;
+}
+
+function getMaps() {
+  const standardMaps = Object.entries(MAPS_STANDARD).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+  const nonStandardMaps = Object.entries(MAPS_NON_STANDARD).sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+
+  return Object.fromEntries([...standardMaps, ...nonStandardMaps]);
+}
+
+const ALL_MAPS = getMaps();
 </script>
 
 <div class="matchSettings">
@@ -128,7 +146,7 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
     {#each filteredMutatorOptions as mutatorKey}
       <div class="mutator">
         <label
-          style={mutators[mutatorKey] == 0 ? "color:lightgrey" : ""}
+          class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
           for={mutatorKey}>{cleanCase(mutatorKey)}</label
         >
 
@@ -177,6 +195,24 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
     />
     <label for="enableStateSetting">
       Enable State Setting (bots can teleport)
+    </label>
+    <br />
+    <input
+      type="checkbox"
+      id="autoStartAgents"
+      bind:checked={extraOptions.autoStartAgents}
+    />
+    <label for="autoStartAgents">
+      Auto-start agents
+    </label>
+    <br />
+    <input
+      type="checkbox"
+      id="waitForAgents"
+      bind:checked={extraOptions.waitForAgents}
+    />
+    <label for="waitForAgents">
+      Wait for agents to connect
     </label>
     <br />
     <input
@@ -243,13 +279,24 @@ const filteredMutatorOptions = Object.keys(mutatorOptions).filter(
 
   .mutators {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto auto auto;
     gap: 1rem;
+  }
+  @media (max-width: 800px) {
+    .mutators {
+      grid-template-columns: auto auto auto;
+    }
   }
   .mutator {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+  }
+  .mutator label {
+    color:lightgrey;
+  }
+  label.mutatorChanged {
+    color: orange;
   }
   .bottomButtons {
     display: flex;

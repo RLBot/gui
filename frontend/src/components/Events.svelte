@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Browser } from "@wailsio/runtime";
+import { onMount } from "svelte";
 import AlarmIcon from "../assets/alarm.svg";
 import CalendarPlusIcon from "../assets/calendar-plus.svg";
 import GeoIcon from "../assets/geo.svg";
@@ -12,18 +13,26 @@ let {
   eventsFuture = $bindable(0),
 } = $props();
 
-let events: {
-  name: string;
-  location: string;
-  time: string;
-  timeUntil: string;
-  remainingTimeInMs: number;
-  moreInfo: string;
-  logo: string;
-}[] = $state([]);
+let now = $state(new Date());
+
+onMount(() => {
+  const start = new Date();
+  const timeToFirstUpdate = 60000 - (start.getTime() % 60000) + 1000;
+
+  // schedule the interval to run every minute,
+  // one second after the minute starts
+  // this ensures that we aren't effected by inaccuracies
+  setTimeout(() => {
+    now = new Date();
+
+    setInterval(() => {
+      now = new Date();
+    }, 60000); // Update every minute
+  }, timeToFirstUpdate);
+});
 
 function dateTimeCheck(today: Date, event: any) {
-  const names = event.summary;
+  const name = event.summary;
   const start = event.start.dateTime;
   const newDate = new Date(start);
 
@@ -68,8 +77,7 @@ function dateTimeCheck(today: Date, event: any) {
     }
   }
 
-  const remainingTimeInMs = newDate.getTime() - today.getTime();
-  return [names, newDate, remainingTimeInMs];
+  return [name, newDate];
 }
 
 function formatFromNow(milliseconds: number) {
@@ -91,7 +99,7 @@ function formatFromNow(milliseconds: number) {
     format += hours > 1 ? " hours " : " hour ";
   }
 
-  const minutes = Math.floor((milliseconds % hourMillis) / minuteMillis);
+  const minutes = Math.ceil((milliseconds % hourMillis) / minuteMillis);
   if (minutes > 0) {
     format += minutes;
     format += minutes > 1 ? " minutes " : " minute ";
@@ -101,28 +109,31 @@ function formatFromNow(milliseconds: number) {
 }
 
 async function fetchEvents() {
+  const today = new Date();
+
   const apiKey = "AIzaSyBQ40UqlMPexzWxTNd7EYtTrkoFF_DqpqM";
-  const timeMin = new Date().toISOString();
+  const timeMin = today.toISOString();
   const url = `https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin=${timeMin}&key=${apiKey}`;
 
   const response = await fetch(url);
   const data = await response.json();
 
-  events = [];
+  const events: {
+    name: string;
+    location: string;
+    time: string;
+    date: Date;
+    moreInfo: string;
+    logo: string;
+  }[] = [];
 
   // compute dates and times
   for (const event of data.items) {
-    const [names, newDate, remainingTimeInMs] = dateTimeCheck(
-      new Date(),
-      event,
-    );
+    const [name, newDate] = dateTimeCheck(today, event);
 
+    const remainingTimeInMs = newDate.getTime() - today.getTime();
     if (remainingTimeInMs > 0) eventsFuture += 1;
     else eventsNow += 1;
-
-    // time_untils is the time until the event in milliseconds
-    // convert this to something human readable, like "in 2 days"
-    const format = formatFromNow(Math.abs(remainingTimeInMs));
 
     const logoSplit = event.description ? event.description.split("logo:") : [];
     const logo =
@@ -136,11 +147,10 @@ async function fetchEvents() {
         : event.description;
 
     events.push({
-      name: names,
+      name,
       location: event.location,
       time: newDate.toLocaleString(),
-      timeUntil: format,
-      remainingTimeInMs,
+      date: newDate,
       moreInfo,
       logo,
     });
@@ -149,52 +159,58 @@ async function fetchEvents() {
   // sort community events by start time
   events.sort((a, b) => {
     // @ts-ignore
-    return new Date(a.remainingTimeInMs) - new Date(b.remainingTimeInMs);
+    return a.date - b.date;
   });
-}
 
-fetchEvents();
+  return events;
+}
 </script>
 
 <Modal title="Community Events" bind:visible>
   <!-- svelte-ignore a11y_invalid_attribute -->
   <div id="community-events">
-    {#if events.length === 0}
-    <p>There are no community events at this time.</p>
-    {:else}
-    {#each events as event}
-    <div class="event">
-      {#if event.logo}
-        <img class="event-logo" src={event.logo} alt="event logo" />
+    {#await fetchEvents()}
+      <p>Loading events...</p>
+    {:then events }
+      {#if events.length === 0}
+        <p>There are no community events at this time.</p>
+      {:else}
+      {#each events as event}
+        {@const remainingTimeInMs = event.date.getTime() - now.getTime()}
+        {@const timeUntil = formatFromNow(Math.abs(remainingTimeInMs))}
+        <div class="event">
+          {#if event.logo}
+            <img class="event-logo" src={event.logo} alt="event logo" />
+          {/if}
+          <div>
+            <h2>{ event.name }</h2>
+            {#if !timeUntil}
+            <p>
+              <img src={AlarmIcon} alt="alarm" /> Starting now!
+            </p>
+            {:else if remainingTimeInMs > 0}
+            <p>
+              <img src={CalendarPlusIcon} alt="calendar" /> Starts in <b>{ timeUntil }</b> ({ event.time })
+            </p>
+            {:else}
+            <p>
+              <img src={AlarmIcon} alt="alarm" /> Started <b>{ timeUntil }</b> ago, but you can still join!
+            </p>
+            {/if}
+            <p>
+              <img src={GeoIcon} alt="location"> <a href="#" onclick={() => {Browser.OpenURL(event.location)}} target="_blank">{ event.location }</a>
+            </p>
+            {#if event.moreInfo}
+            <br>
+            <p class="more-info">
+              <img src={InfoIcon} alt="info"> <a href="#" onclick={() => {Browser.OpenURL(event.moreInfo)}} target="_blank">More info</a>
+            </p>
+            {/if}
+          </div>
+        </div>
+      {/each}
       {/if}
-      <div>
-        <h2>{ event.name }</h2>
-        {#if !event.timeUntil}
-        <p>
-          <img src={AlarmIcon} alt="alarm" /> Starting now!
-        </p>
-        {:else if event.remainingTimeInMs > 0}
-        <p>
-          <img src={CalendarPlusIcon} alt="calendar" /> Starts in <b>{ event.timeUntil }</b> ({ event.time })
-        </p>
-        {:else}
-        <p>
-          <img src={AlarmIcon} alt="alarm" /> Started <b>{ event.timeUntil }</b> ago, but you can still join!
-        </p>
-        {/if}
-        <p>
-          <img src={GeoIcon} alt="location"> <a href="#" onclick={() => {Browser.OpenURL(event.location)}} target="_blank">{ event.location }</a>
-        </p>
-        {#if event.moreInfo}
-        <br>
-        <p class="more-info">
-          <img src={InfoIcon} alt="info"> <a href="#" onclick={() => {Browser.OpenURL(event.moreInfo)}} target="_blank">More info</a>
-        </p>
-        {/if}
-      </div>
-    </div>
-    {/each}
-    {/if}
+    {/await}
   </div>
 </Modal>
 

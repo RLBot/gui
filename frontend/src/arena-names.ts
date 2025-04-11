@@ -48,6 +48,8 @@ export const MAPS_STANDARD = {
   "AquaDome (Shallows)": "Underwater_GRS_P",
   "Salty Shores (SaltyFest)": "Beach_Night_GRS_P",
   "Drift Woods": "Woods_P",
+  "NeoTokyo (Arcade)": "NeoTokyo_Arcade_P",
+  "Futura Garden": "UF_Day_P",
 };
 
 // biome-ignore format: keep consistent

@@ -5,6 +5,7 @@ import toast from "svelte-5-french-toast";
 import {
   App,
   BotInfo,
+  ExtraOptions,
   type StartMatchOptions,
 } from "../../bindings/gui/index.js";
 import arenaImages from "../arena-images";
@@ -23,6 +24,7 @@ import {
   type DraggablePlayer,
   type ToggleableScript,
   draggablePlayerToPlayerJs,
+  uuidv4,
 } from "../index";
 import { mapStore } from "../settings";
 
@@ -105,12 +107,21 @@ let showPathsViewer = $state(false);
 
 let latestBotUpdateTime = null;
 let loadingPlayers = $state(false);
-let players: DraggablePlayer[] = $state([...BASE_PLAYERS]);
+
+let players: DraggablePlayer[] = $state(BASE_PLAYERS.slice(1));
+let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
+let orangePlayers: DraggablePlayer[] = $state([]);
+let showHuman = $derived(
+  !(
+    bluePlayers.some((x) => x.tags.includes("human")) ||
+    orangePlayers.some((x) => x.tags.includes("human"))
+  ),
+);
 
 let latestScriptUpdateTime = null;
 let loadingScripts = $state(false);
 let scripts: ToggleableScript[] = $state([]);
-let enabledScripts: { [key: number]: boolean } = $state({});
+let enabledScripts: { [key: string]: boolean } = $state({});
 
 function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   const uniqueNames = [
@@ -148,7 +159,7 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
 
 async function updateBots() {
   loadingPlayers = true;
-  let internalUpdateTime = new Date();
+  const internalUpdateTime = new Date();
   latestBotUpdateTime = internalUpdateTime;
   const result = await App.GetBots(
     paths.filter((x) => x.visible).map((x) => x.installPath),
@@ -161,14 +172,14 @@ async function updateBots() {
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
       player: new BotInfo(x),
-      id: Math.random(),
+      id: uuidv4(),
       tags: x.config.details.tags,
       uniquePathSegment,
     };
   });
-  players = [...BASE_PLAYERS, ...players];
+
+  players = [...BASE_PLAYERS.slice(1), ...players];
   loadingPlayers = false;
-  console.log("Loaded bots:", result);
 }
 
 async function updateScripts() {
@@ -183,7 +194,7 @@ async function updateScripts() {
   }
   scripts = distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
     return {
-      id: Math.random(),
+      id: uuidv4(),
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
       config: x,
@@ -199,13 +210,12 @@ async function updateScripts() {
   }
 
   for (const id in Object.keys(enabledScripts)) {
-    if (!scripts.some((script) => script.id === Number(id))) {
+    if (!scripts.some((script) => script.id === id)) {
       delete enabledScripts[id];
     }
   }
 
   loadingScripts = false;
-  console.log("Loaded scripts:", result);
 }
 
 $effect(() => {
@@ -214,26 +224,38 @@ $effect(() => {
   updateScripts();
 });
 
-let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
-let orangePlayers: DraggablePlayer[] = $state([]);
-let showHuman = $state(true);
-$effect(() => {
-  showHuman = !(
-    bluePlayers.some((x) => x.tags.includes("human")) ||
-    orangePlayers.some((x) => x.tags.includes("human"))
-  );
-});
+function loadPaths() {
+  updateBots();
+  updateScripts();
+}
 
 let mode = $state(localStorage.getItem("MS_MODE") || "Soccer");
 $effect(() => {
   localStorage.setItem("MS_MODE", mode);
 });
-let extraOptions = $state(
-  JSON.parse(
-    localStorage.getItem("MS_EXTRAOPTIONS") ||
-      '{"enableStateSetting": true,"existingMatchBehavior": 0}',
-  ),
-);
+
+function loadExtraOptions(): ExtraOptions {
+  let extraOptions = JSON.parse(
+    localStorage.getItem("MS_EXTRAOPTIONS") || '{"existingMatchBehavior": 0}',
+  );
+
+  // old versions of the GUI will have MS_EXTRAOPTIONS but might not have these values,
+  // and they should default to true
+  const newDefaultTrue = [
+    "autoStartAgents",
+    "waitForAgents",
+    "enableStateSetting",
+  ];
+  for (const item of newDefaultTrue) {
+    if (extraOptions[item] === undefined) {
+      extraOptions[item] = true;
+    }
+  }
+
+  return extraOptions;
+}
+
+let extraOptions = $state(loadExtraOptions());
 $effect(() => {
   localStorage.setItem("MS_EXTRAOPTIONS", JSON.stringify(extraOptions));
 });
@@ -243,17 +265,6 @@ let mutatorSettings = $state(
 $effect(() => {
   localStorage.setItem("MS_MUTATORS", JSON.stringify(mutatorSettings));
 });
-
-// function loadMutators() {
-//   let mutators = JSON.parse(localStorage.getItem("MS_MUTATORS") || "{}");
-//   // delete any mutators that are no longer in the list
-//   for (const key of Object.keys(mutators)) {
-//     if (!mutatorOptions[key]) {
-//       delete mutators[key];
-//     }
-//   }
-//   return mutators;
-// }
 
 async function onMatchStart(randomizeMap: boolean) {
   const launcher = localStorage.getItem("MS_LAUNCHER");
@@ -347,7 +358,7 @@ function handleSearch(event: Event) {
       {#if loadingPlayers || loadingScripts}
         <h3>Searching...</h3>
       {:else}
-        <button class="reloadButton" onclick={updateBots}
+        <button class="reloadButton" onclick={loadPaths}
           ><img src={reloadIcon} alt="reload" /></button
         >
       {/if}
@@ -426,6 +437,7 @@ function handleSearch(event: Event) {
     filter: invert();
   }
   .teams {
+    min-height: 93px;
     overflow: auto;
     display: flex;
     flex-direction: column;

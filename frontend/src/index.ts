@@ -16,7 +16,7 @@ const app: any = mount(App, {
 });
 
 export interface DraggablePlayer {
-  id: number;
+  id: string;
   displayName: string;
   icon: string;
   player: BotInfo | PsyonixBotInfo | HumanInfo;
@@ -25,7 +25,7 @@ export interface DraggablePlayer {
 }
 
 export interface ToggleableScript {
-  id: number;
+  id: string;
   displayName: string;
   icon: string;
   config: BotInfo;
@@ -50,6 +50,15 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
     sort: sort,
     player: d.player,
   };
+}
+
+export function uuidv4() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) =>
+    (
+      +c ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
+    ).toString(16),
+  );
 }
 
 export default app;

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -139,6 +140,8 @@ type ExtraOptions struct {
 	SkipReplays           bool `json:"skipReplays"`
 	AutoSaveReplay        bool `json:"autoSaveReplay"`
 	ExistingMatchBehavior byte `json:"existingMatchBehavior"`
+	AutoStartAgents       bool `json:"autoStartAgents"`
+	WaitForAgents         bool `json:"waitForAgents"`
 }
 
 type StartMatchOptions struct {
@@ -214,8 +217,8 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 	}
 
 	match := flat.MatchConfigurationT{
-		AutoStartAgents:       true,
-		WaitForAgents:         true,
+		AutoStartAgents:       options.ExtraOptions.AutoStartAgents,
+		WaitForAgents:         options.ExtraOptions.WaitForAgents,
 		GameMapUpk:            options.Map,
 		PlayerConfigurations:  playerConfigs,
 		ScriptConfigurations:  scriptConfigs,
@@ -262,15 +265,21 @@ func (a *App) PickFolder() string {
 	return path
 }
 
-func (a *App) PickTomlFile() string {
+func (a *App) PickRLBotToml() (string, error) {
 	path, err := zenity.SelectFile(zenity.FileFilter{
 		Name:     ".toml files",
 		Patterns: []string{"*.toml"},
 	})
 	if err != nil {
-		println("ERR: File picker failed")
+		return "", nil
 	}
-	return path
+
+	filename := filepath.Base(path)
+	if filename == "bot.toml" || filename == "script.toml" || strings.HasSuffix(filename, ".bot.toml") || strings.HasSuffix(filename, ".script.toml") {
+		return path, nil
+	}
+
+	return "", fmt.Errorf("invalid file name")
 }
 
 func (a *App) ShowPathInExplorer(path string) error {

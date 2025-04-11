@@ -4,12 +4,16 @@ import { flip } from "svelte/animate";
 import type { DraggablePlayer } from "../..";
 import closeIcon from "../../assets/close.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
+
 const flipDurationMs = 100;
+
+let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
+
 function handleSort(e: any) {
   items = e.detail.items;
 }
-let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
-function remove(id: number): any {
+
+function remove(id: string): any {
   items = items.filter((x) => x.id !== id);
 }
 </script>
@@ -29,7 +33,7 @@ function remove(id: number): any {
             items,
             flipDurationMs,
             dropTargetStyle: {},
-            dropTargetClasses: ["dropTarget"],
+            dropTargetClasses: ["dropTarget"]
         }}
         onconsider={handleSort}
         onfinalize={handleSort}
@@ -38,9 +42,12 @@ function remove(id: number): any {
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         {#each items as bot (bot.id)}
             <!-- TODO: maybe remove stopPropagation and instead require a click on the team header -->
-            <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={e => e.stopPropagation()}>
-                <img src={bot?.icon || defaultIcon} alt="icon" />
-                <p>{bot?.displayName}</p>
+            <div class="bot" animate:flip={{ duration: items.length < 16 ? flipDurationMs : 0 }} onclick={e => e.stopPropagation()}>
+                <img src={bot.icon || defaultIcon} alt="icon" />
+                <p>{bot.displayName}</p>
+                {#if bot.uniquePathSegment}
+                  <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
+                {/if}
                 <div style="flex: 1;"></div>
                 <button class="close" onclick={remove.bind(null, bot.id)}>
                     <img src={closeIcon} alt="X" />
@@ -97,5 +104,8 @@ function remove(id: number): any {
         height: 100%;
         width: auto;
         filter: invert();
+    }
+    .unique-bot-identifier {
+      color: #868686;
     }
 </style>
