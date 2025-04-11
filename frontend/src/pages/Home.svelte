@@ -16,7 +16,6 @@ import BotList from "../components/BotList.svelte";
 import BotpackNotif from "../components/BotpackToast.svelte";
 // @ts-ignore
 import MatchSettings from "../components/MatchSettings/Main.svelte";
-import { mutators as mutatorOptions } from "../components/MatchSettings/rlmutators";
 import PathsViewer from "../components/PathsViewer.svelte";
 // @ts-ignore
 import Teams from "../components/Teams/Main.svelte";
