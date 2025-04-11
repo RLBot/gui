@@ -205,6 +205,10 @@ function handleDndConsider(e: any) {
         { ...bots[idx], id: uuidv4() },
         ...bots.slice(idx + 1),
       ];
+    } else {
+      // idx is -1 when the picked item is the human
+      // trigger an update of filteredBots by hiding the human
+      showHuman = false;
     }
   }
 }

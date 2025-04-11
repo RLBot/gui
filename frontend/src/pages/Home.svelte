@@ -111,7 +111,7 @@ let loadingPlayers = $state(false);
 let players: DraggablePlayer[] = $state(BASE_PLAYERS.slice(1));
 let bluePlayers: DraggablePlayer[] = $state([BASE_PLAYERS[0]]);
 let orangePlayers: DraggablePlayer[] = $state([]);
-const showHuman = $derived(
+let showHuman = $derived(
   !(
     bluePlayers.some((x) => x.tags.includes("human")) ||
     orangePlayers.some((x) => x.tags.includes("human"))
