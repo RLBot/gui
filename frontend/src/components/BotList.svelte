@@ -39,7 +39,7 @@ let {
   enabledScripts: { [key: string]: boolean };
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
-  map: string,
+  map: string;
 } = $props();
 const flipDurationMs = 100;
 
