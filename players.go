@@ -117,6 +117,36 @@ type TeamLoadoutConfig struct {
 	Paint           TeamPaintConfig `toml:"paint" json:"paint"`
 }
 
+func (teamLoadout TeamLoadoutConfig) ToPlayerLoadout() *flat.PlayerLoadoutT {
+	return &flat.PlayerLoadoutT{
+		TeamColorId:     teamLoadout.TeamColorId,
+		CustomColorId:   teamLoadout.CustomColorId,
+		CarId:           teamLoadout.CarId,
+		DecalId:         teamLoadout.DecalId,
+		WheelsId:        teamLoadout.WheelsId,
+		BoostId:         teamLoadout.BoostId,
+		AntennaId:       teamLoadout.AntennaId,
+		HatId:           teamLoadout.HatId,
+		PaintFinishId:   teamLoadout.PaintFinishId,
+		CustomFinishId:  teamLoadout.CustomFinishId,
+		EngineAudioId:   teamLoadout.EngineAudioId,
+		TrailsId:        teamLoadout.TrailsId,
+		GoalExplosionId: teamLoadout.GoalExplosionId,
+		LoadoutPaint: &flat.LoadoutPaintT{
+			CarPaintId:           teamLoadout.Paint.CarPaintId,
+			DecalPaintId:         teamLoadout.Paint.DecalPaintId,
+			WheelsPaintId:        teamLoadout.Paint.WheelsPaintId,
+			BoostPaintId:         teamLoadout.Paint.BoostPaintId,
+			AntennaPaintId:       teamLoadout.Paint.AntennaPaintId,
+			HatPaintId:           teamLoadout.Paint.HatPaintId,
+			TrailsPaintId:        teamLoadout.Paint.TrailsPaintId,
+			GoalExplosionPaintId: teamLoadout.Paint.GoalExplosionPaintId,
+		},
+		PrimaryColorLookup:   &flat.ColorT{},
+		SecondaryColorLookup: &flat.ColorT{},
+	}
+}
+
 type LoadoutConfig struct {
 	Blue   TeamLoadoutConfig `toml:"blue_loadout" json:"blueLoadout"`
 	Orange TeamLoadoutConfig `toml:"orange_loadout" json:"orangeLoadout"`
@@ -145,33 +175,7 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 			teamLoadout = &botInfo.Loadout.Orange
 		}
 
-		loadout = &flat.PlayerLoadoutT{
-			TeamColorId:     teamLoadout.TeamColorId,
-			CustomColorId:   teamLoadout.CustomColorId,
-			CarId:           teamLoadout.CarId,
-			DecalId:         teamLoadout.DecalId,
-			WheelsId:        teamLoadout.WheelsId,
-			BoostId:         teamLoadout.BoostId,
-			AntennaId:       teamLoadout.AntennaId,
-			HatId:           teamLoadout.HatId,
-			PaintFinishId:   teamLoadout.PaintFinishId,
-			CustomFinishId:  teamLoadout.CustomFinishId,
-			EngineAudioId:   teamLoadout.EngineAudioId,
-			TrailsId:        teamLoadout.TrailsId,
-			GoalExplosionId: teamLoadout.GoalExplosionId,
-			LoadoutPaint: &flat.LoadoutPaintT{
-				CarPaintId:           teamLoadout.Paint.CarPaintId,
-				DecalPaintId:         teamLoadout.Paint.DecalPaintId,
-				WheelsPaintId:        teamLoadout.Paint.WheelsPaintId,
-				BoostPaintId:         teamLoadout.Paint.BoostPaintId,
-				AntennaPaintId:       teamLoadout.Paint.AntennaPaintId,
-				HatPaintId:           teamLoadout.Paint.HatPaintId,
-				TrailsPaintId:        teamLoadout.Paint.TrailsPaintId,
-				GoalExplosionPaintId: teamLoadout.Paint.GoalExplosionPaintId,
-			},
-			PrimaryColorLookup:   &flat.ColorT{},
-			SecondaryColorLookup: &flat.ColorT{},
-		}
+		loadout = teamLoadout.ToPlayerLoadout()
 	}
 
 	return &flat.PlayerConfigurationT{
