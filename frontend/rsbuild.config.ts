@@ -13,4 +13,14 @@ export default defineConfig({
       js: "inline-source-map",
     },
   },
+  tools: {
+    rspack(config, { addRules }) {
+      addRules([
+        {
+          test: /\.csv$/,
+          type: "asset/resource",
+        },
+      ]);
+    },
+  },
 });
