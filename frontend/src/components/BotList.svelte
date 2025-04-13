@@ -87,10 +87,10 @@ const subCategoryTags: { [x: string]: string[] } = {
 };
 
 let showInfoModal = $state(false);
-let selectedBot: [BotInfo, string, string] | null = $state(null);
+let selectedAgent: [BotInfo, string, string] | null = $state(null);
 $effect(() => {
   if (!showInfoModal) {
-    selectedBot = null;
+    selectedAgent = null;
   }
 });
 
@@ -229,40 +229,40 @@ function toggleScript(id: string) {
 
 function handleBotInfoClick(bot: DraggablePlayer) {
   if (bot.player instanceof BotInfo) {
-    selectedBot = [bot.player, bot.displayName, bot.icon];
+    selectedAgent = [bot.player, bot.displayName, bot.icon];
     showInfoModal = true;
   }
 }
 
 function handleScriptInfoClick(script: ToggleableScript) {
-  selectedBot = [script.config, script.displayName, script.icon];
+  selectedAgent = [script.config, script.displayName, script.icon];
   showInfoModal = true;
 }
 
 function OpenSelectedBotSource() {
-  if (selectedBot) {
-    Browser.OpenURL(selectedBot[0].config.details.sourceLink);
+  if (selectedAgent) {
+    Browser.OpenURL(selectedAgent[0].config.details.sourceLink);
   }
 }
 
 function EditSelectedBotLoadout() {
-  if (selectedBot) {
+  if (selectedAgent) {
     alert.bind(null, "Not implemented yet")();
   }
 }
 
 function ShowSelectedBotFiles() {
-  if (selectedBot) {
-    App.ShowPathInExplorer(selectedBot[0].tomlPath).catch((err) =>
+  if (selectedAgent) {
+    App.ShowPathInExplorer(selectedAgent[0].tomlPath).catch((err) =>
       toast.error(err, { duration: 10000 }),
     );
   }
 }
 
 function SelectedToggleFavorite() {
-  if (!selectedBot) return;
+  if (!selectedAgent) return;
 
-  const path = selectedBot[0].tomlPath;
+  const path = selectedAgent[0].tomlPath;
   const index = favorites.indexOf(path);
   if (index !== -1) {
     favorites.splice(index, 1);
@@ -366,10 +366,10 @@ function SelectedToggleFavorite() {
 </div>
 
 {#snippet botInfoTitle()}
-{#if selectedBot}
-  {@const isFavorite = favorites.includes(selectedBot[0].tomlPath)}
+{#if selectedAgent}
+  {@const isFavorite = favorites.includes(selectedAgent[0].tomlPath)}
   <span id="bot-info-title">
-    {selectedBot[1]}
+    {selectedAgent[1]}
     <input
       type="checkbox"
       checked={isFavorite}
@@ -388,39 +388,39 @@ function SelectedToggleFavorite() {
 {/snippet}
 
 <Modal title={botInfoTitle} bind:visible={showInfoModal}>
-{#if selectedBot}
+{#if selectedAgent}
   <div class="info-layout">
     <div class="info-main">
-      <p>Developers: {selectedBot[0].config.details.developer}</p>
-      <p>Description: {selectedBot[0].config.details.description}</p>
-      <p>Fun fact: {selectedBot[0].config.details.funFact}</p>
+      <p>Developers: {selectedAgent[0].config.details.developer}</p>
+      <p>Description: {selectedAgent[0].config.details.description}</p>
+      <p>Fun fact: {selectedAgent[0].config.details.funFact}</p>
       <p>Source code:
         <!-- svelte-ignore a11y_invalid_attribute -->
         <a href="#" onclick={OpenSelectedBotSource} target="_blank">
-          {selectedBot[0].config.details.sourceLink}
+          {selectedAgent[0].config.details.sourceLink}
         </a>
       </p>
-      <p>Language: {selectedBot[0].config.details.language}</p>
-      {#if selectedBot[0].config.details.tags.length > 0}
+      <p>Language: {selectedAgent[0].config.details.language}</p>
+      {#if selectedAgent[0].config.details.tags.length > 0}
       <div class="tags">
         Tags:
-        {#each selectedBot[0].config.details.tags as tag}
+        {#each selectedAgent[0].config.details.tags as tag}
           <span class="tag">{tag}</span>
         {/each}
       </div>
       {/if}
     </div>
 
-    {#if selectedBot[2]}
+    {#if selectedAgent[2]}
     <div class="info-logo">
-      <img src={selectedBot[2]} alt="icon" />
+      <img src={selectedAgent[2]} alt="icon" />
     </div>
     {/if}
 
     <div class="info-extra">
-      <p class="toml-path">{selectedBot[0].tomlPath}</p>
+      <p class="toml-path">{selectedAgent[0].tomlPath}</p>
       <div class="button-group">
-        {#if selectedBot[0].loadout}
+        {#if selectedAgent[0].loadout}
         <button onclick={EditSelectedBotLoadout}>Edit Loadout</button>
         {/if}
         <button onclick={ShowSelectedBotFiles}>Show Files</button>
