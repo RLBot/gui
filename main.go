@@ -25,8 +25,6 @@ func check_nvidia() bool {
 		return false
 	}
 
-	// Check if the output contains signs of NVIDIA GPU presence.
-	// This is a basic check; more robust parsing of the output is possible.
 	return strings.Contains(string(output), "NVIDIA")
 }
 
