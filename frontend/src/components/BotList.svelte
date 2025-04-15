@@ -13,12 +13,12 @@ import defaultIcon from "../assets/rlbot_mono.png";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
 import { BASE_PLAYERS } from "../base-players";
-import { uuidv4, type DraggablePlayer, type ToggleableScript } from "../index";
-import Modal from "./Modal.svelte";
-import Switch from "./Switch.svelte";
+import { type DraggablePlayer, type ToggleableScript, uuidv4 } from "../index";
 //@ts-ignore
 import LoadoutEditor from "./LoadoutEditor/Main.svelte";
 import { getAndParseItems } from "./LoadoutEditor/items";
+import Modal from "./Modal.svelte";
+import Switch from "./Switch.svelte";
 
 let {
   bots = [],

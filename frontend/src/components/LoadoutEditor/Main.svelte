@@ -164,6 +164,8 @@ async function LaunchMatch(
 }
 </script>
 
+<!-- TODO: Maybe we should consider a switch for editing blue/orange one at a time? -->
+
 <Modal title={`Loadout of ${name}`} bind:visible>
   <div id="team-editors">
     <TeamEditor
@@ -182,14 +184,13 @@ async function LaunchMatch(
   </div>
   <div id="footer">
     <div class="left">
-      <h3>Preview in game:</h3>
       <button id="preview-blue" onclick={() => PreviewLoadout("blue")}>
         <img src={EyeIcon} alt="eye" />
-        Blue car
+        Preview Blue car
       </button>
       <button id="preview-orange" onclick={() => PreviewLoadout("orange")}>
         <img src={EyeIcon} alt="eye" />
-        Orange car
+        Preview Orange car
       </button>
       <button
         id="preview-on-change"
@@ -243,9 +244,6 @@ async function LaunchMatch(
     gap: 10px;
     justify-content: center;
     margin: 0 auto;
-  }
-  #footer h3 {
-    white-space: nowrap;
   }
   button {
     white-space: nowrap;

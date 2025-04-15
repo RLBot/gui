@@ -86,9 +86,7 @@ function randomizeItem() {
 </script>
 
 <div id="row">
-  <div class="input-group">
-    <label for="item-selection">{itemType.name}</label>
-  </div>
+  <label for="item-selection">{itemType.name}</label>
   <div id="text-input" class="input-group">
     <button class="randomize" onclick={randomizeItem}>
       <img src={RandomIcon} alt="Randomize colors" />
@@ -161,9 +159,12 @@ function randomizeItem() {
     border-radius: 0.25rem;
   }
   #row {
-    display: grid;
-    grid-template-columns: 0.75fr 1fr 1fr;
-    gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  label {
+    flex: 1;
   }
   .hidden {
     visibility: hidden;

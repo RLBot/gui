@@ -107,10 +107,12 @@ function randomizeTeamLoadout() {
     height: 24px;
   }
   .team {
-    width: 530px;
+    display: flex;
+    flex-direction: column;
+    width: min-content;
   }
   .team > div {
-    display: inline-flex;
+    display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
   }
@@ -120,7 +122,7 @@ function randomizeTeamLoadout() {
   }
   .items {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 10px;
   }
   #blue-header {
