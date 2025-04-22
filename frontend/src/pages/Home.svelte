@@ -50,7 +50,7 @@ function updateBotpack(repoName: string) {
   const details = paths.find((x) => x.repo === repoName);
   if (details?.repo && details.tagName) {
     const tId = toast.loading(`Updating ${repoName}...`, {
-      position: "bottom-right",
+      position: "top-center",
     });
 
     App.UpdateBotpack(details.repo, details.installPath, details.tagName)
@@ -58,7 +58,7 @@ function updateBotpack(repoName: string) {
         details.tagName = newTagName;
         toast.success(`${repoName} updated successfully`, {
           id: tId,
-          position: "bottom-right",
+          position: "top-center",
           duration: 3000,
         });
       })
@@ -66,7 +66,7 @@ function updateBotpack(repoName: string) {
         console.error(error);
         toast.error(`Failed to update ${repoName}: ${error}`, {
           id: tId,
-          position: "bottom-right",
+          position: "top-center",
           duration: 10000,
         });
       });
@@ -87,7 +87,7 @@ function CheckForBotpackUpdates() {
               updateBotpack,
             },
             style: "max-width: 500px",
-            position: "bottom-right",
+            position: "top-center",
             duration: 10000,
           });
 
@@ -269,7 +269,7 @@ async function onMatchStart(randomizeMap: boolean) {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
     toast.error("Please select a launcher first", {
-      position: "bottom-right",
+      position: "top-center",
       duration: 5000,
     });
 
@@ -302,40 +302,38 @@ async function onMatchStart(randomizeMap: boolean) {
     extraOptions,
   };
 
-  toast("Starting match...", {
-    position: "bottom-right",
+  const id = toast.loading("Starting match...", {
+    position: "top-center",
   });
 
   const response = await App.StartMatch(options);
 
   if (response.success) {
-    toast.success("Sent start match command", {
-      position: "bottom-right",
-      duration: 5000,
+    toast.success("Match started", {
+      id,
     });
   } else {
     toast.error(`Match start failed\n${response.message}`, {
-      position: "bottom-right",
-      duration: 5000,
+      id,
+      duration: 10000,
     });
   }
 }
 
 async function onMatchStop() {
-  toast("Stopping match...", {
-    position: "bottom-right",
+  const id = toast("Stopping match...", {
+    position: "top-center",
   });
   const response = await App.StopMatch(false);
 
   if (response.success) {
     toast.success("Sent stop match command", {
-      position: "bottom-right",
-      duration: 5000,
+      id,
     });
   } else {
     toast.error(`Match stop failed\n${response.message}`, {
-      position: "bottom-right",
-      duration: 5000,
+      id,
+      duration: 10000,
     });
   }
 }

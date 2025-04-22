@@ -31,7 +31,7 @@ function refreshRHostBots() {
     })
     .catch((error) => {
       toast.error(`Couldn't resolve Rocket Host bots\n${error}`, {
-        position: "bottom-right",
+        position: "top-center",
         duration: 5000,
       });
     });
@@ -60,7 +60,7 @@ function refreshRHostServers() {
     })
     .catch((error) => {
       toast.error(`Couldn't resolve Rocket Host server addresses\n${error}`, {
-        position: "bottom-right",
+        position: "top-center",
         duration: 5000,
       });
     });
@@ -192,7 +192,7 @@ let launcherOptionsVisible = $state(false);
         let launcher = localStorage.getItem("MS_LAUNCHER");
         if (!launcher) {
           toast.error("Please select a launcher first", {
-            position: "bottom-right",
+            position: "top-center",
             duration: 5000,
           });
 
@@ -202,7 +202,7 @@ let launcherOptionsVisible = $state(false);
 
         waiting = true;
         let id = toast.loading("Starting rocket host game...", {
-          position: "bottom-right"
+          position: "top-center"
         })
         App.StartRHostMatch({
           server: serverAddr,
@@ -215,13 +215,13 @@ let launcherOptionsVisible = $state(false);
           waiting = false;
           toast.success(
             `Started game with address ${addr}`,
-            {position: "bottom-right", duration: 10000, id}
+            {position: "top-center", duration: 10000, id}
           )
         }).catch((e)=>{
           waiting = false;
           toast.error(
             "Failed to start Rocket Host game\n" + e,
-            {position: "bottom-right", duration: 8000, id}
+            {position: "top-center", duration: 8000, id}
           )
         })
       }}>
