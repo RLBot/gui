@@ -156,6 +156,40 @@ type StartMatchOptions struct {
 	LauncherArg     string                `json:"launcherArg"`
 }
 
+func WaitForMatchReady(conn *rlbot.RLBotConnection, expectedMatchConfig *flat.MatchConfigurationT) error {
+	// wait for the correct match to start
+	var matchConfig *flat.MatchConfigurationT
+	var gamePacket *flat.GamePacketT
+	for matchConfig == nil || gamePacket == nil {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return err
+		}
+
+		switch packet := packet.(type) {
+		case *flat.MatchConfigurationT:
+			matchConfig = packet
+		case *flat.GamePacketT:
+			gamePacket = packet
+		}
+	}
+
+	// while the match isn't active or the car is on the wrong team
+	for gamePacket.MatchInfo.MatchPhase == flat.MatchPhaseEnded || gamePacket.MatchInfo.MatchPhase == flat.MatchPhaseInactive || gamePacket.MatchInfo.MatchPhase == flat.MatchPhasePaused {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return err
+		}
+
+		switch packet := packet.(type) {
+		case *flat.GamePacketT:
+			gamePacket = packet
+		}
+	}
+
+	return nil
+}
+
 func (a *App) StartMatch(options StartMatchOptions) Result {
 	// TODO: Save this in App struct
 	conn, err := rlbot.Connect(a.rlbot_address)
@@ -236,6 +270,19 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 	}
 
 	conn.SendPacket(&match)
+
+	conn.SendPacket(&flat.ConnectionSettingsT{
+		AgentId:              "",
+		WantsBallPredictions: false,
+		WantsComms:           false,
+		CloseBetweenMatches:  false,
+	})
+	conn.SendPacket(&flat.InitCompleteT{})
+	err = WaitForMatchReady(&conn, &match)
+	if err != nil {
+		return Result{false, err.Error()}
+	}
+
 	conn.SendPacket(nil) // Tell core that we want to disconnect
 
 	return Result{true, ""}

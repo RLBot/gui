@@ -108,7 +108,7 @@ function PreviewLoadout(team: "blue" | "orange") {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
     toast.error("Please select a launcher first", {
-      position: "bottom-right",
+      position: "top-center",
       duration: 5000,
     });
 
