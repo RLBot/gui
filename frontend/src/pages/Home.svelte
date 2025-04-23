@@ -265,6 +265,8 @@ $effect(() => {
   localStorage.setItem("MS_MUTATORS", JSON.stringify(mutatorSettings));
 });
 
+let startMatchToastId: string | null = null;
+
 async function onMatchStart(randomizeMap: boolean) {
   const launcher = localStorage.getItem("MS_LAUNCHER");
   if (!launcher) {
@@ -302,28 +304,35 @@ async function onMatchStart(randomizeMap: boolean) {
     extraOptions,
   };
 
-  const id = toast.loading("Starting match...", {
+  // only show the toast from the newest start match attempt
+  if (startMatchToastId) {
+    toast.dismiss(startMatchToastId);
+  }
+
+  const toastId = toast.loading("Starting match...", {
     position: "top-center",
   });
+  startMatchToastId = toastId;
 
   const response = await App.StartMatch(options);
 
+  if (toastId != startMatchToastId) return;
+  startMatchToastId = null;
+
   if (response.success) {
     toast.success("Match started", {
-      id,
+      id: toastId,
     });
   } else {
     toast.error(`Match start failed\n${response.message}`, {
-      id,
+      id: toastId,
       duration: 10000,
     });
   }
 }
 
 async function onMatchStop() {
-  const id = toast("Stopping match...", {
-    position: "top-center",
-  });
+  const id = startMatchToastId ?? undefined;
   const response = await App.StopMatch(false);
 
   if (response.success) {
