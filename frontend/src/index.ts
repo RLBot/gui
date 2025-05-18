@@ -22,6 +22,7 @@ export interface DraggablePlayer {
   player: BotInfo | PsyonixBotInfo | HumanInfo;
   tags: string[];
   uniquePathSegment?: string;
+  modified: boolean;
 }
 
 export interface ToggleableScript {

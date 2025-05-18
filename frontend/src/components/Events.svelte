@@ -247,8 +247,8 @@ async function fetchEvents() {
     justify-content: center;
   }
   .event-logo {
-    max-height: 150px;
-    max-width: 500px;
+    max-height: auto;
+    width: 18%;
   }
   #community-events {
     min-width: 500px;

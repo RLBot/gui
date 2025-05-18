@@ -174,6 +174,7 @@ async function updateBots() {
       id: uuidv4(),
       tags: x.config.details.tags,
       uniquePathSegment,
+      modified: false,
     };
   });
 
