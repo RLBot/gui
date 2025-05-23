@@ -12,23 +12,36 @@ const launcherOptions = {
   Epic: "epic",
   Custom: "custom",
   Legendary: "legendary",
+  Heroic: "heroic",
   "Don't launch": "nolaunch",
 };
 
-let launcher = $state(
-  localStorage.getItem("MS_LAUNCHER") === "custom" &&
-    localStorage.getItem("MS_LAUNCHER_ARG") === "legendary"
-    ? "legendary"
-    : localStorage.getItem("MS_LAUNCHER") || "",
-);
+const customLaunchers = [launcherOptions.Legendary, launcherOptions.Heroic];
+
+function loadLauncher() {
+  let launcher = localStorage.getItem("MS_LAUNCHER");
+  let launcherArg = localStorage.getItem("MS_LAUNCHER_ARG");
+
+  if (
+    launcherArg != null &&
+    launcher === "custom" &&
+    launcherArg in customLaunchers
+  ) {
+    launcher = launcherArg;
+  }
+
+  return launcher ?? "";
+}
+
+let launcher = $state(loadLauncher());
 
 $effect(() => {
-  if (launcher === "legendary") {
+  if (launcher in customLaunchers) {
     localLauncher = "custom";
-    localLauncherArg = "legendary";
+    localLauncherArg = launcher;
   } else {
     localLauncher = launcher;
-    if (localLauncherArg === "legendary") {
+    if (localLauncherArg in customLaunchers) {
       localLauncherArg = "";
     }
   }
