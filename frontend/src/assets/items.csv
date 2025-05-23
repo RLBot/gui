@@ -3472,6 +3472,7 @@
 5376,Skin,Product_TA ProductsDB.Products.Skin_seasonfifteen_07,S1 - Grand Champion
 5378,GoalExplosion,Product_TA ProductsDB.Products.explosion_bunnyg,Buffy-Sugo
 5379,Skin,Product_TA ProductsDB.Products.Skin_Jackie,Ectoplasm
+5380,Wheels,Product_TA ProductsDB.Products.wheel_manhole,Razera Ember
 5381,Wheels,Product_TA ProductsDB.Products.wheel_gustan,Sandlure
 5382,Skin,Product_TA ProductsDB.Products.skin_octane_arz_h,Octane: Arizona Cardinals
 5383,Skin,Product_TA ProductsDB.Products.skin_octane_atl_h,Octane: Atlanta Falcons
@@ -4044,6 +4045,7 @@
 6081,Skin,Product_TA ProductsDB.Products.skin_energyribbon,ReHacktive
 6082,Wheels,Product_TA ProductsDB.Products.Wheel_conceptrev,Haunted Hoss
 6083,Skin,Product_TA ProductsDB.Products.Skin_Galacticgate,Neural Network
+6084,Wheels,Product_TA ProductsDB.Products.wheel_revolver,Chambered
 6092,Skin,Product_TA ProductsDB.Products.Skin_GalacticWave,Warp Wave
 6093,MusicStingers,Product_TA ProductsDB.Products.Anthem_BenPlatt_Imagine,Imagine
 6094,MusicStingers,Product_TA ProductsDB.Products.Anthem_BigFreedia_Platinum,Platinum
@@ -5981,6 +5983,7 @@
 8665,Skin,Product_TA ProductsDB.Products.skin_grain_williamsresolve_home,Fennec: Resolve (Home)
 8666,Skin,Product_TA ProductsDB.Products.skin_octane_williamsresolve_away,Octane: Resolve (Away)
 8667,Skin,Product_TA ProductsDB.Products.skin_octane_williamsresolve_home,Octane: Resolve (Home)
+8668,Wheels,Product_TA ProductsDB.Products.wheel_racer,Z-Town
 8669,Body,Product_TA ProductsDB.Products.body_aa,Ace
 8672,Antenna,Product_TA ProductsDB.Products.antenna_rockyc,Rock Candy
 8673,GoalExplosion,Product_TA ProductsDB.Products.Explosion_Esports_WilliamResolve_v2,Resolve
@@ -7318,7 +7321,7 @@
 10625,SupersonicTrail,Product_TA ProductsDB.Products.ss_surrealrush,Surrealist
 10626,Wheels,Product_TA ProductsDB.Products.wheel_thunder_02,adidas - Striker
 10627,Wheels,Product_TA ProductsDB.Products.wheel_thunder_01,adidas - Defender
-10628,Wheels,Product_TA ProductsDB.Products.wheel_heavy_b,Chasing Light
+10628,Wheels,Product_TA ProductsDB.Products.wheel_heavy_b,Forever Metal
 10629,Skin,Product_TA ProductsDB.Products.skin_force_punk,Breakout: Jam Sesh
 10630,Skin,Product_TA ProductsDB.Products.skin_sourdough_aw,Jäger 619: Walker World
 10631,Wheels,Product_TA ProductsDB.Products.wheel_law02,Walkzz
@@ -7357,7 +7360,7 @@
 10671,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_SA2,South America Bundle 2
 10672,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_SE,Southern Europe Bundle
 10673,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WE,Western Europe Bundle
-10674,Hat,Product_TA ProductsDB.Products.hat_future_baja,Starlink + Traction Board
+10674,Hat,Product_TA ProductsDB.Products.hat_future_baja,Starlink
 10676,Wheels,Product_TA ProductsDB.Products.wheel_rl156,Starchain
 10677,PaintFinish,Product_TA ProductsDB.Products.paintfinish_bigfoot,Footprint
 10681,Boost,Product_TA ProductsDB.Products.boost_bluebolt,Synthpop
@@ -7657,6 +7660,7 @@
 11094,Antenna,Product_TA ProductsDB.Products.flag_mc_vagran,Vagran
 11095,Body,Product_TA ProductsDB.Products.body_edison,Dodge Charger Daytona Scat Pack
 11096,Skin,Product_TA ProductsDB.Products.skin_muscelcar_campesino_psp,Dominus: Megafrost (T+O)
+11098,Body,Product_TA ProductsDB.Products.body_frog,Turtle Van
 11099,Antenna,Product_TA ProductsDB.Products.flag_mc_mrbill,Mr. Bill
 11100,Antenna,Product_TA ProductsDB.Products.flag_mc_culprate,Culprate
 11102,Wheels,Product_TA ProductsDB.Products.Wheel_RL160Red,Porsche 911 GT3 RS (Pyro Red)
@@ -7782,11 +7786,13 @@
 11301,SupersonicTrail,Product_TA ProductsDB.Products.ss_astralradiance,Lunaria
 11302,Wheels,Product_TA ProductsDB.Products.wheel_gear7,NeonFlux
 11306,Wheels,Product_TA ProductsDB.Products.wheel_edison,R/T
+11307,Wheels,Product_TA ProductsDB.Products.wheel_magnet,Ford Mustang Shelby GT500
 11309,PlayerAvatarBorder,Product_TA ProductsDB.Products.avatarborder_utopia02,Futura Tile
 11310,PlayerAvatarBorder,Product_TA ProductsDB.Products.avatarborder_utopia03,Futura Diodes
 11312,Wheels,Product_TA ProductsDB.Products.wheel_sherbet,Soar-Bae
 11313,Wheels,Product_TA ProductsDB.Products.wheel_cyber,Cybertread
 11314,Body,Product_TA ProductsDB.Products.body_mudpie,Jeep Wrangler Rubicon
+11315,Body,Product_TA ProductsDB.Products.body_magnet,Ford Mustang Shelby GT500
 11316,Antenna,Product_TA ProductsDB.Products.antenna_jitb,Jack-In-The-Box
 11317,Skin,Product_TA ProductsDB.Products.skin_squash_aventurine01,Cyclone: Miku Rider Beam
 11318,Antenna,Product_TA ProductsDB.Products.flag_aventurine,Hatsune Miku
@@ -7802,6 +7808,11 @@
 11332,Wheels,Product_TA ProductsDB.Products.wheel_swish,Off-Ramp
 11333,Wheels,Product_TA ProductsDB.Products.wheel_victor,Fij-It
 11336,Body,Product_TA ProductsDB.Products.body_musclecar_SE_Glow,Dominus: Neon
+11337,PlayerAvatarBorder,Product_TA ProductsDB.Products.avatarborder_froglte,Half-Shell
+11338,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_froglte1,Donatello
+11339,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_froglte2,Leonardo
+11340,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_froglte3,Raphael
+11341,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_froglte4,Michelangelo
 11342,Wheels,Product_TA ProductsDB.Products.wheel_mudpie02,Jeep Wrangler Rubicon (Off-Road)
 11343,MusicStingers,Product_TA ProductsDB.Products.album_anthem_aventurine,Hatsune Miku
 11344,MusicStingers,Product_TA ProductsDB.Products.anthem_aventurine01,M@GICAL:star:CURE! LOVE:heart:SHOT! (feat. Hatsune Miku)
@@ -7822,14 +7833,17 @@
 11362,Antenna,Product_TA ProductsDB.Products.flag_mc_rusko,Rusko
 11363,Antenna,Product_TA ProductsDB.Products.flag_mc_audia,Audia
 11364,Wheels,Product_TA ProductsDB.Products.wheel_hyperlite,Hyperlite
+11365,Hat,Product_TA ProductsDB.Products.hat_froglte,Turtle Power
 11366,Wheels,Product_TA ProductsDB.Products.wheel_petal4,Florist
 11367,Skin,Product_TA ProductsDB.Products.skin_octane_neon,Octane: Auto Aura
 11368,Skin,Product_TA ProductsDB.Products.skin_musclecar_neon,Dominus: Slice-Tag
 11370,SupersonicTrail,Product_TA ProductsDB.Products.ss_disco,Disco Floor
+11371,Wheels,Product_TA ProductsDB.Products.wheel_frog2lte,Shredders
 11372,Boost,Product_TA ProductsDB.Products.boost_disco,Disco Ball
 11377,Skin,Product_TA ProductsDB.Products.skin_octane_yeasayer,Octane: LightLane
 11378,Skin,Product_TA ProductsDB.Products.skin_musclecar_futurewave,Dominus: Futura Diodes
 11379,Body,Product_TA ProductsDB.Products.body_rio,Ram 1500 RHO
+11380,Boost,Product_TA ProductsDB.Products.boost_frog,TCRI Ooze
 11381,Hat,Product_TA ProductsDB.Products.hat_threedee_papercut_psp,ThreeDee (R+T)
 11382,Skin,Product_TA ProductsDB.Products.skin_octane_wire_psp,Octane: Framework (R+T)
 11383,Wheels,Product_TA ProductsDB.Products.wheel_atomizer_psp,Nucleon Clutch (R+T)
@@ -7866,11 +7880,14 @@
 11424,SupersonicTrail,Product_TA ProductsDB.Products.ss_toopher,Mintstripe
 11426,Wheels,Product_TA ProductsDB.Products.wheel_rl184,City Central
 11427,Wheels,Product_TA ProductsDB.Products.wheel_futura,High Range
+11429,Skin,Product_TA ProductsDB.Products.skin_magnet_livery1,Ford Mustang Shelby GT500: Silver Bullet
 11430,Wheels,Product_TA ProductsDB.Products.wheel_futurewave,Futura Diodes
 11433,Wheels,Product_TA ProductsDB.Products.wheel_stuffed,Stuffed
 11434,Wheels,Product_TA ProductsDB.Products.wheel_silvertriangle,Fulltime
 11435,Wheels,Product_TA ProductsDB.Products.wheel_rl184se,City Central: Holographic
 11437,Skin,Product_TA ProductsDB.Products.skin_mudpie_wings,Jeep Wrangler Rubicon: Wings
+11449,Skin,Product_TA ProductsDB.Products.skin_magnet2,Ford Mustang Shelby GT500: Mustang
+11450,Skin,Product_TA ProductsDB.Products.skin_magnet3,Ford Mustang Shelby GT500: Formula Ford
 11452,Skin,Product_TA ProductsDB.Products.skin_mudpie_stripes,Jeep Wrangler Rubicon: Stripes
 11453,Wheels,Product_TA ProductsDB.Products.wheel_rl194,UG-66
 11454,Skin,Product_TA ProductsDB.Products.skin_brick_viz03,Tygris: Atom Eve
@@ -7882,9 +7899,11 @@
 11467,Skin,Product_TA ProductsDB.Products.skin_force_toopher,Breakout: Tooth Care
 11468,Skin,Product_TA ProductsDB.Products.skin_maser_timmy2,Mamba: Jake the Dog
 11470,Skin,Product_TA ProductsDB.Products.skin_futura_livery1,Azura: Chase Pro
+11474,Skin,Product_TA ProductsDB.Products.skin_Frog,Turtle Van: Classic Turtle Van
 11476,Skin,Product_TA ProductsDB.Products.skin_mudpie_lightning,Jeep Wrangler Rubicon: Lightning
 11477,Skin,Product_TA ProductsDB.Products.skin_rage_hug,Lamborghini Countach LPI 800-4: Shirai Ryu Wrapped
 11478,Skin,Product_TA ProductsDB.Products.skin_edison_livery4,Dodge Charger Daytona Scat Pack: Peel Orange
+11489,GoalExplosion,Product_TA ProductsDB.Products.explosion_fs_evilornament,Death Star
 11491,GoalExplosion,Product_TA ProductsDB.Products.explosion_season17_bronze,S17 - Bronze
 11492,GoalExplosion,Product_TA ProductsDB.Products.explosion_season17_champ,S17 - Champion
 11493,GoalExplosion,Product_TA ProductsDB.Products.explosion_season17_diamond,S17 - Diamond
@@ -7895,10 +7914,12 @@
 11498,GoalExplosion,Product_TA ProductsDB.Products.explosion_season17_ssl,S17 - Supersonic Legend
 11499,Skin,Product_TA ProductsDB.Products.skin_maser_timmy1,Mamba: Finn the Human
 11500,Wheels,Product_TA ProductsDB.Products.wheel_hug_02,Sub-Zero Kombat
+11502,Wheels,Product_TA ProductsDB.Products.wheel_rl186,Hot Hex
 11504,Antenna,Product_TA ProductsDB.Products.antenna_drone,Rocket Drone
 11506,Skin,Product_TA ProductsDB.Products.skin_mudpie_livery1,Jeep Wrangler Rubicon: Tomb Raider
 11507,Skin,Product_TA ProductsDB.Products.skin_mudpie_livery2,Jeep Wrangler Rubicon: Hydro Blue
 11508,Skin,Product_TA ProductsDB.Products.skin_rage_hug2,Lamborghini Countach LPI 800-4: Lin Kuei Wrapped
+11509,SupersonicTrail,Product_TA ProductsDB.Products.ss_frog,TCRI Ooze
 11511,Skin,Product_TA ProductsDB.Products.skin_edison_livery1,Dodge Charger Daytona Scat Pack: Chase Pro
 11512,Skin,Product_TA ProductsDB.Products.skin_edison_livery2,Dodge Charger Daytona Scat Pack: Rumble Bee
 11513,Skin,Product_TA ProductsDB.Products.skin_edison_livery3,Dodge Charger Daytona Scat Pack: EV Circuit
@@ -7907,9 +7928,12 @@
 11519,Skin,Product_TA ProductsDB.Products.skin_rage_rage02,Lamborghini Countach LPI 800-4: Opalescent
 11520,Skin,Product_TA ProductsDB.Products.skin_futura_livery2,Azura: Rumble Bee
 11521,Skin,Product_TA ProductsDB.Products.skin_futura_livery3,Azura: EV Circuit
+11525,Wheels,Product_TA ProductsDB.Products.wheel_sporty04,RoughRoad
 11527,Skin,Product_TA ProductsDB.Products.skin_mudpie_flames,Jeep Wrangler Rubicon: Flames
 11528,Wheels,Product_TA ProductsDB.Products.wheel_robo,T-I Breaker
 11529,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_AT18,Accolade XVIII
+11537,Skin,Product_TA ProductsDB.Products.Skin_Frog_Pizza,Turtle Van: Pizza Box
+11538,Skin,Product_TA ProductsDB.Products.Skin_Frog_Villains,Turtle Van: Vandalized
 11540,Skin,Product_TA ProductsDB.Products.skin_rio_red,Ram 1500 RHO: Flame Red
 11543,EngineAudio,Product_TA ProductsDB.Products.engineaudio_zuse,Revolver
 11545,Wheels,Product_TA ProductsDB.Products.wheel_robo_infinite,T-I Breaker: Infinite
@@ -7921,6 +7945,9 @@
 11559,GoalExplosion,Product_TA ProductsDB.Products.explosion_ESports_NRG_V3,NRG (2025)
 11561,Skin,Product_TA ProductsDB.Products.skin_rio_livery1,Ram 1500 RHO: Guts
 11563,Skin,Product_TA ProductsDB.Products.skin_rio_livery2,Ram 1500 RHO: Glory
+11566,EngineAudio,Product_TA ProductsDB.Products.engineaudio_magnet,Ford Mustang Shelby GT500
+11569,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_frog,Ooze Canister
+11570,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_GoldenMoon25,Golden Moon '25
 11574,EngineAudio,Product_TA ProductsDB.Products.engineaudio_rio,Ram 1500 RHO
 11577,MusicStingers,Product_TA ProductsDB.Products.anthem_pmoney_whiney_hayve_99octane,99 Octane
 11578,EngineAudio,Product_TA ProductsDB.Products.engineaudio_edison,Dodge Charger Daytona Scat Pack
@@ -7945,14 +7972,33 @@
 11608,Skin,Product_TA ProductsDB.Products.skin_autodignitas_00,Dignitas (2025)
 11609,Skin,Product_TA ProductsDB.Products.skin_autobds_00,Team BDS (2025)
 11610,Skin,Product_TA ProductsDB.Products.skin_autovitality_00,Team Vitality (2025)
+11611,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_evilornament02,Vader's Lightsaber
 11614,GoalExplosion,Product_TA ProductsDB.Products.explosion_ESports_Gentlemates_V3,Gentle Mates (2025)
 11615,GoalExplosion,Product_TA ProductsDB.Products.explosion_ESports_TSM_V3,TSM (2025)
 11616,Skin,Product_TA ProductsDB.Products.pack_rlcs2025,RLCS '25
 11618,Skin,Product_TA ProductsDB.Products.skin_autotsm_00,TSM (2025)
 11620,Skin,Product_TA ProductsDB.Products.skin_autogeng_00,Gen.G (2025)
+11621,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_evilornament01,Darth Vader
+11622,Wheels,Product_TA ProductsDB.Products.Wheel_Frog,Turtle Van Stock
+11624,Wheels,Product_TA ProductsDB.Products.wheel_evilornament02,The Empire
 11627,Skin,Product_TA ProductsDB.Products.skin_autolimitless_00,Limitless 2025
 11628,Skin,Product_TA ProductsDB.Products.skin_autospacestationgaming_00,Spacestation Gaming (2025)
+11631,Boost,Product_TA ProductsDB.Products.boost_evilornament02,Unstable Red Lightsaber
 11633,Skin,Product_TA ProductsDB.Products.skin_autofuria_00,Furia (2025)
 11635,Skin,Product_TA ProductsDB.Products.skin_autogentlemates_00,Gentle Mates (2025)
+11636,Boost,Product_TA ProductsDB.Products.boost_evilornament,Force Lightning
+11637,Skin,Product_TA ProductsDB.Products.skin_grain_evilornament01,Fennec: Darth Vader
+11638,Skin,Product_TA ProductsDB.Products.skin_jam_evilornament01,Porsche 911 GT3 RS: Darth Vader
+11639,Skin,Product_TA ProductsDB.Products.skin_jam_evilornament02,Porsche 911 GT3 RS: Darth Maul
+11640,Skin,Product_TA ProductsDB.Products.skin_musclecar2_evilornament01,Dominus GT: General Grievous
 11665,MusicStingers,Product_TA ProductsDB.Products.anthem_habstrakt_zero200,ZERO200
 11671,Wheels,Product_TA ProductsDB.Products.wheel_rl190,TriTrim
+11674,Wheels,Product_TA ProductsDB.Products.wheel_evilornament01,Death Star
+11685,EngineAudio,Product_TA ProductsDB.Products.engineaudio_frog,Turtle Van
+11694,Hat,Product_TA ProductsDB.Products.hat_evilornament02,Stormtrooper Helmet
+11696,SupersonicTrail,Product_TA ProductsDB.Products.ss_evilornament,Force Lightning
+11697,Skin,Product_TA ProductsDB.Products.skin_jam_evilornament03,Porsche 911 GT3 RS: Captain Phasma
+11702,Hat,Product_TA ProductsDB.Products.hat_evilornament01,TIE Fighter
+11734,Skin,Product_TA ProductsDB.Products.skin_octane_evilornament,Octane: Stormtrooper
+11738,MusicStingers,Product_TA ProductsDB.Products.anthem_evilornament,The Imperial March (Darth Vader's Theme)
+11752,Skin,Product_TA ProductsDB.Products.skin_frog_colorized,Turtle Van: Classic Turtle Van (Custom)
