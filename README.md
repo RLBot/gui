@@ -8,8 +8,9 @@ A GUI for [RLBot](https://rlbot.org) v5. Built with:
 
 ## Info
 
-This project is built using a justfile. Run `just build` to build, `just dev` to run in dev mode, `just lint` to lint
-and `just format` to format. Remember to [install dependencies](#Installing-build-dependencies) first.
+This project is built using a justfile. Run `just build` to build, `just dev` to run in dev mode,
+`just lint` to lint and `just format` to format. Remember to
+[install dependencies](#Installing-build-dependencies) first.
 
 ## Installing build dependencies
 

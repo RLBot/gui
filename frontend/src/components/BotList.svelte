@@ -13,7 +13,7 @@ import defaultIcon from "../assets/rlbot_mono.png";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
 import { BASE_PLAYERS } from "../base-players";
-import { type DraggablePlayer, type ToggleableScript, uuidv4 } from "../index";
+import { type DraggablePlayer, type ToggleableScript } from "../index";
 //@ts-ignore
 import LoadoutEditor from "./LoadoutEditor/Main.svelte";
 import { getAndParseItems } from "./LoadoutEditor/items";
@@ -223,7 +223,7 @@ function handleDndConsider(e: any) {
       // trigger an update of filteredBots by updating bots
       bots = [
         ...bots.slice(0, idx),
-        { ...bots[idx], id: uuidv4() },
+        { ...bots[idx], id: crypto.randomUUID() },
         ...bots.slice(idx + 1),
       ];
     } else {
@@ -235,7 +235,7 @@ function handleDndConsider(e: any) {
 }
 
 function handleBotClick(bot: DraggablePlayer) {
-  const newId = uuidv4();
+  const newId = crypto.randomUUID();
 
   if (selectedTeam === "blue") {
     bluePlayers = [{ ...bot, id: newId }, ...bluePlayers];

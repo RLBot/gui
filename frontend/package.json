@@ -11,7 +11,8 @@
     "@wailsio/runtime": "3.0.0-alpha.66",
     "svelte": "^5.28.2",
     "svelte-5-french-toast": "^2.0.4",
-    "svelte-dnd-action": "^0.9.60"
+    "svelte-dnd-action": "^0.9.60",
+    "svelte-portal": "^2.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

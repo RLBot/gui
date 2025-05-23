@@ -6,6 +6,7 @@ import logo from "./assets/rlbot_logo.svg";
 import Events from "./components/Events.svelte";
 import Home from "./pages/Home.svelte";
 import RocketHost from "./pages/RocketHost.svelte";
+import StoryMode from "./pages/StoryMode.svelte";
 
 let activePage = $state("home");
 
@@ -34,6 +35,9 @@ let eventsVisible = $state(false);
       {#if activePage == "rhost"}
         <h3>&nbsp; / Rocket Host</h3>
       {/if}
+      {#if activePage == "storymode"}
+        <h3>&nbsp; / Story Mode</h3>
+      {/if}
     </div>
     <div class="navbuttons">
       <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => eventsVisible = true}>
@@ -51,7 +55,9 @@ let eventsVisible = $state(false);
         </span>
         {/if}
       </button>
-      <button onclick={alert.bind(null, "TODO: not implemented yet")}
+      <button onclick={() => {
+        activePage = "storymode";
+      }}
         >Story Mode</button
       >
       <button
@@ -82,6 +88,12 @@ let eventsVisible = $state(false);
     class={activePage == "rhost" ? "pageContainer" : "pageContainer hidden"}
   >
     <RocketHost />
+  </div>
+
+  <div
+    class={activePage == "storymode" ? "pageContainer" : "pageContainer hidden"}
+  >
+    <StoryMode />
   </div>
 </main>
 

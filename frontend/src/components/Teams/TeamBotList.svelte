@@ -1,10 +1,14 @@
 <script lang="ts">
+import { untrack } from "svelte";
 import { dndzone } from "svelte-dnd-action";
 import { flip } from "svelte/animate";
 import type { DraggablePlayer } from "../..";
+import { BotInfo, type PsyonixBotInfo } from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
+import editIcon from "../../assets/edit.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
+import ModalPrompt from "../ModalPrompt.svelte";
 
 const flipDurationMs = 100;
 
@@ -21,14 +25,63 @@ function remove(id: string): any {
 function dupe(id: string): any {
   const index = items.findIndex((x) => x.id === id);
   if (index !== -1) {
-    const originalItem = items[index];
     // Create a copy with a new ID
     const newItem = {
-      ...originalItem,
+      ...items[index],
       id: crypto.randomUUID(), // Generate a new unique ID
     };
     // Insert the new item after the original
     items = [...items.slice(0, index + 1), newItem, ...items.slice(index + 1)];
+  }
+}
+
+let editPrompts: { [key: string]: ModalPrompt } = {};
+let editDataNames: { [key: string]: string } = $state({});
+
+// Update editDataNames once items updates, but try to keep as much state as possible
+// Once editing more stuff is supported, this approach should probably change
+$effect(() => {
+  let localEditDataNames = untrack(() => {
+    return editDataNames;
+  });
+  let updated = Object.fromEntries(
+    items
+      .filter((x) => {
+        return x.player instanceof BotInfo;
+      })
+      .map((bot) => {
+        return [
+          bot.id,
+          // use ! + ?: instead of ?? so that "" is treated as null
+          // this is due to the input binding value to "" before this is ran
+          !localEditDataNames[bot.id]
+            ? (<BotInfo>bot.player).config.settings.name
+            : localEditDataNames[bot.id],
+        ];
+      }),
+  );
+  untrack(() => {
+    editDataNames = updated;
+  });
+});
+
+async function edit_custom_bot(id: string): Promise<void> {
+  let modal = editPrompts[id];
+
+  let modified = await modal.prompt();
+  if (modified) {
+    const index = items.findIndex((x) => x.id === id);
+    let copy = {
+      ...items[index],
+      // We need to deepclone here to make sure we don't modify the player globally.
+      // We also need to do BotInfo.createFrom to make sure that instanceof BotInfo == true still.
+      player: BotInfo.createFrom(structuredClone(items[index].player)),
+    };
+    copy.modified = true;
+    if (copy.player instanceof BotInfo) {
+      copy.player.config.settings.name = editDataNames[id];
+    }
+    items[index] = copy;
   }
 }
 </script>
@@ -59,13 +112,22 @@ function dupe(id: string): any {
       <!-- TODO: maybe remove stopPropagation and instead require a click on the team header -->
       <div class="bot" animate:flip={{ duration: items.length < 16 ? flipDurationMs : 0 }} onclick={e => e.stopPropagation()}>
         <img src={bot.icon || defaultIcon} alt="icon" />
-        <p>{bot.displayName}</p>
+        <p
+          style={bot.modified ? "color: orange" : ""}
+          title={bot.modified ? "(modified)" : undefined}
+        >{bot.displayName}</p>
         {#if bot.uniquePathSegment}
           <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
         {/if}
         <div style="flex: 1;"></div>
+        {#if bot.player instanceof BotInfo}
+          <button class="edit" title="edit" onclick={edit_custom_bot.bind(null, bot.id)}>
+            <img src={editIcon} alt="Dupe">
+          </button>
+        {/if}
+        <!-- TODO: support editing psyonix bots too, skill level (and name?) -->
         {#if !bot.tags.includes("human")}
-          <button class="duplicate" onclick={dupe.bind(null, bot.id)}>
+          <button class="duplicate" title="Duplicate" onclick={dupe.bind(null, bot.id)}>
             <img src={duplicateIcon} alt="Dupe">
           </button>
         {/if}
@@ -76,6 +138,22 @@ function dupe(id: string): any {
     {/each}
   </div>
 </div>
+
+{#each items as bot (bot.id)}
+  <ModalPrompt title={"Edit " + bot.displayName} bind:this={editPrompts[bot.id]}>
+    <div style="display: flex; flex-direction: column;">
+      <label for={`edit-name-${bot.id}`}>Bot name (note: only in-game)</label>
+      <input
+        type="text"
+        placeholder="Bot name"
+        id={`edit-name-${bot.id}`}
+        bind:value={editDataNames[bot.id]}
+      >
+      <!-- TODO: Add a bunch of more stuff to edit, loadout etc -->
+      <!-- TODO: Perhaps add a way to save mods to bots as new tomls? -->
+    </div>
+  </ModalPrompt>
+{/each}
 
 <style>
   * {
@@ -115,10 +193,10 @@ function dupe(id: string): any {
     height: 2rem;
     width: auto;
   }
-  .bot:not(:hover) :is(.duplicate) {
+  .bot:not(:hover) :is(.duplicate, .edit) {
     visibility: hidden;
   }
-  .close, .duplicate {
+  .close, .duplicate, .edit {
     background-color: transparent;
     height: 100%;
     padding: 0;
@@ -126,7 +204,7 @@ function dupe(id: string): any {
   .duplicate {
     padding: 0 .2rem;
   }
-  .close img, .duplicate img {
+  :is(.close, .duplicate, .edit) img {
     height: 100%;
     width: auto;
     filter: invert();

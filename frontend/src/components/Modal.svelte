@@ -1,12 +1,15 @@
 <script lang="ts">
+import { portal } from "svelte-portal";
 import close from "../assets/close.svg";
 let {
   title = "Modal",
   visible = $bindable(true),
+  closeable = true,
   children,
 }: {
   title?: string | (() => any);
   visible?: boolean;
+  closeable?: boolean;
   children?: () => any;
 } = $props();
 
@@ -15,7 +18,8 @@ let wrap: EventTarget;
 let mouseDownWasOutside = false;
 
 function handleOuter(e: MouseEvent) {
-  if (e.target === wrap && mouseDownWasOutside) visible = false;
+  if (e.target === wrap && mouseDownWasOutside && closeable === true)
+    visible = false;
 }
 function handleMouseDown(e: MouseEvent) {
   const res = e.target === wrap;
@@ -26,7 +30,13 @@ function handleMouseDown(e: MouseEvent) {
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class={"modalContainer " + (visible ? "" : "hidden")} bind:this={wrap} onclick={handleOuter} onmousedown={handleMouseDown}>
+<div
+  class={"modalContainer " + (visible ? "" : "hidden")}
+  bind:this={wrap}
+  onclick={handleOuter}
+  onmousedown={handleMouseDown}
+  use:portal={"body"}
+>
   <div class="modal">
     <header>
       <h2>
@@ -36,11 +46,13 @@ function handleMouseDown(e: MouseEvent) {
           {@render title()}
         {/if}
       </h2>
-      <button
-        onclick={() => {
-          visible = false;
-        }}><img src={close} alt="close" /></button
-      >
+      {#if closeable === true}
+        <button
+          onclick={() => {
+            visible = false;
+          }}><img src={close} alt="close" /></button
+        >
+      {/if}
     </header>
     <div class="modalBody">
       {@render children?.()}
@@ -81,11 +93,14 @@ function handleMouseDown(e: MouseEvent) {
   }
   header {
     padding: 0.2rem;
-    padding-left: 0.8rem;
     border-bottom: 1px solid var(--background-alt);
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  header h2 {
+    padding: 0 0.6rem;
+    user-select: none;
   }
   header button {
     padding: 0px;

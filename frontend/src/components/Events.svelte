@@ -253,7 +253,8 @@ async function fetchEvents() {
   #community-events {
     min-width: 500px;
     min-height: 150px;
-    max-height: 78vh;
+    width: 100%;
+    height: 100%;
     overflow: auto;
   }
 </style>
