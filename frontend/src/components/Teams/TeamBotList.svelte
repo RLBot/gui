@@ -3,7 +3,7 @@ import { untrack } from "svelte";
 import { dndzone } from "svelte-dnd-action";
 import { flip } from "svelte/animate";
 import type { DraggablePlayer } from "../..";
-import { BotInfo, type PsyonixBotInfo } from "../../../bindings/gui";
+import { BotInfo } from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
@@ -163,8 +163,7 @@ async function edit_custom_bot(id: string): Promise<void> {
   .teamBotList {
     padding: 0.6rem;
     overflow: auto;
-    height: 100%;
-    min-height: 4rem;
+    height: 175px;
     display: flex;
     flex-direction: column;
     position: relative;

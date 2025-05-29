@@ -413,6 +413,7 @@ function handleSearch(event: Event) {
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
+    gap: 1rem;
   }
   .page * {
     user-select: none;
@@ -423,13 +424,13 @@ function handleSearch(event: Event) {
     background-color: var(--background);
     padding: 0.6rem;
   }
-  .page > div:not(:first-child) {
-    margin-top: 1rem;
-  }
+
   .availableBots {
     padding-bottom: 0.6rem;
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    min-height: fit-content;
   }
   .availableBots header {
     display: flex;
@@ -448,5 +449,6 @@ function handleSearch(event: Event) {
     overflow: auto;
     display: flex;
     flex-direction: column;
+    flex: 0 0 auto;
   }
 </style>
