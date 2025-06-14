@@ -429,7 +429,7 @@ function handleSearch(event: Event) {
     padding-bottom: 0.6rem;
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: fit-content;
   }
   .availableBots header {
