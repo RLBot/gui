@@ -164,7 +164,7 @@ async function edit_custom_bot(id: string): Promise<void> {
     padding: 0.6rem;
     overflow: auto;
     height: 100%;
-    min-height: 4rem;
+    min-height: 10rem;
     display: flex;
     flex-direction: column;
     position: relative;
