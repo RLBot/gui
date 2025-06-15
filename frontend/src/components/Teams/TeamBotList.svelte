@@ -187,7 +187,6 @@ async function edit_custom_bot(id: string): Promise<void> {
     flex-direction: column;
     gap: 0.5rem;
     min-height: 100%;
-    overflow-y: auto;
     padding-bottom: 1rem;
   }
   .bot {
