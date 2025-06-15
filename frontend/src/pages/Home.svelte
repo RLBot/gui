@@ -234,7 +234,7 @@ function loadPaths() {
   updateScripts();
 }
 
-let mode = $state(localStorage.getItem("MS_MODE") || "Soccer");
+let mode = $state(localStorage.getItem("MS_MODE") || "Soccar");
 $effect(() => {
   localStorage.setItem("MS_MODE", mode);
 });

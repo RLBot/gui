@@ -43,17 +43,18 @@ func (options LoadoutPreviewOptions) GetPreviewMatch(existingMatchBehavior flat.
 	playerConfigs := []*flat.PlayerConfigurationT{
 		{
 			Variety: &flat.PlayerClassT{
-				Type:  flat.PlayerClassCustomBot,
-				Value: &flat.CustomBotT{},
+				Type: flat.PlayerClassCustomBot,
+				Value: &flat.CustomBotT{
+					Name:       "Showcase",
+					AgentId:    "gui/loadout-preview",
+					RootDir:    "",
+					RunCommand: "",
+					Loadout:    loadout,
+					Hivemind:   false,
+				},
 			},
-			Name:       "Showcase",
-			AgentId:    "gui/loadout-preview",
-			Team:       options.Team,
-			RootDir:    "",
-			RunCommand: "",
-			Loadout:    loadout,
-			SpawnId:    0,
-			Hivemind:   false,
+			Team:     options.Team,
+			PlayerId: 0,
 		},
 	}
 
@@ -77,13 +78,13 @@ func (options LoadoutPreviewOptions) GetPreviewMatch(existingMatchBehavior flat.
 		GameMapUpk:           options.Map,
 		PlayerConfigurations: playerConfigs,
 		ScriptConfigurations: []*flat.ScriptConfigurationT{},
-		GameMode:             flat.GameModeSoccer,
+		GameMode:             flat.GameModeSoccar,
 		Mutators: &flat.MutatorSettingsT{
 			MatchLength: flat.MatchLengthMutatorUnlimited,
 			BoostAmount: flat.BoostAmountMutatorUnlimitedBoost,
 		},
 		Freeplay:              false,
-		EnableRendering:       false,
+		EnableRendering:       flat.DebugRenderingAlwaysOff,
 		EnableStateSetting:    true,
 		InstantStart:          true,
 		SkipReplays:           true,
@@ -134,7 +135,7 @@ func (a *App) SetLoadout(options LoadoutPreviewOptions) error {
 			return err
 		}
 
-		switch packet := packet.(type) {
+		switch packet := packet.Value.(type) {
 		case *flat.GamePacketT:
 			gamePacket = packet
 		}
@@ -184,13 +185,13 @@ func WaitForLoadoutMatchReady(conn *rlbot.RLBotConnection, team uint32) (*flat.G
 	// wait for the correct match to start
 	var gamePacket *flat.GamePacketT
 	var matchConfig *flat.MatchConfigurationT
-	for matchConfig == nil || gamePacket == nil || len(matchConfig.PlayerConfigurations) != 1 || matchConfig.PlayerConfigurations[0].Team != team || matchConfig.PlayerConfigurations[0].Name != "Showcase" {
+	for matchConfig == nil || gamePacket == nil || len(matchConfig.PlayerConfigurations) != 1 || matchConfig.PlayerConfigurations[0].Team != team || matchConfig.PlayerConfigurations[0].Variety.Type != flat.PlayerClassCustomBot || matchConfig.PlayerConfigurations[0].Variety.Value.(*flat.CustomBotT).Name != "Showcase" {
 		packet, err := conn.RecvPacket()
 		if err != nil {
 			return nil, err
 		}
 
-		switch packet := packet.(type) {
+		switch packet := packet.Value.(type) {
 		case *flat.MatchConfigurationT:
 			matchConfig = packet
 		case *flat.GamePacketT:
@@ -205,7 +206,7 @@ func WaitForLoadoutMatchReady(conn *rlbot.RLBotConnection, team uint32) (*flat.G
 			return nil, err
 		}
 
-		switch packet := packet.(type) {
+		switch packet := packet.Value.(type) {
 		case *flat.GamePacketT:
 			gamePacket = packet
 		}
@@ -253,8 +254,8 @@ func (a *App) StaticSetter(team uint32) error {
 			return err
 		}
 
-		switch packet.(type) {
-		case nil:
+		switch packet.Value.(type) {
+		case *flat.DisconnectSignalT:
 			return nil
 		case *flat.GamePacketT:
 			conn.SendPacket(&gameState)

@@ -25,7 +25,7 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 		AgentId:    botInfo.Config.Settings.AgentId,
 		RootDir:    botInfo.Config.Settings.RootDir,
 		RunCommand: runCommand,
-		SpawnId:    0, // let core do this
+		ScriptId:   0, // let core do this
 	}
 }
 

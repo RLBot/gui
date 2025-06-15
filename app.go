@@ -134,15 +134,15 @@ type Result struct {
 }
 
 type ExtraOptions struct {
-	Freeplay              bool `json:"freeplay"`
-	EnableRendering       bool `json:"enableRendering"`
-	EnableStateSetting    bool `json:"enableStateSetting"`
-	InstantStart          bool `json:"instantStart"`
-	SkipReplays           bool `json:"skipReplays"`
-	AutoSaveReplay        bool `json:"autoSaveReplay"`
-	ExistingMatchBehavior byte `json:"existingMatchBehavior"`
-	AutoStartAgents       bool `json:"autoStartAgents"`
-	WaitForAgents         bool `json:"waitForAgents"`
+	Freeplay              bool                `json:"freeplay"`
+	EnableRendering       flat.DebugRendering `json:"enableRendering"`
+	EnableStateSetting    bool                `json:"enableStateSetting"`
+	InstantStart          bool                `json:"instantStart"`
+	SkipReplays           bool                `json:"skipReplays"`
+	AutoSaveReplay        bool                `json:"autoSaveReplay"`
+	ExistingMatchBehavior byte                `json:"existingMatchBehavior"`
+	AutoStartAgents       bool                `json:"autoStartAgents"`
+	WaitForAgents         bool                `json:"waitForAgents"`
 }
 
 type StartMatchOptions struct {
@@ -247,14 +247,14 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 
 	var gameMode flat.GameMode
 	switch options.GameMode {
-	case "Soccer":
-		gameMode = flat.GameModeSoccer
+	case "Soccar":
+		gameMode = flat.GameModeSoccar
 	case "Hoops":
 		gameMode = flat.GameModeHoops
 	case "Dropshot":
 		gameMode = flat.GameModeDropshot
-	case "Hockey":
-		gameMode = flat.GameModeHockey
+	case "Snowday":
+		gameMode = flat.GameModeSnowday
 	case "Rumble":
 		gameMode = flat.GameModeRumble
 	case "Heatseeker":
@@ -264,8 +264,8 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 	case "Knockout":
 		gameMode = flat.GameModeKnockout
 	default:
-		println("No mode chosen, defaulting to soccer")
-		gameMode = flat.GameModeSoccer
+		println("No mode chosen, defaulting to soccar")
+		gameMode = flat.GameModeSoccar
 	}
 
 	var launcher flat.Launcher

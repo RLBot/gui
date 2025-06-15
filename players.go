@@ -56,18 +56,15 @@ type PsyonixBotInfo struct {
 func (info PsyonixBotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 	return &flat.PlayerConfigurationT{
 		Variety: &flat.PlayerClassT{
-			Type: flat.PlayerClassPsyonix,
-			Value: &flat.PsyonixT{
+			Type: flat.PlayerClassPsyonixBot,
+			Value: &flat.PsyonixBotT{
+				Name:     "",
+				Loadout:  nil,
 				BotSkill: flat.PsyonixSkill(info.Skill),
 			},
 		},
-		Name:       "",
-		Team:       team,
-		RootDir:    "",
-		RunCommand: "",
-		Loadout:    nil,
-		SpawnId:    0,
-		Hivemind:   false,
+		Team:     team,
+		PlayerId: 0,
 	}
 }
 
@@ -79,13 +76,8 @@ func (info HumanInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 			Type:  flat.PlayerClassHuman,
 			Value: &flat.HumanT{},
 		},
-		Name:       "",
-		Team:       team,
-		RootDir:    "",
-		RunCommand: "",
-		Loadout:    nil,
-		SpawnId:    0,
-		Hivemind:   false,
+		Team:     team,
+		PlayerId: 0,
 	}
 }
 
@@ -180,17 +172,18 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 
 	return &flat.PlayerConfigurationT{
 		Variety: &flat.PlayerClassT{
-			Type:  flat.PlayerClassCustomBot,
-			Value: &flat.CustomBotT{},
+			Type: flat.PlayerClassCustomBot,
+			Value: &flat.CustomBotT{
+				Name:       botInfo.Config.Settings.Name,
+				AgentId:    botInfo.Config.Settings.AgentId,
+				RootDir:    botInfo.Config.Settings.RootDir,
+				RunCommand: runCommand,
+				Loadout:    loadout,
+				Hivemind:   botInfo.Config.Settings.Hivemind,
+			},
 		},
-		Name:       botInfo.Config.Settings.Name,
-		AgentId:    botInfo.Config.Settings.AgentId,
-		Team:       team,
-		RootDir:    botInfo.Config.Settings.RootDir,
-		RunCommand: runCommand,
-		Loadout:    loadout,
-		SpawnId:    0, // let core do this
-		Hivemind:   botInfo.Config.Settings.Hivemind,
+		Team:     team,
+		PlayerId: 0, // let core do this
 	}
 }
 

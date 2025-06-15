@@ -29,6 +29,12 @@ const existingMatchBehaviors: { [n: string]: number } = {
   "Restart if different": 2,
 };
 
+const renderingOptions: { [n: string]: number } = {
+  "Off by default": 0,
+  "On by default": 1,
+  "Always off": 2,
+};
+
 function cleanCase(toClean: string) {
   const halfClean = toClean.replaceAll("_", " ");
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
@@ -179,14 +185,9 @@ const ALL_MAPS = getMaps();
     <NiceSelect bind:value={extraOptions.existingMatchBehavior} options={existingMatchBehaviors} placeholder="Existing Match Behavior" />
     <br />
     <br />
-    <input
-      type="checkbox"
-      id="enableRendering"
-      bind:checked={extraOptions.enableRendering}
-    />
-    <label for="enableRendering">
-      Enable Rendering (bots can draw on screen)
-    </label>
+    <p>Rendering (bots can draw on screen)</p>
+    <NiceSelect bind:value={extraOptions.enableRendering} options={renderingOptions} placeholder="Rendering" />
+    <br />
     <br />
     <input
       type="checkbox"

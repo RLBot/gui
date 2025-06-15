@@ -163,12 +163,12 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 	err = conn.SendPacket(&flat.MatchConfigurationT{
 		PlayerConfigurations:  []*flat.PlayerConfigurationT{},
 		ScriptConfigurations:  []*flat.ScriptConfigurationT{},
-		GameMode:              flat.GameModeSoccer,
+		GameMode:              flat.GameModeSoccar,
 		Mutators:              &flat.MutatorSettingsT{},
 		ExistingMatchBehavior: flat.ExistingMatchBehaviorRestart,
 		GameMapUpk:            settings.Map,
 		EnableStateSetting:    true,
-		EnableRendering:       true,
+		EnableRendering:       flat.DebugRenderingOnByDefault,
 		Launcher:              launcher,
 		LauncherArg:           settings.LauncherArg,
 	})
@@ -192,7 +192,7 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 		if err != nil {
 			return "", errors.New("Error reading packet from rlbotserver: " + err.Error())
 		}
-		_, ok := packet.(*flat.FieldInfoT)
+		_, ok := packet.Value.(*flat.FieldInfoT)
 		if ok {
 			break
 		}

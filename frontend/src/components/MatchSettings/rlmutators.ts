@@ -1,9 +1,9 @@
 export const mutators: { [x: string]: string[] } = {
   game_mode: [
-    "Soccer",
+    "Soccar",
     "Hoops",
     "Dropshot",
-    "Hockey",
+    "Snowday",
     "Rumble",
     "Heatseeker",
     "Gridiron",
