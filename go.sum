@@ -7,8 +7,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/ProtonMail/go-crypto v1.3.0 h1:ILq8+Sf5If5DCpHQp4PbZdS1J7HDFRXz/+xKBiRGFrw=
 github.com/ProtonMail/go-crypto v1.3.0/go.mod h1:9whxjD8Rbs29b4XWbB8irEcE8KHMqaR2e7GWU1R+/PE=
-github.com/RLBot/go-interface v0.0.0-20250614230240-3eb3ca4b34e1 h1:iWOTI2DIjy9g/WZV4uaFl/UrG0SbzjJSAnds1UES/C4=
-github.com/RLBot/go-interface v0.0.0-20250614230240-3eb3ca4b34e1/go.mod h1:zogQvXLJKb2EQ4bb/PUH168VPwxBdzG1SSFJt9uJM5c=
+github.com/RLBot/go-interface v0.0.0-20250622212621-386aff5bf548 h1:oaBftapE2YFN6DPMXhVzFpvj27W1X4cUzVhg/bwlNko=
+github.com/RLBot/go-interface v0.0.0-20250622212621-386aff5bf548/go.mod h1:zogQvXLJKb2EQ4bb/PUH168VPwxBdzG1SSFJt9uJM5c=
 github.com/adrg/xdg v0.5.3 h1:xRnxJXne7+oWDatRhR1JLnvuccuIeCoBu2rtuLqQB78=
 github.com/adrg/xdg v0.5.3/go.mod h1:nlTsY+NNiCBGCK2tpm09vRqfVzrc2fLmXGpBLF0zlTQ=
 github.com/akavel/rsrc v0.10.2 h1:Zxm8V5eI1hW4gGaYsJQUhxpjkENuG91ki8B4zCrvEsw=

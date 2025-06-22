@@ -6,7 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/BurntSushi/toml v1.5.0
-	github.com/RLBot/go-interface v0.0.0-20250614230240-3eb3ca4b34e1
+	github.com/RLBot/go-interface v0.0.0-20250622212621-386aff5bf548
 	github.com/ncruces/zenity v0.10.14
 	github.com/ulikunitz/xz v0.5.12
 	github.com/wailsapp/mimetype v1.4.1

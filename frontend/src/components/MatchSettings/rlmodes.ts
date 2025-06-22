@@ -59,7 +59,7 @@ export const gamemodes: {
       rumble: mutators.rumble[1],
     },
   },
-  "Nike Fc Showdown": {
+  "Nike FC Showdown": {
     match: {
       game_mode: mutators.game_mode[0],
       game_map_upk: "swoosh_p",
@@ -79,7 +79,7 @@ export const gamemodes: {
       rumble: mutators.rumble[9],
     },
   },
-  "Gforce Frenzy": {
+  "G-Force Frenzy": {
     match: {
       game_mode: mutators.game_mode[0],
     },
@@ -152,6 +152,92 @@ export const gamemodes: {
       ball_max_speed: mutators.ball_max_speed[3],
       ball_bounciness: mutators.ball_bounciness[2],
       ball_weight: mutators.ball_weight[3],
+    },
+  },
+  "Split Shot": {
+    match: {
+      game_mode: mutators.game_mode[0],
+      game_map_upk: "NeoTokyo_Arcade_P",
+    },
+    mutators: {
+      territory: mutators.territory[1],
+      boost_amount: mutators.boost_amount[1],
+      ball_weight: mutators.ball_weight[1],
+      respawn_time: mutators.respawn_time[2],
+      stable_ball: mutators.stale_ball[1],
+    },
+  },
+  "Split Shot Heatseeker": {
+    match: {
+      game_mode: mutators.game_mode[5],
+      game_map_upk: "NeoTokyo_Arcade_P",
+    },
+    mutators: {
+      territory: mutators.territory[1],
+      boost_amount: mutators.boost_amount[1],
+      respawn_time: mutators.respawn_time[2],
+      stable_ball: mutators.stale_ball[1],
+    },
+  },
+  "Split Shot Snow Day": {
+    match: {
+      game_mode: mutators.game_mode[3],
+      game_map_upk: "NeoTokyo_Arcade_P",
+    },
+    mutators: {
+      territory: mutators.territory[1],
+      boost_amount: mutators.boost_amount[1],
+      ball_weight: mutators.ball_weight[1],
+      respawn_time: mutators.respawn_time[2],
+      stable_ball: mutators.stale_ball[1],
+      ball_type: mutators.ball_type[2],
+    },
+  },
+  "Run It Back": {
+    match: {
+      game_mode: mutators.game_mode[3],
+    },
+    mutators: {
+      input_restriction: mutators.input_restriction[1],
+    },
+  },
+  "Car Wars": {
+    match: {
+      game_mode: mutators.game_mode[0],
+      game_map_upk: "Labs_Holyfield_Space_P",
+    },
+    mutators: {
+      max_score: mutators.max_score[4],
+      ball_size: mutators.ball_size[1],
+      boost_amount: mutators.boost_amount[2],
+      rumble: mutators.rumble[13],
+    },
+  },
+  "Pizza Party": {
+    match: {
+      game_mode: mutators.game_mode[0],
+      game_map_upk: "Labs_DoubleGoal_V2_P",
+    },
+    mutators: {
+      ball_type: mutators.ball_type[14],
+      jump: mutators.jump[6],
+      ball_weight: mutators.ball_weight[2],
+      ball_size: mutators.ball_size[2],
+      ball_bounciness: mutators.ball_bounciness[1],
+      ball_gravity: mutators.ball_gravity[2],
+      boost_amount: mutators.boost_amount[13],
+      rumble: mutators.rumble[11],
+      boost_strength: mutators.boost_strength[1],
+    },
+  },
+  "Adidas Soccar Strike": {
+    match: {
+      game_mode: mutators.game_mode[0],
+      game_map_upk: "Labs_DoubleGoal_V2_P",
+    },
+    mutators: {
+      ball_weight: mutators.ball_weight[7],
+      ball_type: mutators.ball_type[13],
     },
   },
 };

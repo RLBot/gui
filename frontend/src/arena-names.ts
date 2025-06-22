@@ -88,4 +88,5 @@ export const MAPS_NON_STANDARD = {
   "Quadron": "KO_Quadron_P",
   "Calavera": "KO_Calavera_P",
   "Carbon": "KO_Carbon_P",
+  "Holyfield": "Labs_Holyfield_Space_P"
 };
