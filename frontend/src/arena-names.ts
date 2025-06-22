@@ -50,6 +50,7 @@ export const MAPS_STANDARD = {
   "Drift Woods": "Woods_P",
   "NeoTokyo (Arcade)": "NeoTokyo_Arcade_P",
   "Futura Garden": "UF_Day_P",
+  "DFH Stadium (10th Anniversary)": "stadium_10a_p",
 };
 
 // biome-ignore format: keep consistent
