@@ -26,6 +26,7 @@ import {
   draggablePlayerToPlayerJs,
 } from "../index";
 import { mapStore } from "../settings";
+    import { DebugRendering, ExistingMatchBehavior } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -240,7 +241,8 @@ $effect(() => {
 });
 
 let extraOptions: ExtraOptions = $state({
-  existingMatchBehavior: 0,
+  existingMatchBehavior: ExistingMatchBehavior.ExistingMatchBehaviorRestart,
+  enableRendering: DebugRendering.DebugRenderingOffByDefault,
   enableStateSetting: true,
   autoStartAgents: true,
   waitForAgents: true,
