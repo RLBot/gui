@@ -26,7 +26,7 @@ import {
   draggablePlayerToPlayerJs,
 } from "../index";
 import { mapStore } from "../settings";
-    import { DebugRendering, ExistingMatchBehavior } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
+import { DebugRendering, ExistingMatchBehavior } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
