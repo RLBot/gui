@@ -1,10 +1,19 @@
 <script lang="ts">
 let {
   value = $bindable(),
-  options = $bindable(),
-  placeholder = $bindable(),
+  options = {},
+  placeholder = "",
 } = $props();
+
 const options_entries = $derived(Object.entries(options));
+$effect(() => {
+  if (
+    value !== "" &&
+    !options_entries.some(([_, v]) => v === value)
+  ) {
+    value = options_entries[0][1];
+  }
+});
 </script>
 
 <label class="select" for="slct">
