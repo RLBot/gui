@@ -157,6 +157,39 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   return uniquePathSegments;
 }
 
+function updateTeam(team: DraggablePlayer[]) {
+  let newTeam: DraggablePlayer[] = [];
+  for (let player of team) {
+    const botInfo = player.player;
+    if (!(botInfo instanceof BotInfo)) {
+      newTeam.push(player);
+      continue;
+    }
+
+    const found = players.find(
+      (p) => p.player instanceof BotInfo && p.player.tomlPath === botInfo.tomlPath,
+    );
+    if (!found) {
+      // bot was removed
+      continue;
+    }
+
+    let newPlayer: DraggablePlayer = {
+      ...found,
+      id: player.id,
+      modified: player.modified,
+    };
+    if (player.modified) {
+      // keep the modified display name
+      newPlayer.displayName = player.displayName;
+    }
+
+    newTeam.push(newPlayer);
+  }
+
+  return newTeam;
+}
+
 async function updateBots() {
   loadingPlayers = true;
   const internalUpdateTime = new Date();
@@ -171,6 +204,7 @@ async function updateBots() {
   if (latestBotUpdateTime !== internalUpdateTime) {
     return; // if newer "search" already started, dont write old data
   }
+
   players = players.concat(
     distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
       return {
@@ -184,6 +218,9 @@ async function updateBots() {
       };
     }),
   );
+
+  bluePlayers = updateTeam(bluePlayers);
+  orangePlayers = updateTeam(orangePlayers);
 
   loadingPlayers = false;
 }
