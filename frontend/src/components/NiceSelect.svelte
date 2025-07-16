@@ -9,6 +9,7 @@ const options_entries = $derived(Object.entries(options));
 $effect(() => {
   if (
     value !== "" &&
+    options_entries.length > 0 &&
     !options_entries.some(([_, v]) => v === value)
   ) {
     value = options_entries[0][1];
