@@ -22,7 +22,7 @@ type RawReleaseInfo struct {
 // App struct
 type App struct {
 	latestReleaseJson []RawReleaseInfo
-	rlbotAddress       string
+	rlbotAddress      string
 }
 
 func (a *App) IgnoreMe(
@@ -344,6 +344,9 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 		launcher = flat.LauncherSteam
 	case "epic":
 		launcher = flat.LauncherEpic
+	case "legendary", "heroic":
+		launcher = flat.LauncherCustom
+		options.LauncherArg = options.Launcher
 	case "custom":
 		launcher = flat.LauncherCustom
 	case "nolaunch":

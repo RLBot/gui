@@ -65,6 +65,9 @@ func (options LoadoutPreviewOptions) GetPreviewMatch(existingMatchBehavior flat.
 		launcher = flat.LauncherSteam
 	case "epic":
 		launcher = flat.LauncherEpic
+	case "legendary", "heroic":
+		launcher = flat.LauncherCustom
+		options.LauncherArg = options.Launcher
 	case "custom":
 		launcher = flat.LauncherCustom
 	case "nolaunch":
