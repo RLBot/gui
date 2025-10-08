@@ -9,16 +9,16 @@
   },
   "dependencies": {
     "@thisux/sveltednd": "^0.0.20",
-    "@wailsio/runtime": "3.0.0-alpha.66",
+    "@wailsio/runtime": "3.0.0-alpha.72",
     "superjson": "^2.2.2",
-    "svelte": "^5.34.9",
-    "svelte-5-french-toast": "^2.0.4",
+    "svelte": "^5.39.11",
+    "svelte-5-french-toast": "^2.0.6",
     "svelte-portal": "^2.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@rsbuild/core": "^1.4.2",
-    "@rsbuild/plugin-svelte": "^1.0.10",
-    "typescript": "^5.8.3"
+    "@biomejs/biome": "^2.2.5",
+    "@rsbuild/core": "^1.5.14",
+    "@rsbuild/plugin-svelte": "^1.0.11",
+    "typescript": "^5.9.3"
   }
 }
