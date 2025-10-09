@@ -236,6 +236,7 @@ async function fetchEvents() {
   .event {
     display: flex;
     width: 100%;
+    max-width: 1280px;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -249,7 +250,7 @@ async function fetchEvents() {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 18%;
+    width: 20%;
     height: 100%;
   }
   .event-logo {
