@@ -7,7 +7,7 @@
   "lsp": {
     "biome": {
       "settings": {
-        "configuration_path": "frontend/biome.json",
+        "config_path": "frontend/biome.json",
         "require_config_file": true
       }
     }
