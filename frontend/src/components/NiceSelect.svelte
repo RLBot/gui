@@ -1,9 +1,5 @@
 <script lang="ts">
-let {
-  value = $bindable(),
-  options = {},
-  placeholder = "",
-} = $props();
+let { value = $bindable(), options = {}, placeholder = "" } = $props();
 
 const options_entries = $derived(Object.entries(options));
 $effect(() => {

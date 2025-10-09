@@ -161,7 +161,7 @@ async function LaunchMatch(
     } else {
       previewMatchTeam = team;
       lastShowcaseType = selectedShowcaseType;
-      
+
       await App.SetLoadout(options);
     }
 

@@ -6,7 +6,7 @@ import CalendarPlusIcon from "../assets/calendar-plus.svg";
 import GeoIcon from "../assets/geo.svg";
 import InfoIcon from "../assets/info_icon.svg";
 import Modal from "./Modal.svelte";
-import RLBotMono from "../assets/rlbot_mono.png"
+import RLBotMono from "../assets/rlbot_mono.png";
 
 let {
   visible = $bindable(false),

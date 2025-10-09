@@ -28,7 +28,10 @@ import {
   parseJSON,
 } from "../index";
 import { mapStore } from "../settings";
-import { DebugRendering, ExistingMatchBehavior } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
+import {
+  DebugRendering,
+  ExistingMatchBehavior,
+} from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -38,9 +41,7 @@ let paths: {
   repo: string | null;
   installPath: string;
   visible: boolean;
-}[] = $state(
-  parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []
-);
+}[] = $state(parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []);
 
 let botpackNotifIds: { [repo: string]: string } = {};
 
@@ -169,7 +170,8 @@ function updateTeam(team: DraggablePlayer[]) {
     }
 
     const found = players.find(
-      (p) => p.player instanceof BotInfo && p.player.tomlPath === botInfo.tomlPath,
+      (p) =>
+        p.player instanceof BotInfo && p.player.tomlPath === botInfo.tomlPath,
     );
     if (!found) {
       // bot was removed
@@ -286,7 +288,7 @@ let extraOptions: ExtraOptions = $state({
   autoStartAgents: true,
   waitForAgents: true,
   // rest are fine with being nullish
-  ...parseJSON(localStorage.getItem("MS_EXTRAOPTIONS")) || {},
+  ...(parseJSON(localStorage.getItem("MS_EXTRAOPTIONS")) || {}),
 });
 $effect(() => {
   localStorage.setItem("MS_EXTRAOPTIONS", JSON.stringify(extraOptions));
@@ -330,7 +332,7 @@ async function onMatchStart(randomizeMap: boolean) {
       (clone.player as BotInfo).config.settings.logoFile = "";
     }
     return draggablePlayerToPlayerJs(clone);
-  }
+  };
 
   const options: StartMatchOptions = {
     map: $mapStore,
@@ -357,7 +359,7 @@ async function onMatchStart(randomizeMap: boolean) {
   let response;
   try {
     response = await App.StartMatch(options);
-  } catch(e) {
+  } catch (e) {
     toast.error(`Match start failed\n${e}`, {
       id: toastId,
       duration: 10000,

@@ -22,13 +22,13 @@ SuperJSON.registerClass(HumanInfo);
 
 export function parseJSON(item: string | null): any | null {
   if (item === null) {
-    return null
+    return null;
   }
 
   try {
-    return JSON.parse(item)
+    return JSON.parse(item);
   } catch {
-    return null
+    return null;
   }
 }
 
