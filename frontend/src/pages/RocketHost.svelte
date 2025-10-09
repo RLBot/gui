@@ -6,6 +6,7 @@ import closeIcon from "../assets/close.svg";
 import Plus from "../assets/plus.svg.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
 import { mapStore } from "../settings";
+import Modal from "../components/Modal.svelte";
 
 let waiting = $state(false);
 
@@ -183,7 +184,7 @@ let launcherOptionsVisible = $state(false);
       </div>
       <div>
         <label for="mapselect">Launcher</label>
-        <LauncherSelector bind:visible={launcherOptionsVisible} />
+        <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
       </div>
     </div>
 
@@ -230,6 +231,10 @@ let launcherOptionsVisible = $state(false);
     </div>
   </footer>
 </div>
+
+<Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
+  <LauncherSelector />
+</Modal>
 
 <style>
   .page {

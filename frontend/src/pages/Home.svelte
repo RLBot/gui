@@ -1,7 +1,6 @@
 <script lang="ts">
 /** @import * from '../../bindings/gui' */
 import toast from "svelte-5-french-toast";
-// @ts-ignore
 import {
   App,
   BotInfo,
@@ -16,10 +15,8 @@ import reloadIcon from "../assets/reload.svg";
 import { BASE_PLAYERS } from "../base-players";
 import BotList from "../components/BotList.svelte";
 import BotpackNotif from "../components/BotpackToast.svelte";
-// @ts-ignore
 import MatchSettings from "../components/MatchSettings/Main.svelte";
 import PathsViewer from "../components/PathsViewer.svelte";
-// @ts-ignore
 import Teams from "../components/Teams/Main.svelte";
 import {
   type DraggablePlayer,
@@ -33,15 +30,20 @@ import {
   ExistingMatchBehavior,
 } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 
+let {
+  paths = $bindable([]),
+}: {
+  paths?: {
+    tagName: string | null;
+    repo: string | null;
+    installPath: string;
+    visible: boolean;
+    isDependency: boolean;
+  }[];
+} = $props();
+
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
-
-let paths: {
-  tagName: string | null;
-  repo: string | null;
-  installPath: string;
-  visible: boolean;
-}[] = $state(parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []);
 
 let botpackNotifIds: { [repo: string]: string } = {};
 
@@ -356,7 +358,7 @@ async function onMatchStart(randomizeMap: boolean) {
   });
   startMatchToastId = toastId;
 
-  let response;
+  let response: Result;
   try {
     response = await App.StartMatch(options);
   } catch (e) {

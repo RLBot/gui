@@ -1,13 +1,26 @@
 <script lang="ts">
+import { Events } from "@wailsio/runtime";
+
 let {
-  currentStep,
+  currentStep = $bindable(),
+  percentComplete = $bindable(),
   totalSteps,
-  percentComplete,
 }: {
   currentStep: number;
   totalSteps: number;
   percentComplete: number;
 } = $props();
+
+Events.On("monitor:download-progress", (event) => {
+  const { status, done } = event.data.at(-1);
+
+  if (done) {
+    percentComplete = 0;
+    currentStep += 1;
+  } else {
+    percentComplete = status;
+  }
+});
 
 let finalPercents = $derived.by(() => {
   let items = [];

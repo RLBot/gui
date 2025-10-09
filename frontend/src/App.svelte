@@ -8,6 +8,8 @@ import GuiSettings from "./components/GuiSettings.svelte";
 import Home from "./pages/Home.svelte";
 import RocketHost from "./pages/RocketHost.svelte";
 import StoryMode from "./pages/StoryMode.svelte";
+import Welcome from "./components/Welcome.svelte";
+import { parseJSON } from "./index";
 
 let activePage = $state("home");
 
@@ -16,6 +18,14 @@ let eventsFuture = $state(0);
 let eventsVisible = $state(false);
 
 let showGuiSettings = $state(false);
+
+let paths: {
+  tagName: string | null;
+  repo: string | null;
+  installPath: string;
+  visible: boolean;
+  isDependency: boolean;
+}[] = $state(parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []);
 </script>
 
 <Toaster />
@@ -88,7 +98,7 @@ let showGuiSettings = $state(false);
   <div
     class={activePage == "home" ? "pageContainer" : "pageContainer hidden"}
   >
-    <Home />
+    <Home bind:paths />
   </div>
 
   <div
@@ -106,6 +116,7 @@ let showGuiSettings = $state(false);
 
 <Events bind:visible={eventsVisible} bind:eventsNow bind:eventsFuture />
 <GuiSettings bind:visible={showGuiSettings} />
+<Welcome bind:paths />
 
 <style>
   main {

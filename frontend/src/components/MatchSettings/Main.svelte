@@ -117,7 +117,7 @@ const ALL_MAPS = getMaps();
         />
       </div>
       <div class="right-controls">
-        <LauncherSelector bind:visible={launcherOptionsVisible} />
+        <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
       </div>
     </div>
     <div class="controls">
@@ -146,6 +146,10 @@ const ALL_MAPS = getMaps();
     </div>
   </div>
 </div>
+
+<Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
+  <LauncherSelector />
+</Modal>
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
   <div class="mutators">
