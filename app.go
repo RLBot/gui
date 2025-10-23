@@ -115,8 +115,8 @@ func recursiveTomlSearch(root, tomlType string) ([]string, error) {
 			return err
 		}
 
-		// Skip certain folders
-		if entry.IsDir() && (entry.Name() == "venv" || entry.Name() == ".venv") {
+		// Skip certain directories
+		if entry.IsDir() && (entry.Name() == "venv" || entry.Name() == ".venv" || strings.HasPrefix(entry.Name(), ".")) {
 			return filepath.SkipDir
 		}
 
