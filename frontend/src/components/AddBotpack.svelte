@@ -31,7 +31,7 @@ let installPath = $state("");
 
 async function setDefaultPath() {
   const defaultPath = await App.GetDefaultPath();
-  installPath = `${defaultPath}/RLBotPack`;
+  installPath = `${defaultPath}/bots`;
 }
 
 setDefaultPath();

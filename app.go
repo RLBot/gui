@@ -38,7 +38,7 @@ func (a *App) IgnoreMe(
 func (a *App) GetDefaultPath() string {
 	if runtime.GOOS == "windows" {
 		localappdata := os.Getenv("LOCALAPPDATA")
-		return filepath.Join(localappdata, "RLBotGUI")
+		return filepath.Join(localappdata, "RLBot5")
 	}
 
 	// assume linux
