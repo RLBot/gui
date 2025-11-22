@@ -2,7 +2,7 @@ import "./global.css";
 import { mount } from "svelte";
 import {
   BotInfo,
-  HumanInfo,
+  HumanInfo, LoadoutConfig,
   type PlayerJs,
   PsyonixBotInfo,
 } from "../bindings/gui";
@@ -32,6 +32,12 @@ export function parseJSON(item: string | null): any | null {
   }
 }
 
+export interface PlayerFieldOverrides {
+  name: string;
+  loadout: LoadoutConfig | null
+  auto_start: boolean;
+}
+
 export interface DraggablePlayer {
   id: string;
   displayName: string;
@@ -39,7 +45,7 @@ export interface DraggablePlayer {
   player: BotInfo | PsyonixBotInfo | HumanInfo;
   tags: string[];
   uniquePathSegment?: string;
-  modified?: boolean;
+  overrides: PlayerFieldOverrides;
 }
 
 export interface ToggleableScript {

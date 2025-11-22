@@ -179,12 +179,8 @@ function updateTeam(team: DraggablePlayer[]) {
     let newPlayer: DraggablePlayer = {
       ...found,
       id: player.id,
-      modified: player.modified,
+      overrides: player.overrides,
     };
-    if (player.modified) {
-      // keep the modified display name
-      newPlayer.displayName = player.displayName;
-    }
 
     newTeam.push(newPlayer);
   }
@@ -216,7 +212,11 @@ async function updateBots() {
         id: crypto.randomUUID(),
         tags: x.config.details.tags,
         uniquePathSegment,
-        modified: false,
+        overrides: {
+          name: x.config.settings.name,
+          loadout: null,
+          auto_start: true,
+        },
       };
     }),
   );

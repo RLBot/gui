@@ -5,12 +5,13 @@ import { untrack } from "svelte";
 import { flip } from "svelte/animate";
 import { fade } from "svelte/transition";
 import type { DraggablePlayer } from "../..";
-import { BotInfo } from "../../../bindings/gui";
+import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
 import ModalPrompt from "../ModalPrompt.svelte";
+import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
 
 let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
 
@@ -31,55 +32,29 @@ function dupe(id: string): any {
   }
 }
 
-let editPrompts: { [key: string]: ModalPrompt } = {};
-let editDataNames: { [key: string]: string } = $state({});
+let editedPlayer: DraggablePlayer | undefined = $state(undefined)
+let showEditPrompt = $state(false)
 
-// Update editDataNames once items updates, but try to keep as much state as possible
-// Once editing more stuff is supported, this approach should probably change
-$effect(() => {
-  let localEditDataNames = untrack(() => {
-    return editDataNames;
-  });
-  let updated = Object.fromEntries(
-    items
-      .filter((x) => {
-        return x.player instanceof BotInfo;
-      })
-      .map((bot) => {
-        return [
-          bot.id,
-          // use ! + ?: instead of ?? so that "" is treated as null
-          // this is due to the input binding value to "" before this is ran
-          !localEditDataNames[bot.id]
-            ? (<BotInfo>bot.player).config.settings.name
-            : localEditDataNames[bot.id],
-        ];
-      }),
-  );
-  untrack(() => {
-    editDataNames = updated;
-  });
-});
-
-async function edit_custom_bot(id: string): Promise<void> {
-  let modal = editPrompts[id];
-
-  let modified = await modal.prompt();
-  if (modified) {
-    const index = items.findIndex((x) => x.id === id);
-    let copy = {
-      ...items[index],
-      // We need to deepclone here to make sure we don't modify the player globally.
-      // We also need to do BotInfo.createFrom to make sure that instanceof BotInfo == true still.
-      player: BotInfo.createFrom(structuredClone(items[index].player)),
-    };
-    copy.modified = true;
-    if (copy.player instanceof BotInfo) {
-      copy.player.config.settings.name = editDataNames[id];
-    }
-    items[index] = copy;
+async function showEditModal(player: DraggablePlayer) {
+  if (player) {
+    editedPlayer = player
+    showEditPrompt = true;
   }
 }
+
+// async function edit_custom_bot(id: string): Promise<void> {
+//   let modal = editPrompts[id];
+//
+//   let modified = await modal.prompt();
+//   if (modified) {
+//     const index = items.findIndex((x) => x.id === id);
+//     let copy = {...items[index]};
+//     // if (copy.player instanceof BotInfo) {
+//     //   copy.player.config.settings.name = editDataNames[id];
+//     // }
+//     items[index] = copy;
+//   }
+// }
 
 // :fire: :fire: :fire:
 let resolveDeleted = () => {};
@@ -157,7 +132,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
         }}
         animate:flip={{ duration: 100 }}
         in:fade={{ duration: 100 }}
-				out:fade={{ duration: 100 }}
+        out:fade={{ duration: 100 }}
       >
         <div
           class="bot"
@@ -171,19 +146,17 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
         >
           <img src={bot.icon || defaultIcon} alt="icon" />
           <p
-            style={bot.modified ? "color: orange" : ""}
-            title={bot.modified ? "(modified)" : undefined}
-          >{bot.displayName}</p>
+            style={!bot.overrides.auto_start ? "color: orange" : ""}
+          >{bot.displayName == bot.overrides.name ? bot.displayName : `${bot.overrides.name} [${bot.displayName}]`}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
           <div style="flex: 1;"></div>
-          {#if bot.player instanceof BotInfo}
-            <button class="edit" title="edit" onclick={edit_custom_bot.bind(null, bot.id)}>
-              <img src={editIcon} alt="Dupe">
+          {#if bot.player instanceof BotInfo || bot.player instanceof PsyonixBotInfo}
+            <button class="edit" title="Edit" onclick={() => showEditModal(bot)}>
+              <img src={editIcon} alt="Edit">
             </button>
           {/if}
-          <!-- TODO: support editing psyonix bots too, skill level (and name?) -->
           {#if !bot.tags.includes("human")}
             <button class="duplicate" title="Duplicate" onclick={dupe.bind(null, bot.id)}>
               <img src={duplicateIcon} alt="Dupe">
@@ -202,21 +175,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
   </div>
 </div>
 
-{#each items as bot (bot.id)}
-  <ModalPrompt title={"Edit " + bot.displayName} bind:this={editPrompts[bot.id]}>
-    <div style="display: flex; flex-direction: column;">
-      <label for={`edit-name-${bot.id}`}>Bot name (note: only in-game)</label>
-      <input
-        type="text"
-        placeholder="Bot name"
-        id={`edit-name-${bot.id}`}
-        bind:value={editDataNames[bot.id]}
-      >
-      <!-- TODO: Add a bunch of more stuff to edit, loadout etc -->
-      <!-- TODO: Perhaps add a way to save mods to bots as new tomls? -->
-    </div>
-  </ModalPrompt>
-{/each}
+<PlayerOverridesModal bind:player={editedPlayer} bind:visible={showEditPrompt} />
 
 <style>
   * {
