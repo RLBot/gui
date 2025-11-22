@@ -16,6 +16,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     icon: "",
     id: crypto.randomUUID(),
     player: new PsyonixBotInfo({
+      name: "",
       skill: 0,
     }),
     tags: ["psyonix"],
@@ -26,6 +27,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     icon: "",
     id: crypto.randomUUID(),
     player: new PsyonixBotInfo({
+      name: "",
       skill: 1,
     }),
     tags: ["psyonix"],
@@ -36,6 +38,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     icon: "",
     id: crypto.randomUUID(),
     player: new PsyonixBotInfo({
+      name: "",
       skill: 2,
     }),
     tags: ["psyonix"],
@@ -46,6 +49,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     icon: "",
     id: crypto.randomUUID(),
     player: new PsyonixBotInfo({
+      name: "",
       skill: 3,
     }),
     tags: ["psyonix"],

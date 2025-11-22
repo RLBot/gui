@@ -58,20 +58,39 @@ export interface ToggleableScript {
 }
 
 export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
-  let sort = "";
-
   if (d.player instanceof BotInfo) {
-    sort = "rlbot";
+    let player = BotInfo.createFrom(structuredClone(d.player))
+    // Apply overrides
+    player.config.settings.name = d.overrides.name;
+    player.loadout = d.overrides.loadout ?? d.player.loadout;
+    if (!d.overrides.auto_start) {
+      player.config.settings.runCommand = ""
+      player.config.settings.runCommandLinux = ""
+    }
+    // We don't need to know the icon to start a bot.
+    // This fixes oversized requests that result in a CORS error on windows (WebView2)
+    player.config.settings.logoFile = "";
+
+    return {
+      sort: "rlbot",
+      player: player,
+    }
   }
+
   if (d.player instanceof PsyonixBotInfo) {
-    sort = "psyonix";
-  }
-  if (d.player instanceof HumanInfo) {
-    sort = "human";
+    let player = PsyonixBotInfo.createFrom(structuredClone(d.player))
+    // Apply overrides
+    player.name = d.overrides.name;
+    player.loadout = d.overrides.loadout ?? d.player.loadout;
+
+    return {
+      sort: "psyonix",
+      player: player
+    }
   }
 
   return {
-    sort: sort,
+    sort: "human",
     player: d.player,
   };
 }

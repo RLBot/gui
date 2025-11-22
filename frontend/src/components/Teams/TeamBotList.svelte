@@ -25,7 +25,8 @@ function dupe(id: string): any {
     // Create a copy with a new ID
     const newItem = {
       ...items[index],
-      id: crypto.randomUUID(), // Generate a new unique ID
+      overrides: {...items[index].overrides},
+      id: crypto.randomUUID() // Generate a new unique ID
     };
     // Insert the new item after the original
     items = [...items.slice(0, index + 1), newItem, ...items.slice(index + 1)];
@@ -147,7 +148,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
           <img src={bot.icon || defaultIcon} alt="icon" />
           <p
             style={!bot.overrides.auto_start ? "color: orange" : ""}
-          >{bot.displayName == bot.overrides.name ? bot.displayName : `${bot.overrides.name} [${bot.displayName}]`}</p>
+          >{bot.displayName == bot.overrides.name || (bot.player instanceof PsyonixBotInfo && bot.overrides.name == "") ? bot.displayName : `${bot.overrides.name} [${bot.displayName}]`}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}

@@ -319,25 +319,12 @@ async function onMatchStart(randomizeMap: boolean) {
       ];
   }
 
-  // this syntax makes more sense when inside of another function
-  const playerMap = (draggable: DraggablePlayer): PlayerJs => {
-    let clone = { ...draggable };
-    if (clone.player instanceof BotInfo) {
-      clone.player = BotInfo.createFrom(structuredClone(clone.player));
-      // We don't need to know the icon to start a bot.
-      // This fixes oversized requests that result in a CORS error on windows (WebView2)
-      // TODO: There is probably a better way to do this.
-      (clone.player as BotInfo).config.settings.logoFile = "";
-    }
-    return draggablePlayerToPlayerJs(clone);
-  };
-
   const options: StartMatchOptions = {
     map: $mapStore,
     gameMode: mode,
     scripts: scripts.filter((x) => enabledScripts[x.id]).map((x) => x.config),
-    bluePlayers: bluePlayers.map(playerMap),
-    orangePlayers: orangePlayers.map(playerMap),
+    bluePlayers: bluePlayers.map(draggablePlayerToPlayerJs),
+    orangePlayers: orangePlayers.map(draggablePlayerToPlayerJs),
     launcher,
     launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
     mutatorSettings,

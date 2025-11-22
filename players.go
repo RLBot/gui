@@ -49,17 +49,32 @@ type Player interface {
 }
 
 type PsyonixBotInfo struct {
+	Name    string         `json:"name"`
+	Loadout *LoadoutConfig `json:"loadout,omitempty"`
 	// Beginner: 0, Rookie: 1, Pro: 2, AllStar: 3
 	Skill byte `json:"skill"`
 }
 
 func (info PsyonixBotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
+
+	var loadout *flat.PlayerLoadoutT = nil
+	if info.Loadout != nil {
+		var teamLoadout *TeamLoadoutConfig
+		if team == 0 {
+			teamLoadout = &info.Loadout.Blue
+		} else {
+			teamLoadout = &info.Loadout.Orange
+		}
+
+		loadout = teamLoadout.ToPlayerLoadout()
+	}
+
 	return &flat.PlayerConfigurationT{
 		Variety: &flat.PlayerClassT{
 			Type: flat.PlayerClassPsyonixBot,
 			Value: &flat.PsyonixBotT{
-				Name:     "",
-				Loadout:  nil,
+				Name:     info.Name,
+				Loadout:  loadout,
 				BotSkill: flat.PsyonixSkill(info.Skill),
 			},
 		},
