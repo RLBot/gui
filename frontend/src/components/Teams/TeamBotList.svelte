@@ -9,6 +9,8 @@ import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
+import rollerIcon from "../../assets/roller.svg";
+import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
 import ModalPrompt from "../ModalPrompt.svelte";
 import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
@@ -36,26 +38,24 @@ function dupe(id: string): any {
 let editedPlayer: DraggablePlayer | undefined = $state(undefined)
 let showEditPrompt = $state(false)
 
-async function showEditModal(player: DraggablePlayer) {
-  if (player) {
-    editedPlayer = player
+async function showEditModal(d: DraggablePlayer) {
+  if (d) {
+    editedPlayer = d
     showEditPrompt = true;
   }
 }
 
-// async function edit_custom_bot(id: string): Promise<void> {
-//   let modal = editPrompts[id];
-//
-//   let modified = await modal.prompt();
-//   if (modified) {
-//     const index = items.findIndex((x) => x.id === id);
-//     let copy = {...items[index]};
-//     // if (copy.player instanceof BotInfo) {
-//     //   copy.player.config.settings.name = editDataNames[id];
-//     // }
-//     items[index] = copy;
-//   }
-// }
+function canAutoStart(d: DraggablePlayer): boolean {
+  if (d.player instanceof BotInfo) {
+    return d.overrides.auto_start && d.player.config.settings.runCommand != "";
+  }
+  return true;
+}
+
+function hasOverrides(d: DraggablePlayer): boolean {
+  let expectedName = (d.player instanceof BotInfo) ? d.displayName : "";
+  return d.overrides.name !== expectedName || !d.overrides.auto_start || d.overrides.loadout != null
+}
 
 // :fire: :fire: :fire:
 let resolveDeleted = () => {};
@@ -146,21 +146,22 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
           onclick={e => e.stopPropagation()}
         >
           <img src={bot.icon || defaultIcon} alt="icon" />
-          <p
-            style={!bot.overrides.auto_start ? "color: orange" : ""}
-          >{bot.displayName == bot.overrides.name || (bot.player instanceof PsyonixBotInfo && bot.overrides.name == "") ? bot.displayName : `${bot.overrides.name} [${bot.displayName}]`}</p>
+          <p>{bot.displayName === bot.overrides.name || (bot.player instanceof PsyonixBotInfo && bot.overrides.name === "") ? bot.displayName : `${bot.overrides.name}`}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
-          <div style="flex: 1;"></div>
-          {#if bot.player instanceof BotInfo || bot.player instanceof PsyonixBotInfo}
-            <button class="edit" title="Edit" onclick={() => showEditModal(bot)}>
-              <img src={editIcon} alt="Edit">
-            </button>
+          {#if !canAutoStart(bot)}
+            <img class="bot-icon" src={cannotAutoRunIcon} alt="No auto-run" title="Must be launched manually">
           {/if}
+          <div style="flex: 1;"></div>
           {#if !bot.tags.includes("human")}
             <button class="duplicate" title="Duplicate" onclick={dupe.bind(null, bot.id)}>
               <img src={duplicateIcon} alt="Dupe">
+            </button>
+          {/if}
+          {#if bot.player instanceof BotInfo || bot.player instanceof PsyonixBotInfo}
+            <button class={hasOverrides(bot) ? "edit has-overrides" : "edit"} title="Edit" onclick={() => showEditModal(bot)}>
+              <img src={editIcon} alt="Edit">
             </button>
           {/if}
           <button class="close" onclick={remove.bind(null, bot.id)}>
@@ -242,18 +243,32 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
   .bot:not(:hover) :is(.duplicate, .edit) {
     visibility: hidden;
   }
+  .has-overrides img {
+    visibility: visible;
+  }
   .close, .duplicate, .edit {
     background-color: transparent;
     height: 100%;
     padding: 0;
   }
   .duplicate {
-    padding: 0 .2rem;
+    padding: 0 .1rem;
   }
   :is(.close, .duplicate, .edit) img {
     height: 100%;
     width: auto;
     filter: invert();
+  }
+  :is(.has-overrides) img {
+    filter: invert(68%) sepia(66%) saturate(2755%) hue-rotate(360deg) brightness(103%) contrast(104%);
+  }
+  .bot-icon {
+    background-color: transparent;
+    padding: 0 .1rem;
+    margin: .4rem 0;
+    height: 100%;
+    width: auto;
+    filter: invert(60%);
   }
   .unique-bot-identifier {
     color: #868686;

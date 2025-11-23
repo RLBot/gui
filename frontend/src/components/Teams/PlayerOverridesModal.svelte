@@ -19,6 +19,12 @@ function clearOverrides() {
     }
 }
 
+function hasNameOverride(): boolean {
+    if (!player) return false;
+    let expectedName = player.player instanceof BotInfo ? player.displayName : "";
+    return player.overrides.name !== expectedName;
+}
+
 async function pickLoadoutOverride() {
     if (!player) return;
     let path = await App.PickToml();
@@ -30,7 +36,7 @@ async function pickLoadoutOverride() {
 
 {#if player}
 <Modal title={`Edit ${player.displayName}`} bind:visible >
-    <p>In-game name</p>
+    <p style={hasNameOverride() ? "color: orange;" : ""}>In-game name</p>
     <input
             type="text"
             placeholder="Bot name"
@@ -39,8 +45,8 @@ async function pickLoadoutOverride() {
     >
     <br />
     <br />
-    {#if !(player.player instanceof PsyonixBotInfo)}
-        <p>Loadout: {player.overrides.loadout ? "Customized" : ""}</p>
+    {#if player.player instanceof BotInfo || player.player instanceof PsyonixBotInfo}
+        <p style={player.overrides.loadout ? "color: orange;" : ""}>Loadout: {player.overrides.loadout ? "Customized" : ""}</p>
         <button onclick={pickLoadoutOverride}>Pick TOML</button>
         <br />
         <br />
@@ -51,9 +57,8 @@ async function pickLoadoutOverride() {
                 id={`edit-auto-start-${player.id}`}
                 bind:checked={player.overrides.auto_start}
         >
-        <label for={`edit-auto-start-${player.id}`}>Auto start</label>
+        <label for={`edit-auto-start-${player.id}`} style={player.overrides.auto_start ? "" : "color: orange;"}>Auto start</label>
     {/if}
-    <!-- TODO: Add loadout file picker for non-humans -->
     <hr>
     <div class="buttons">
         <button onclick={clearOverrides}>Clear Overrides</button>
