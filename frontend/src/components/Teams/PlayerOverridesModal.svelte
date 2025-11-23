@@ -36,7 +36,7 @@ async function pickLoadoutOverride() {
 
 {#if player}
 <Modal title={`Edit ${player.displayName}`} bind:visible >
-    <p style={hasNameOverride() ? "color: orange;" : ""}>In-game name</p>
+    <p style={hasNameOverride() ? "color: orange;" : ""}>In-game name:</p>
     <input
             type="text"
             placeholder="Bot name"
