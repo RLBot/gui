@@ -1,7 +1,8 @@
 <script lang="ts">
 import Modal from "../Modal.svelte";
 import type {DraggablePlayer} from "../../index";
-import {BotInfo} from "../../../bindings/gui";
+import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
+import {Dialogs} from "@wailsio/runtime";
 
 let {
     player = $bindable(undefined),
@@ -10,6 +11,14 @@ let {
     player?: DraggablePlayer | null
     visible?: boolean
 } = $props();
+
+async function clearOverrides() {
+    if (player) {
+        player.overrides.name = player.player instanceof PsyonixBotInfo ? "" : player.displayName;
+        player.overrides.loadout = null;
+        player.overrides.auto_start = true;
+    }
+}
 
 </script>
 
@@ -33,5 +42,18 @@ let {
     <label for={`edit-auto-start-${player.id}`}>Auto start</label>
     {/if}
     <!-- TODO: Add loadout file picker for non-humans -->
+    <div class="buttons">
+        <button onclick={clearOverrides}>Clear Overrides</button>
+    </div>
 </Modal>
 {/if}
+
+<style>
+    .buttons {
+        display: flex;
+        width: 100%;
+        justify-content: left;
+        gap: .5rem;
+        padding-top: 1rem;
+    }
+</style>
