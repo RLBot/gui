@@ -1,10 +1,9 @@
 <script lang="ts">
-import Modal from "../Modal.svelte";
-import type {DraggablePlayer} from "../../index";
-import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
-import {Dialogs} from "@wailsio/runtime";
+    import Modal from "../Modal.svelte";
+    import type {DraggablePlayer} from "../../index";
+    import {App, BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
 
-let {
+    let {
     player = $bindable(undefined),
     visible = $bindable(false)
 }: {
@@ -12,12 +11,19 @@ let {
     visible?: boolean
 } = $props();
 
-async function clearOverrides() {
+function clearOverrides() {
     if (player) {
         player.overrides.name = player.player instanceof PsyonixBotInfo ? "" : player.displayName;
         player.overrides.loadout = null;
         player.overrides.auto_start = true;
     }
+}
+
+async function pickLoadoutOverride() {
+    if (!player) return;
+    let path = await App.PickToml();
+    if (!path) return;
+    player.overrides.loadout = await App.GetLoadout(path)
 }
 
 </script>
@@ -33,15 +39,22 @@ async function clearOverrides() {
     >
     <br />
     <br />
+    {#if !(player.player instanceof PsyonixBotInfo)}
+        <p>Loadout: {player.overrides.loadout ? "Customized" : ""}</p>
+        <button onclick={pickLoadoutOverride}>Pick TOML</button>
+        <br />
+        <br />
+    {/if}
     {#if player.player instanceof BotInfo}
-    <input
-            type="checkbox"
-            id={`edit-auto-start-${player.id}`}
-            bind:checked={player.overrides.auto_start}
-    >
-    <label for={`edit-auto-start-${player.id}`}>Auto start</label>
+        <input
+                type="checkbox"
+                id={`edit-auto-start-${player.id}`}
+                bind:checked={player.overrides.auto_start}
+        >
+        <label for={`edit-auto-start-${player.id}`}>Auto start</label>
     {/if}
     <!-- TODO: Add loadout file picker for non-humans -->
+    <hr>
     <div class="buttons">
         <button onclick={clearOverrides}>Clear Overrides</button>
     </div>

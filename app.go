@@ -463,6 +463,17 @@ func (a *App) PickRLBotToml() (string, error) {
 	return "", fmt.Errorf("invalid file name")
 }
 
+func (a *App) PickToml() (string, error) {
+	path, err := zenity.SelectFile(zenity.FileFilter{
+		Name:     ".toml files",
+		Patterns: []string{"*.toml"},
+	})
+	if err != nil {
+		return "", nil
+	}
+	return path, nil
+}
+
 func (a *App) ShowPathInExplorer(path string) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {

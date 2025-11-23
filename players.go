@@ -294,11 +294,9 @@ func (a *App) GetBots(paths []string) []BotInfo {
 		var loadout *LoadoutConfig = nil
 		if conf.Settings.LoadoutFile != "" {
 			loadoutPath := filepath.Join(filepath.Dir(potentialConfigPath), conf.Settings.LoadoutFile)
-			loadoutData, err := os.ReadFile(loadoutPath)
+			loadout, err = a.GetLoadout(loadoutPath)
 			if err != nil {
 				println("WARN: failed to read loadout file at " + conf.Settings.LoadoutFile)
-			} else {
-				toml.Decode(string(loadoutData), &loadout)
 			}
 		}
 
@@ -315,4 +313,17 @@ func (a *App) GetBots(paths []string) []BotInfo {
 	})
 
 	return infos
+}
+
+func (a *App) GetLoadout(path string) (*LoadoutConfig, error) {
+	loadoutData, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var loadout *LoadoutConfig = nil
+	_, err = toml.Decode(string(loadoutData), &loadout)
+	if err != nil {
+		return nil, err
+	}
+	return loadout, nil
 }
