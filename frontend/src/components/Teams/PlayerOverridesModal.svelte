@@ -15,7 +15,7 @@ function clearOverrides() {
     if (player) {
         player.overrides.name = player.player instanceof PsyonixBotInfo ? "" : player.displayName;
         player.overrides.loadout = null;
-        player.overrides.auto_start = true;
+        player.overrides.autoStart = true;
     }
 }
 
@@ -55,9 +55,9 @@ async function pickLoadoutOverride() {
         <input
                 type="checkbox"
                 id={`edit-auto-start-${player.id}`}
-                bind:checked={player.overrides.auto_start}
+                bind:checked={player.overrides.autoStart}
         >
-        <label for={`edit-auto-start-${player.id}`} style={player.overrides.auto_start ? "" : "color: orange;"}>Auto start</label>
+        <label for={`edit-auto-start-${player.id}`} style={player.overrides.autoStart ? "" : "color: orange;"}>Auto start</label>
     {/if}
     <hr>
     <div class="buttons">

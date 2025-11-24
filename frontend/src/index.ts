@@ -35,7 +35,7 @@ export function parseJSON(item: string | null): any | null {
 export interface PlayerFieldOverrides {
   name: string;
   loadout: LoadoutConfig | null
-  auto_start: boolean;
+  autoStart: boolean;
 }
 
 export interface DraggablePlayer {
@@ -63,7 +63,7 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
     // Apply overrides
     player.config.settings.name = d.overrides.name;
     player.loadout = d.overrides.loadout ?? d.player.loadout;
-    if (!d.overrides.auto_start) {
+    if (!d.overrides.autoStart) {
       player.config.settings.runCommand = ""
       player.config.settings.runCommandLinux = ""
     }

@@ -9,13 +9,17 @@ import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
-import rollerIcon from "../../assets/roller.svg";
 import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
-import ModalPrompt from "../ModalPrompt.svelte";
 import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
 
-let { items = $bindable() }: { items: DraggablePlayer[] } = $props();
+let {
+  items = $bindable(),
+  globalAutoStart = $bindable(true)
+}: {
+  items: DraggablePlayer[],
+  globalAutoStart: boolean,
+} = $props();
 
 function remove(id: string): any {
   items = items.filter((x) => x.id !== id);
@@ -45,16 +49,23 @@ async function showEditModal(d: DraggablePlayer) {
   }
 }
 
-function canAutoStart(d: DraggablePlayer): boolean {
+function reasonsForManualStart(d: DraggablePlayer): string[] {
+  let reasons: string[] = []
   if (d.player instanceof BotInfo) {
-    return d.overrides.auto_start && d.player.config.settings.runCommand != "";
+    if (!globalAutoStart) reasons.push("Auto-start disabled in Extra");
+    if (!d.player.config.settings.runCommand) reasons.push("No run_command declared");
+    if (!d.overrides.autoStart) reasons.push("Auto-start disabled for bot");
   }
-  return true;
+  return reasons
+}
+
+function canAutoStart(d: DraggablePlayer): boolean {
+  return reasonsForManualStart(d).length == 0;
 }
 
 function hasOverrides(d: DraggablePlayer): boolean {
   let expectedName = (d.player instanceof BotInfo) ? d.displayName : "";
-  return d.overrides.name !== expectedName || !d.overrides.auto_start || d.overrides.loadout != null
+  return d.overrides.name !== expectedName || !d.overrides.autoStart || d.overrides.loadout != null
 }
 
 // :fire: :fire: :fire:
@@ -151,7 +162,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
           {#if !canAutoStart(bot)}
-            <img class="bot-icon" src={cannotAutoRunIcon} alt="No auto-run" title="Must be launched manually">
+            <img class="bot-icon" src={cannotAutoRunIcon} alt="No auto-run" title={`Must be launched manually (${reasonsForManualStart(bot).join("; ")})`}>
           {/if}
           <div style="flex: 1;"></div>
           {#if !bot.tags.includes("human")}

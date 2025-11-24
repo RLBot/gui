@@ -5,10 +5,12 @@ let {
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
   selectedTeam = $bindable(null),
+  globalAutoStart = $bindable(true),
 }: {
   bluePlayers: any[];
   orangePlayers: any[];
   selectedTeam: "blue" | "orange" | null;
+  globalAutoStart: boolean;
 } = $props();
 
 function toggleTeam(team: "blue" | "orange") {
@@ -29,7 +31,7 @@ function toggleTeam(team: "blue" | "orange") {
             <div style="flex: 1;"></div>
             <h3 class="dimmed">{bluePlayers?.length || 0} bots</h3>
         </header>
-        <TeamBotList bind:items={bluePlayers} />
+        <TeamBotList bind:items={bluePlayers} bind:globalAutoStart />
     </div>
     <div class="team box orange" onclick={() => toggleTeam('orange')} class:selected={selectedTeam === 'orange'}>
         <header class="orange">
@@ -37,7 +39,7 @@ function toggleTeam(team: "blue" | "orange") {
             <div style="flex: 1;"></div>
             <h3 class="dimmed">{orangePlayers?.length || 0} bots</h3>
         </header>
-        <TeamBotList bind:items={orangePlayers} />
+        <TeamBotList bind:items={orangePlayers} bind:globalAutoStart />
     </div>
 </div>
 

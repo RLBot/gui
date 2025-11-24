@@ -215,7 +215,7 @@ async function updateBots() {
         overrides: {
           name: x.config.settings.name,
           loadout: null,
-          auto_start: true,
+          autoStart: true,
         },
       };
     }),
@@ -422,7 +422,7 @@ function handleSearch(event: Event) {
     />
   </div>
 
-  <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam /></div>
+  <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam bind:globalAutoStart={extraOptions.autoStartAgents} /></div>
 
   <div class="box">
     <MatchSettings
