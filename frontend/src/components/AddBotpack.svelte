@@ -103,20 +103,21 @@ async function confirmAddBotpack() {
     return;
   }
 
+  let depTagName: string | null = null;
   if (dep) {
     downloadModalTitle = `Downloading & extracting ${dep}`;
     downloadProgress = 0;
     downloadCurrentStep += 1;
 
     // Download possible dependency of the given botpack
-    const tagName = await App.DownloadBotpack(dep, installPath).catch((err) => {
+    depTagName = await App.DownloadBotpack(dep, installPath).catch((err) => {
       toast.error(`Failed to download botpack dependency: ${err}`, {
         duration: 10000,
       });
 
       return null;
     });
-    if (!tagName) {
+    if (!depTagName) {
       downloadModalVisible = false;
       visible = true;
       return;
@@ -134,7 +135,7 @@ async function confirmAddBotpack() {
     paths.push({
       installPath,
       repo: dep,
-      tagName,
+      tagName: depTagName,
       visible: false,
       isDependency: true,
     });
