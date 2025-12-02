@@ -82,7 +82,7 @@ function CheckForBotpackUpdates() {
 
       App.CheckForNewRelease(repoName, path.tagName).then((release) => {
         if (release) {
-          // @ts-ignore
+          // @ts-expect-error
           const tId = toast(BotpackNotif, {
             props: {
               repoName,
