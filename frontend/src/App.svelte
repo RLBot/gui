@@ -11,6 +11,7 @@ import StoryMode from "./pages/StoryMode.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import { parseJSON } from "./index";
 import arenaImages from "./arena-images";
+import { currentTheme, THEMES } from "./settings";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -33,6 +34,15 @@ let eventsVisible = $state(false);
 
 let showGuiSettings = $state(false);
 
+let mainClassString = $derived(
+  (
+    THEMES[$currentTheme] ??
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? THEMES["Dark blurred"]
+      : THEMES["Light"])
+  ).join(" "),
+);
+
 let paths: {
   tagName: string | null;
   repo: string | null;
@@ -45,11 +55,7 @@ let paths: {
 <Toaster />
 
 <main
-  class={
-    // TODO: Implement settings for this
-    (true ? "blur " : "") +
-    (false ? "lightTheme " : "")
-  }
+  class={mainClassString}
   style={`background-image: url("${backgroundImage}")`}
 >
   <div class={"navbar blurred" + (activePage == "welcome" ? " offset" : "")}>
