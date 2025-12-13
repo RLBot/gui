@@ -11,6 +11,7 @@ import StoryMode from "./pages/StoryMode.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import { parseJSON } from "./index";
 import arenaImages from "./arena-images";
+import { currentTheme, THEMES } from "./settings";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -33,6 +34,15 @@ let eventsVisible = $state(false);
 
 let showGuiSettings = $state(false);
 
+let mainClassString = $derived(
+  (
+    THEMES[$currentTheme] ??
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? THEMES["Dark blurred"]
+      : THEMES["Light"])
+  ).join(" "),
+);
+
 let paths: {
   tagName: string | null;
   repo: string | null;
@@ -44,8 +54,11 @@ let paths: {
 
 <Toaster />
 
-<main style={`background-image: url("${backgroundImage}")`}>
-  <div class={"navbar " + (activePage == "welcome" ? "offset" : "")}>
+<main
+  class={mainClassString}
+  style={`background-image: url("${backgroundImage}")`}
+>
+  <div class={"navbar blurred" + (activePage == "welcome" ? " offset" : "")}>
     <div>
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -105,7 +118,10 @@ let paths: {
             >GUI Settings</button
           >
           <button
-            onclick={()=>{activePage = "welcome"}}
+            onclick={()=>{
+              activePage = "welcome";
+              (document.activeElement as HTMLElement)?.blur()}
+            }
             >Re-open setup screen</button
           >
         </div>
@@ -158,14 +174,17 @@ let paths: {
     height: 3rem;
     justify-content: space-between;
     padding: 0.1rem;
-    /* Nice transparent blur */
-    background-color: rgba(0, 0, 0, 0.6);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    /* background: var(--background-alt);
-    color: var(--foreground-alt); */
+    background: var(--background);
+    color: var(--foreground);
     transition: translate 0.2s ease-in-out;
   }
+
+  .navbar:has(.dropdown:focus-within) {
+    /* We cannot set z-index in the child because it is implicitly set to
+        0 here unless specified due to the backdrop-filter (i think?) */
+    z-index: 1;
+  }
+
   .navbar.offset {
     translate: 0 -100%;
   }
@@ -234,7 +253,7 @@ let paths: {
     border-radius: 0.2rem;
   }
   #events img {
-    filter: invert() brightness(90%);
+    filter: invert() brightness(var(--icon-brightness));
     width: 20px;
     vertical-align: middle;
     margin-bottom: 4px;

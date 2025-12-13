@@ -90,6 +90,7 @@ function handleMouseDown(e: MouseEvent) {
     border-radius: 0.6rem;
     min-width: 20vw;
     min-height: 20vh;
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.5);
   }
   header {
     padding: 0.2rem;
@@ -105,7 +106,7 @@ function handleMouseDown(e: MouseEvent) {
   header button {
     padding: 0px;
     background-color: transparent;
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));
   }
   .modalBody {
     padding: 1rem;

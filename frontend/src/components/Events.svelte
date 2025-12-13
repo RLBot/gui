@@ -228,7 +228,7 @@ async function fetchEvents() {
     margin-left: 0.5rem;
   }
   p img {
-    filter: invert() brightness(90%);
+    filter: invert() brightness(var(--icon-brightness));
     width: 24px;
     margin-bottom: 3px;
     vertical-align: middle;

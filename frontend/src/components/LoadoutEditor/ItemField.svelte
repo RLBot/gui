@@ -144,7 +144,7 @@ function randomizeItem() {
     padding: 0 0.5rem;
   }
   button.randomize > img {
-    filter: invert() brightness(90%);
+    filter: invert() brightness(var(--icon-brightness));
     vertical-align: middle;
     width: 20px;
     height: 20px;

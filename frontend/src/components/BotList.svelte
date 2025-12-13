@@ -4,7 +4,7 @@ import { Browser } from "@wailsio/runtime";
 import SuperJSON from "superjson";
 import toast from "svelte-5-french-toast";
 import { flip } from "svelte/animate";
-import { App, BotInfo } from "../../bindings/gui";
+import { App, BotInfo, HumanInfo, PsyonixBotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
 import starIcon from "../assets/star.svg";
@@ -110,11 +110,6 @@ $effect(() => {
 });
 
 let selectedAgent: [BotInfo, string, string] | null = $state(null);
-$effect(() => {
-  if (!showInfoModal && !showLoadoutEditor) {
-    selectedAgent = null;
-  }
-});
 
 const filteredBots: DraggablePlayer[] = $derived.by(() =>
   filterBots(bots, selectedTags, showHuman, searchQuery),
@@ -315,7 +310,7 @@ function SelectedToggleFavorite() {
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredBots as bot (bot.id)}
     <div
-      class="bot"
+      class="bot blurred"
       use:draggable={{
         container: "botlist",
         dragData: SuperJSON.stringify(bot),
@@ -324,7 +319,14 @@ function SelectedToggleFavorite() {
       animate:flip={{ duration: flipDurationMs }}
       onclick={() => handleBotClick(bot)}
     >
-      <img src={bot.icon || defaultIcon} alt="icon" />
+      <img
+        src={bot.icon || defaultIcon}
+        alt="icon"
+        style={ /* Fix light and dark theme for default icon */
+          (!bot.icon || bot.player instanceof HumanInfo)
+          ? "filter: brightness(var(--icon-brightness))" : ""
+        }
+      />
       <p>{bot.displayName}</p>
       {#if bot.uniquePathSegment}
         <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
@@ -353,14 +355,21 @@ function SelectedToggleFavorite() {
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredScripts as script (script.id)}
-    <div class="bot" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
+    <div class="bot blurred" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
       <Switch
         checked={enabledScripts[script.id]}
         width={36}
         height={22}
         onchange={() => toggleScript(script.id)}
       />
-      <img src={script.icon || defaultIcon} alt="icon" />
+      <img
+        src={script.icon || defaultIcon}
+        alt="icon"
+        style={ /* Fix light and dark theme for default icon */
+          (!script.icon)
+          ? "filter: brightness(var(--icon-brightness))" : ""
+        }
+      />
       <p>{script.displayName}</p>
       {#if script.uniquePathSegment}
         <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
@@ -426,7 +435,7 @@ function SelectedToggleFavorite() {
 
     {#if selectedAgent[2]}
     <div class="info-logo">
-      <img src={selectedAgent[2]} alt="icon" />
+      <img src={selectedAgent[2]} alt="icon"/>
     </div>
     {/if}
 
@@ -485,7 +494,7 @@ function SelectedToggleFavorite() {
     padding: 0.5rem 1rem;
     border-radius: 0;
     cursor: pointer;
-    background-color: var(--background-alt);
+    /*background-color: var(--background-alt);*/
   }
   .tag-buttons button:first-child {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -536,7 +545,7 @@ function SelectedToggleFavorite() {
     font-size: 1rem;
   }
   .info-button img {
-    filter: invert() brightness(90%);
+    filter: invert() brightness(var(--icon-brightness));
     height: 100%;
     width: auto;
   }

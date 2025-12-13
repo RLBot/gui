@@ -101,7 +101,7 @@ function randomizeTeamLoadout() {
     margin-left: auto;
   }
   button.randomize > img {
-    filter: invert() brightness(90%);
+    filter: invert() brightness(var(--icon-brightness));
     vertical-align: middle;
     width: 24px;
     height: 24px;

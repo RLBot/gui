@@ -207,7 +207,7 @@ function addFile() {
     padding: 0px;
   }
   .path button img {
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));
   }
   .repair {
     color: var(--foreground);

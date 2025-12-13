@@ -11,10 +11,14 @@
   --foreground-opp-alt: var(--background);
 
   --link-color: #0099ff;
+  --orange: orange;
+
+  --icon-brightness: 0.9;
+  --blur-alpha: 0.7;
+  --blur-radius: 1.2rem;
 }
 
-/* TODO: introduce light mode */
-/* :root {
+:root:has(main.lightTheme) {
     --background: #e9e9e9;
     --background-but: #fff;
     --background-alt: #fff;
@@ -22,12 +26,33 @@
     --background-opp-alt: var(--foreground);
 
     --foreground: #000;
-    --foreground-alt: #000;
+    --foreground-alt: #222;
     --foreground-opp: var(--background-alt);
     --foreground-opp-alt: var(--background);
 
     --link-color: #007bff;
-} */
+    --orange: #c43700;
+
+    --icon-brightness: 0.2;
+    --blur-alpha: 0.6;
+    --blur-radius: 1rem;
+}
+
+
+/* Blur all .blurred elements and buttons by default */
+main.blur :is(.blurred, button) {
+    background-color: rgb(from var(--blur-rgb, var(--background)) r g b / var(--blur-alpha));
+    -webkit-backdrop-filter: blur(var(--blur-radius));
+    backdrop-filter: blur(var(--blur-radius));
+    isolation: isolate;
+}
+
+main.blur.lightTheme :is(.blurred, button) {
+    --background: #fff;
+}
+main.blur.lightTheme :is(.blurred, button) :is(h1,h2,h3,h4,h5,h6) {
+    color: var(--foreground-alt)
+}
 
 * {
   box-sizing: border-box;
@@ -74,6 +99,7 @@ a:any-link {
 /* Button styling */
 button {
   background-color: var(--background-but);
+  --blur-rgb: var(--background-but);
   color: var(--foreground);
   border: solid 1px transparent;
   margin: 0px;
@@ -85,6 +111,7 @@ button {
 }
 button[type="submit"] {
   background-color: #1a6a1d;
+  color: white;
 }
 button:hover:not([disabled]) {
   box-shadow: 0px 0px 8rem 0px rgba(150, 150, 150, 0.25) inset;
@@ -121,11 +148,12 @@ input {
   width: max-content;
   background-color: var(--background-alt);
   border-radius: 0.2rem;
-  box-shadow: 0px 0px 0.5rem 0px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 0px 1rem 0px rgba(0, 0, 0, 0.3);
 
   transition: opacity 150ms;
   opacity: 0;
   z-index: -999;
+  pointer-events: none;
 }
 
 .dropdown > .dropmenu.right {
@@ -141,5 +169,6 @@ input {
 
 .dropdown:focus-within > .dropmenu {
   opacity: 1;
-  z-index: 1;
+  z-index: 100;
+  pointer-events: inherit;
 }

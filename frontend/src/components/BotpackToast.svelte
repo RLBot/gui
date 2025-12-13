@@ -15,7 +15,7 @@ let {
 
 <style>
   img {
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));
     width: 24px;
     height: 24px;
     margin-right: 0.25em;
