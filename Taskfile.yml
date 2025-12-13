@@ -32,13 +32,13 @@ tasks:
     cmds:
       - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/rlbotgui.exe
     vars:
-      BUILD_FLAGS: '{{if eq .PRODUCTION "true"}}-tags production -trimpath -ldflags="-w -s -H windowsgui"{{else}}-gcflags=all="-l"{{end}}'
+      BUILD_FLAGS: '{{if ne .DEV "true"}}-tags production -trimpath -ldflags="-w -s -H windowsgui"{{else}}-gcflags=all="-l"{{end}}'
     env:
       GOOS: windows
       CGO_ENABLED: 1
       GOARCH: "{{.ARCH | default ARCH}}"
       CC: x86_64-w64-mingw32-gcc
-      PRODUCTION: '{{.PRODUCTION | default "false"}}'
+      DEV: '{{.DEV | default "true"}}'
 
   build:windows:
     summary: Builds the application for Windows
@@ -63,12 +63,12 @@ tasks:
     cmds:
       - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/rlbotgui
     vars:
-      BUILD_FLAGS: '{{if eq .PRODUCTION "true"}}-tags production -trimpath -ldflags="-w -s"{{else}}-gcflags=all="-l"{{end}}'
+      BUILD_FLAGS: '{{if ne .DEV "true"}}-tags production -trimpath -ldflags="-w -s"{{else}}-gcflags=all="-l"{{end}}'
     env:
       GOOS: linux
       CGO_ENABLED: 1
       GOARCH: "{{.ARCH | default ARCH}}"
-      PRODUCTION: '{{.PRODUCTION | default "false"}}'
+      DEV: '{{.DEV | default "true"}}'
 
   build:linux:
     summary: Builds the application for Linux

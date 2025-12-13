@@ -10,7 +10,7 @@ require (
 	github.com/ncruces/zenity v0.10.14
 	github.com/ulikunitz/xz v0.5.15
 	github.com/wailsapp/mimetype v1.4.1
-	github.com/wailsapp/wails/v3 v3.0.0-alpha.36
+	github.com/wailsapp/wails/v3 v3.0.0-alpha.40
 )
 
 require (
