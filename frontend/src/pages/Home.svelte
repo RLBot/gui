@@ -391,7 +391,7 @@ function handleSearch(event: Event) {
 </script>
 
 <div class="page">
-  <div class="availableBots box">
+  <div class="availableBots box blurred">
     <header>
       <h1>Bots</h1>
       <div class="dropdown">
@@ -424,7 +424,7 @@ function handleSearch(event: Event) {
 
   <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam bind:globalAutoStart={extraOptions.autoStartAgents} /></div>
 
-  <div class="box">
+  <div class="box blurred">
     <MatchSettings
       onStart={onMatchStart}
       onStop={onMatchStop}
@@ -475,7 +475,7 @@ function handleSearch(event: Event) {
     padding: 0px;
   }
   .reloadButton img {
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));
   }
   .teams {
     display: flex;

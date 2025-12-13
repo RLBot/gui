@@ -368,7 +368,7 @@ let launcherOptionsVisible = $state(false);
     padding: 0px;
   }
   button.close > img {
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));;
     height: 28px;
     width: 28px;
   }

@@ -298,10 +298,10 @@ const ALL_MAPS = getMaps();
     gap: 0.3rem;
   }
   .mutator label {
-    color:lightgrey;
+    color: var(--foreground);
   }
   label.mutatorChanged {
-    color: orange;
+    color: var(--orange);
   }
   .bottomButtons {
     display: flex;
@@ -316,12 +316,16 @@ const ALL_MAPS = getMaps();
   }
   .mutatorResetButton {
     background-color: red;
+    color: white
   }
 
   .extraoptions > * {
     margin-bottom: 0.5rem;
   }
 
+  button.start, button.stop {
+    color: white
+  }
   button.start {
     background-color: #15680e;
   }

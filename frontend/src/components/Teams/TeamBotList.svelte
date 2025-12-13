@@ -5,7 +5,7 @@ import { untrack } from "svelte";
 import { flip } from "svelte/animate";
 import { fade } from "svelte/transition";
 import type { DraggablePlayer } from "../..";
-import {BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
+import { BotInfo, HumanInfo, PsyonixBotInfo } from "../../../bindings/gui";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
@@ -15,10 +15,10 @@ import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
 
 let {
   items = $bindable(),
-  globalAutoStart = $bindable(true)
+  globalAutoStart = $bindable(true),
 }: {
-  items: DraggablePlayer[],
-  globalAutoStart: boolean,
+  items: DraggablePlayer[];
+  globalAutoStart: boolean;
 } = $props();
 
 function remove(id: string): any {
@@ -31,32 +31,33 @@ function dupe(id: string): any {
     // Create a copy with a new ID
     const newItem = {
       ...items[index],
-      overrides: {...items[index].overrides},
-      id: crypto.randomUUID() // Generate a new unique ID
+      overrides: { ...items[index].overrides },
+      id: crypto.randomUUID(), // Generate a new unique ID
     };
     // Insert the new item after the original
     items = [...items.slice(0, index + 1), newItem, ...items.slice(index + 1)];
   }
 }
 
-let editedPlayer: DraggablePlayer | undefined = $state(undefined)
-let showEditPrompt = $state(false)
+let editedPlayer: DraggablePlayer | undefined = $state(undefined);
+let showEditPrompt = $state(false);
 
 async function showEditModal(d: DraggablePlayer) {
   if (d) {
-    editedPlayer = d
+    editedPlayer = d;
     showEditPrompt = true;
   }
 }
 
 function reasonsForManualStart(d: DraggablePlayer): string[] {
-  let reasons: string[] = []
+  let reasons: string[] = [];
   if (d.player instanceof BotInfo) {
     if (!globalAutoStart) reasons.push("Auto-start disabled in Extra");
-    if (!d.player.config.settings.runCommand) reasons.push("No run_command declared");
+    if (!d.player.config.settings.runCommand)
+      reasons.push("No run_command declared");
     if (!d.overrides.autoStart) reasons.push("Auto-start disabled for bot");
   }
-  return reasons
+  return reasons;
 }
 
 function canAutoStart(d: DraggablePlayer): boolean {
@@ -64,8 +65,12 @@ function canAutoStart(d: DraggablePlayer): boolean {
 }
 
 function hasOverrides(d: DraggablePlayer): boolean {
-  let expectedName = (d.player instanceof BotInfo) ? d.displayName : "";
-  return d.overrides.name !== expectedName || !d.overrides.autoStart || d.overrides.loadout != null
+  let expectedName = d.player instanceof BotInfo ? d.displayName : "";
+  return (
+    d.overrides.name !== expectedName ||
+    !d.overrides.autoStart ||
+    d.overrides.loadout != null
+  );
 }
 
 // :fire: :fire: :fire:
@@ -147,7 +152,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
         out:fade={{ duration: 100 }}
       >
         <div
-          class="bot"
+          class="bot blurred"
           use:draggable={{
             container: `${dnd_container_namespace}_${i}`,
             dragData: SuperJSON.stringify(bot),
@@ -156,7 +161,14 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
           }}
           onclick={e => e.stopPropagation()}
         >
-          <img src={bot.icon || defaultIcon} alt="icon" />
+          <img
+            src={bot.icon || defaultIcon}
+            alt="icon"
+            style={ /* Fix light and dark theme for default icon */
+              (!bot.icon || bot.player instanceof HumanInfo)
+              ? "filter: brightness(var(--icon-brightness))" : ""
+            }
+          />
           <p>{bot.displayName === bot.overrides.name || (bot.player instanceof PsyonixBotInfo && bot.overrides.name === "") ? bot.displayName : `${bot.overrides.name}`}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
@@ -268,7 +280,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
   :is(.close, .duplicate, .edit) img {
     height: 100%;
     width: auto;
-    filter: invert();
+    filter: invert() brightness(var(--icon-brightness));
   }
   :is(.has-overrides) img {
     filter: invert(68%) sepia(66%) saturate(2755%) hue-rotate(360deg) brightness(103%) contrast(104%);

@@ -25,7 +25,7 @@ function toggleTeam(team: "blue" | "orange") {
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="teams">
-    <div class="team box blue" onclick={() => toggleTeam('blue')} class:selected={selectedTeam === 'blue'}>
+    <div class="team box blurred blue" onclick={() => toggleTeam('blue')} class:selected={selectedTeam === 'blue'}>
         <header class="blue">
             <h3>Blue team</h3>
             <div style="flex: 1;"></div>
@@ -33,7 +33,7 @@ function toggleTeam(team: "blue" | "orange") {
         </header>
         <TeamBotList bind:items={bluePlayers} bind:globalAutoStart />
     </div>
-    <div class="team box orange" onclick={() => toggleTeam('orange')} class:selected={selectedTeam === 'orange'}>
+    <div class="team box blurred orange" onclick={() => toggleTeam('orange')} class:selected={selectedTeam === 'orange'}>
         <header class="orange">
             <h3>Orange team</h3>
             <div style="flex: 1;"></div>
@@ -57,10 +57,6 @@ function toggleTeam(team: "blue" | "orange") {
     .teams > .team {
         width: 50%;
         padding: 0px 0;
-        /* Nice transparent blur */
-        background-color: rgba(0, 0, 0, 0.7);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
         display: flex;
         flex-direction: column;
         border: 2px solid transparent;
@@ -76,6 +72,10 @@ function toggleTeam(team: "blue" | "orange") {
     }
     header {
         border: 2px solid;
+        color: white;
+    }
+    header h3 {
+        color: white !important;
     }
     header.blue {
         border-color: #0054a6;
