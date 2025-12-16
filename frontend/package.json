@@ -10,14 +10,14 @@
   "dependencies": {
     "@thisux/sveltednd": "^0.0.20",
     "@wailsio/runtime": "3.0.0-alpha.72",
-    "superjson": "^2.2.3",
-    "svelte": "^5.41.3",
+    "superjson": "^2.2.6",
+    "svelte": "^5.46.0",
     "svelte-5-french-toast": "^2.0.6",
     "svelte-portal": "^2.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.7",
-    "@rsbuild/core": "^1.5.17",
+    "@biomejs/biome": "^2.3.9",
+    "@rsbuild/core": "^1.6.14",
     "@rsbuild/plugin-svelte": "^1.0.11",
     "typescript": "^5.9.3"
   }

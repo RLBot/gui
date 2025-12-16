@@ -15,7 +15,6 @@ import {
   type DraggablePlayer,
   type ToggleableScript,
 } from "../index";
-//@ts-ignore
 import LoadoutEditor from "./LoadoutEditor/Main.svelte";
 import { getAndParseItems } from "./LoadoutEditor/items";
 import Modal from "./Modal.svelte";
@@ -142,6 +141,8 @@ function filterScripts(
           return true;
         case Category.Favorites:
           return favorites.includes(script.config.tomlPath);
+        default:
+          return true; // Unknown category selected, allow all
       }
     });
   }
@@ -175,6 +176,8 @@ function filterBots(
           return bot.player instanceof BotInfo
             ? favorites.includes(bot.player.tomlPath)
             : false;
+        default:
+          return true; // Unknown category selected, allow all
       }
     });
 
@@ -530,7 +533,7 @@ function SelectedToggleFavorite() {
   .bot img {
     height: 2rem;
     width: auto;
-    user-drag: none;
+    /*user-drag: none;*/
     -webkit-user-drag: none;
   }
   .info-button {

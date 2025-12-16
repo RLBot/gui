@@ -164,7 +164,7 @@ function addFile() {
   </div>
 </Modal>
 
-<AddBotpack bind:parentVisible={visible} bind:visible={addBotpackVisible} bind:paths />
+<AddBotpack bind:visible={addBotpackVisible} bind:paths />
 
 <Modal title={downloadModalTitle} bind:visible={downloadModalVisible} closeable={false}>
   <ProgressBar bind:percentComplete={downloadProgress} bind:currentStep={downloadCurrentStep} totalSteps={downloadTotalSteps} />

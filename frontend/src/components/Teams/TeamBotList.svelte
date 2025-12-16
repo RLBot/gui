@@ -61,7 +61,7 @@ function reasonsForManualStart(d: DraggablePlayer): string[] {
 }
 
 function canAutoStart(d: DraggablePlayer): boolean {
-  return reasonsForManualStart(d).length == 0;
+  return reasonsForManualStart(d).length === 0;
 }
 
 function hasOverrides(d: DraggablePlayer): boolean {

@@ -5,7 +5,7 @@ build OS = os_family:
     DEV={{dev}} wails3 task build:{{OS}}
 
 dev:
-    wails3 dev
+    DEV=true wails3 dev
 
 lint:
     cd frontend && watchexec -e svelte,js,ts,css,json biome lint
