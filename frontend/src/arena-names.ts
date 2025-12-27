@@ -51,7 +51,9 @@ export const MAPS_STANDARD = {
   "NeoTokyo (Arcade)": "NeoTokyo_Arcade_P",
   "Futura Garden": "UF_Day_P",
   "DFH Stadium (10th Anniversary)": "stadium_10a_p",
-  "Drift Woods (Night)": "woods_night_p"
+  "Drift Woods (Night)": "woods_night_p",
+  "Boostfield Mall": "Mall_Day_P",
+  "Parc De Paris": "Paname_Dusk_P"
 };
 
 // biome-ignore format: keep consistent
@@ -88,5 +90,9 @@ export const MAPS_NON_STANDARD = {
   "Quadron": "KO_Quadron_P",
   "Calavera": "KO_Calavera_P",
   "Carbon": "KO_Carbon_P",
-  "Holyfield": "Labs_Holyfield_Space_P"
+  "Holyfield": "Labs_Holyfield_Space_P",
+  "Roadblock": "Labs_Octagon_B2B_02_P",
+  "Mannfield (Quads)": "Labs_4v4_Arena15_EuroStadium_Night_P",
+  "Midnight Metro (Quads)": "Labs_4v4_Arena15_Blackout_P",
+  "Sunset Dunes (Quads)": "Labs_4v4_Arena15_Retro_P"
 };
