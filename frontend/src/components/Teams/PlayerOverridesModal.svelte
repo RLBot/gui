@@ -1,37 +1,37 @@
 <script lang="ts">
-    import Modal from "../Modal.svelte";
-    import type {DraggablePlayer} from "../../index";
-    import {App, BotInfo, PsyonixBotInfo} from "../../../bindings/gui";
+import Modal from "../Modal.svelte";
+import type { DraggablePlayer } from "../../index";
+import { App, BotInfo, PsyonixBotInfo } from "../../../bindings/gui";
 
-    let {
-    player = $bindable(undefined),
-    visible = $bindable(false)
+let {
+  player = $bindable(undefined),
+  visible = $bindable(false),
 }: {
-    player?: DraggablePlayer | null
-    visible?: boolean
+  player?: DraggablePlayer | null;
+  visible?: boolean;
 } = $props();
 
 function clearOverrides() {
-    if (player) {
-        player.overrides.name = player.player instanceof PsyonixBotInfo ? "" : player.displayName;
-        player.overrides.loadout = null;
-        player.overrides.autoStart = true;
-    }
+  if (player) {
+    player.overrides.name =
+      player.player instanceof PsyonixBotInfo ? "" : player.displayName;
+    player.overrides.loadout = null;
+    player.overrides.autoStart = true;
+  }
 }
 
 function hasNameOverride(): boolean {
-    if (!player) return false;
-    let expectedName = player.player instanceof BotInfo ? player.displayName : "";
-    return player.overrides.name !== expectedName;
+  if (!player) return false;
+  let expectedName = player.player instanceof BotInfo ? player.displayName : "";
+  return player.overrides.name !== expectedName;
 }
 
 async function pickLoadoutOverride() {
-    if (!player) return;
-    let path = await App.PickToml();
-    if (!path) return;
-    player.overrides.loadout = await App.GetLoadout(path)
+  if (!player) return;
+  let path = await App.PickToml();
+  if (!path) return;
+  player.overrides.loadout = await App.GetLoadout(path);
 }
-
 </script>
 
 {#if player}

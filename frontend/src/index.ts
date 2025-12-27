@@ -2,7 +2,8 @@ import "./global.css";
 import { mount } from "svelte";
 import {
   BotInfo,
-  HumanInfo, LoadoutConfig,
+  HumanInfo,
+  LoadoutConfig,
   type PlayerJs,
   PsyonixBotInfo,
 } from "../bindings/gui";
@@ -34,7 +35,7 @@ export function parseJSON(item: string | null): any | null {
 
 export interface PlayerFieldOverrides {
   name: string;
-  loadout: LoadoutConfig | null
+  loadout: LoadoutConfig | null;
   autoStart: boolean;
 }
 
@@ -59,13 +60,13 @@ export interface ToggleableScript {
 
 export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
   if (d.player instanceof BotInfo) {
-    let player = BotInfo.createFrom(structuredClone(d.player))
+    let player = BotInfo.createFrom(structuredClone(d.player));
     // Apply overrides
     player.config.settings.name = d.overrides.name;
     player.loadout = d.overrides.loadout ?? d.player.loadout;
     if (!d.overrides.autoStart) {
-      player.config.settings.runCommand = ""
-      player.config.settings.runCommandLinux = ""
+      player.config.settings.runCommand = "";
+      player.config.settings.runCommandLinux = "";
     }
     // We don't need to know the icon to start a bot.
     // This fixes oversized requests that result in a CORS error on windows (WebView2)
@@ -74,19 +75,19 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
     return {
       sort: "rlbot",
       player: player,
-    }
+    };
   }
 
   if (d.player instanceof PsyonixBotInfo) {
-    let player = PsyonixBotInfo.createFrom(structuredClone(d.player))
+    let player = PsyonixBotInfo.createFrom(structuredClone(d.player));
     // Apply overrides
     player.name = d.overrides.name;
     player.loadout = d.overrides.loadout ?? d.player.loadout;
 
     return {
       sort: "psyonix",
-      player: player
-    }
+      player: player,
+    };
   }
 
   return {
