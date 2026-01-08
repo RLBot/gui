@@ -48,7 +48,7 @@ function resetMutators() {
 }
 
 // the reason for default being "" and not null is that NiceSelect considers that the default
-let selectedPreset: Gamemode | "" = $state("");
+let selectedPreset: Gamemode | "" = $state.raw("");
 $effect(() => {
   if (selectedPreset !== "") {
     setPreset(selectedPreset);
