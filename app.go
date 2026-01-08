@@ -35,7 +35,7 @@ func (a *App) IgnoreMe(
 ) {
 }
 
-func (a *App) GetDefaultPath() string {
+func (a *App) GetDefaultPath(subfolder string) string {
 	if runtime.GOOS == "windows" {
 		localappdata := os.Getenv("LOCALAPPDATA")
 		return filepath.Join(localappdata, "RLBot5")
@@ -49,7 +49,7 @@ func (a *App) GetDefaultPath() string {
 		xdgDataHome = filepath.Join(home, ".local/share")
 	}
 
-	return filepath.Join(xdgDataHome, "RLBot5")
+	return filepath.Join(xdgDataHome, "RLBot5", subfolder)
 }
 
 func (a *App) DownloadBotpack(repo string, installPath string) (string, error) {
