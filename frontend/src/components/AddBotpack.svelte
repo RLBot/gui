@@ -28,8 +28,7 @@ let customRepo = $state("");
 let installPath = $state("");
 
 async function setDefaultPath() {
-  const defaultPath = await App.GetDefaultPath();
-  installPath = `${defaultPath}/bots`;
+  installPath = await App.GetDefaultPath("bots");
 }
 
 setDefaultPath();

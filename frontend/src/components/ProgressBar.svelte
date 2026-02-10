@@ -12,7 +12,7 @@ let {
 } = $props();
 
 Events.On("monitor:download-progress", (event) => {
-  const { status, done } = event.data.at(-1);
+  const { status, done } = event.data;
 
   if (done) {
     percentComplete = 0;
