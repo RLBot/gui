@@ -281,8 +281,8 @@ const ALL_MAPS = getMaps();
   }
   .controls button span {
     margin-left: 0.5rem;
-    background-color: red;
-    color: white;
+    background-color: var(--orange);
+    color: var(--foreground-opp);
     padding: 0.1rem 0.3rem;
     border-radius: 0.2rem;
   }
