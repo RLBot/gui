@@ -16,6 +16,7 @@ let {
   onStart = (randomizeMap: boolean) => {},
   onStop = () => {},
 } = $props();
+
 let showExtraOptions = $state(false);
 let showMutators = $state(false);
 let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
@@ -35,7 +36,7 @@ const renderingOptions: { [n: string]: number } = {
   "Always off": 2,
 };
 
-function cleanCase(toClean: string) {
+function cleanCase(toClean: string): string {
   const halfClean = toClean.replaceAll("_", " ");
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
 }
@@ -86,7 +87,19 @@ function filterMutatorOptions() {
   return filtered;
 }
 
-function getMaps() {
+function countModifiedMutators(): number {
+  let count = 0;
+  for (const key of Object.keys(mutators)) {
+    if (mutators[key] !== 0) {
+      count++;
+    }
+  }
+
+  return count;
+}
+let numModifiedMutators = $derived(countModifiedMutators());
+
+function getMaps(): { [k: string]: string } {
   const standardMaps = Object.entries(MAPS_STANDARD).sort(([a], [b]) =>
     a.localeCompare(b),
   );
@@ -122,16 +135,15 @@ const ALL_MAPS = getMaps();
     </div>
     <div class="controls">
       <div class="left-controls">
-        <button
-          onclick={() => {
-            showMutators = true;
-          }}>Mutators</button
-        >
-        <button
-          onclick={() => {
-            showExtraOptions = true;
-          }}>Extra</button
-        >
+        <button onclick={() => { showMutators = true; }}>
+          Mutators
+          {#if numModifiedMutators != 0}
+          <span>{numModifiedMutators}</span>
+          {/if}
+        </button>
+        <button onclick={() => { showExtraOptions = true; }}>
+          Extra
+        </button>
         <input
           type="checkbox"
           id="randomizeMap"
@@ -266,6 +278,13 @@ const ALL_MAPS = getMaps();
   }
   #randomizeMap {
     transform: scale(1.2);
+  }
+  .controls button span {
+    margin-left: 0.5rem;
+    background-color: red;
+    color: white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.2rem;
   }
   .left-controls {
     display: flex;
