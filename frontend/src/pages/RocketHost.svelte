@@ -3,10 +3,12 @@ import toast from "svelte-5-french-toast";
 import { App, RHostBot, RHostServer } from "../../bindings/gui/index.js";
 import { MAPS_STANDARD } from "../arena-names";
 import closeIcon from "../assets/close.svg";
+import heartIcon from "../assets/heart.svg";
 import Plus from "../assets/plus.svg.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
 import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
+import { Browser } from "@wailsio/runtime";
 
 let waiting = $state(false);
 
@@ -73,13 +75,7 @@ let orangeBots: string[] = $state([]);
 let launcherOptionsVisible = $state(false);
 </script>
 
-<div class="page">
-  <!-- <header>
-    <button onclick={onBack}>
-      <img src={arrow_left} alt="<-" class="leftArrowImage" />
-    </button>
-  </header> -->
-
+<div class="page blurred">
   <div class="availableBots">
     <h2>Available bots</h2>
     <div class="availableBotsList">
@@ -189,6 +185,12 @@ let launcherOptionsVisible = $state(false);
     </div>
 
     <div class="buttons">
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a href="javascript:" onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")} target="_blank">
+        <button class="donate" title="RocketHost is reliant on donations; please consider giving $1/month to help us expand server capacity!">
+          Donate <img src={heartIcon} class="heart" alt="Heart" width="16px">
+        </button>
+      </a>
       <button class="start" disabled={waiting} onclick={()=>{
         let launcher = localStorage.getItem("MS_LAUNCHER");
         if (!launcher) {
@@ -240,7 +242,7 @@ let launcherOptionsVisible = $state(false);
   .page {
     display: flex;
     height: fit-content;
-    min-width: min(80vh, 100vw);
+    min-width: clamp(70vw, min(98vw, 900px), 1500px);
     background-color: var(--background);
     padding: 2rem;
     border-radius: 1rem;
@@ -270,14 +272,23 @@ let launcherOptionsVisible = $state(false);
     padding: 0.25rem;
   }
   .buttons {
-    height: 100%;
+    height: auto;
     display: flex;
-    align-items: end;
+    align-items: center;
     gap: 0.5rem;
   }
   .buttons button {
     font-size: 1.2rem;
     height: fit-content;
+  }
+  .heart {
+    filter: invert(22%) sepia(86%) saturate(7360%) hue-rotate(357deg) brightness(101%) contrast(114%);
+  }
+  button.donate .heart {
+    margin-left: 4px;
+  }
+  button.donate {
+    background-color: plum;
   }
   button.start {
     background-color: #15680e;
@@ -298,7 +309,13 @@ let launcherOptionsVisible = $state(false);
     display: flex;
     align-items: center;
     padding: 0.1rem;
-    background-color: var(--background-alt);
+    background-color: rgb(
+      from var(--blur-rgb, var(--background)) r g b /
+      var(--blur-alpha)
+    );
+    -webkit-backdrop-filter: blur(var(--blur-radius));
+    backdrop-filter: blur(var(--blur-radius));
+    isolation: isolate;
     user-select: none;
     -webkit-user-select: none;
     border-radius: 0.3rem;
@@ -358,7 +375,13 @@ let launcherOptionsVisible = $state(false);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--background-alt);
+    background-color: rgb(
+      from var(--blur-rgb, var(--background)) r g b /
+      var(--blur-alpha)
+    );
+    -webkit-backdrop-filter: blur(var(--blur-radius));
+    backdrop-filter: blur(var(--blur-radius));
+    isolation: isolate;
     width: 100%;
     padding: 0.3rem 0.5rem;
     border-radius: 0.3rem;
