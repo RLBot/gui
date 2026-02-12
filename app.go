@@ -491,7 +491,14 @@ func (a *App) ShowPathInExplorer(path string) error {
 	if runtime.GOOS == "windows" {
 		cmd := exec.Command("explorer.exe", folder)
 		err := cmd.Run()
+
 		if err != nil {
+			// Windows seems to always return with exit code 1,
+			// ignore it as the file dialog opens anyways
+			if cmd.ProcessState.ExitCode() == 1 {
+				return nil
+			}
+
 			return err
 		}
 	} else {
