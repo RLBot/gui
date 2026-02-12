@@ -256,9 +256,9 @@ function EditSelectedBotLoadout() {
 
 function ShowSelectedBotFiles() {
   if (selectedAgent) {
-    App.ShowPathInExplorer(selectedAgent[0].tomlPath).catch((err) =>
-      toast.error(err, { duration: 10000 }),
-    );
+    App.ShowPathInExplorer(selectedAgent[0].tomlPath).catch((err) => {
+      toast.error("" + err, { duration: 10000 });
+    });
   }
 }
 
