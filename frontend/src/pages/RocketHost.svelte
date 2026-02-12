@@ -3,10 +3,12 @@ import toast from "svelte-5-french-toast";
 import { App, RHostBot, RHostServer } from "../../bindings/gui/index.js";
 import { MAPS_STANDARD } from "../arena-names";
 import closeIcon from "../assets/close.svg";
+import heartIcon from "../assets/heart.svg";
 import Plus from "../assets/plus.svg.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
 import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
+import { Browser } from "@wailsio/runtime";
 
 let waiting = $state(false);
 
@@ -73,18 +75,12 @@ let orangeBots: string[] = $state([]);
 let launcherOptionsVisible = $state(false);
 </script>
 
-<div class="page">
-  <!-- <header>
-    <button onclick={onBack}>
-      <img src={arrow_left} alt="<-" class="leftArrowImage" />
-    </button>
-  </header> -->
-
+<div class="page blurred">
   <div class="availableBots">
     <h2>Available bots</h2>
     <div class="availableBotsList">
       {#each Object.keys(botFamilies) as family, i}
-        <div class="botEntry">
+        <div class="botEntry blurred">
           {#if botFamilies[family].length == 1}
             <p>{botFamilies[family][0]}</p>
             <div class="expandMe"></div>
@@ -138,7 +134,7 @@ let launcherOptionsVisible = $state(false);
       <h2>Blue</h2>
       <div class="botList">
         {#each blueBots as bot, i}
-          <div class="bot">
+          <div class="bot blurred">
             <p>{bot}</p>
             <button class="close" onclick={()=>{blueBots.splice(i, 1)}}>
               <img src={closeIcon} alt="X" />
@@ -152,7 +148,7 @@ let launcherOptionsVisible = $state(false);
       <h2>Orange</h2>
       <div class="botList">
         {#each orangeBots as bot, i}
-          <div class="bot">
+          <div class="bot blurred">
             <p>{bot}</p>
             <button class="close" onclick={()=>{orangeBots.splice(i, 1)}}>
               <img src={closeIcon} alt="X" />
@@ -164,72 +160,77 @@ let launcherOptionsVisible = $state(false);
     </div>
   </div>
 
-  <footer>
-    <div class="options">
-      <div>
-        <label for="serverselect">Server</label>
-        <select name="serverselect" id="serverselect" bind:value={serverAddr}>
-          {#each servers as value, i}
-            <option value={`${value.ip}:${value.port}`}>{value.location}</option>
-          {/each}
-        </select>
-      </div>
-      <div>
-        <label for="mapselect">Map</label>
-        <select name="mapselect" id="mapselect" bind:value={$mapStore}>
-          {#each Object.entries(MAPS_STANDARD) as map, i}
-            <option value={map[1]}>{map[0]}</option>
-          {/each}
-        </select>
-      </div>
-      <div>
-        <label for="mapselect">Launcher</label>
-        <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
-      </div>
+  <div class="options">
+    <div>
+      <label for="serverselect">Server</label>
+      <select name="serverselect" id="serverselect" bind:value={serverAddr}>
+        {#each servers as value, i}
+          <option value={`${value.ip}:${value.port}`}>{value.location}</option>
+        {/each}
+      </select>
     </div>
-
-    <div class="buttons">
-      <button class="start" disabled={waiting} onclick={()=>{
-        let launcher = localStorage.getItem("MS_LAUNCHER");
-        if (!launcher) {
-          toast.error("Please select a launcher first", {
-            position: "top-center",
-            duration: 5000,
-          });
-
-          launcherOptionsVisible = true;
-          return;
-        }
-
-        waiting = true;
-        let id = toast.loading("Starting rocket host game...", {
-          position: "top-center"
-        })
-        App.StartRHostMatch({
-          server: serverAddr,
-          map: $mapStore,
-          blueBots,
-          orangeBots,
-          launcher,
-          launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || ''
-        }).then((addr)=>{
-          waiting = false;
-          toast.success(
-            `Started game with address ${addr}`,
-            {position: "top-center", duration: 10000, id}
-          )
-        }).catch((e)=>{
-          waiting = false;
-          toast.error(
-            "Failed to start Rocket Host game\n" + e,
-            {position: "top-center", duration: 8000, id}
-          )
-        })
-      }}>
-        Start
-      </button>
+    <div>
+      <label for="mapselect">Map</label>
+      <select name="mapselect" id="mapselect" bind:value={$mapStore}>
+        {#each Object.entries(MAPS_STANDARD) as map, i}
+          <option value={map[1]}>{map[0]}</option>
+        {/each}
+      </select>
     </div>
-  </footer>
+    <div>
+      <label for="mapselect">Launcher</label>
+      <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
+    </div>
+    <button class="start" disabled={waiting} onclick={()=>{
+      let launcher = localStorage.getItem("MS_LAUNCHER");
+      if (!launcher) {
+        toast.error("Please select a launcher first", {
+          position: "top-center",
+          duration: 5000,
+        });
+
+        launcherOptionsVisible = true;
+        return;
+      }
+
+      waiting = true;
+      let id = toast.loading("Starting rocket host game...", {
+        position: "top-center"
+      })
+      App.StartRHostMatch({
+        server: serverAddr,
+        map: $mapStore,
+        blueBots,
+        orangeBots,
+        launcher,
+        launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || ''
+      }).then((addr)=>{
+        waiting = false;
+        toast.success(
+          `Started game with address ${addr}`,
+          {position: "top-center", duration: 10000, id}
+        )
+      }).catch((e)=>{
+        waiting = false;
+        toast.error(
+          "Failed to start Rocket Host game\n" + e,
+          {position: "top-center", duration: 8000, id}
+        )
+      })
+    }}>
+      Start
+    </button>
+  </div>
+
+  <div class="donateBar" style="--icon-url: url({heartIcon});">
+    <div>
+      <h3>Please consider donating</h3>
+      <p>RocketHost is reliant on donations; any amount will help expanding server capacity</p>
+    </div>
+    <button
+      onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")}
+    >Donate</button>
+  </div>
 </div>
 
 <Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
@@ -242,24 +243,23 @@ let launcherOptionsVisible = $state(false);
     height: fit-content;
     min-width: min(80vh, 100vw);
     background-color: var(--background);
-    padding: 2rem;
+    padding-top: 2rem;
     border-radius: 1rem;
     margin-top: 3rem;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
   }
+  .page > * {
+    padding: 0 2rem;
+  }
   h2 {
     margin-bottom: 0.5rem;
-  }
-  footer {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
   }
   .options {
     display: flex;
     gap: 1rem;
+    width: 100%
   }
   .options > div {
     display: flex;
@@ -269,18 +269,12 @@ let launcherOptionsVisible = $state(false);
     font-size: 1.0rem;
     padding: 0.25rem;
   }
-  .buttons {
-    height: 100%;
-    display: flex;
-    align-items: end;
-    gap: 0.5rem;
-  }
-  .buttons button {
-    font-size: 1.2rem;
-    height: fit-content;
-  }
   button.start {
     background-color: #15680e;
+    font-size: 1.2rem;
+    height: fit-content;
+    margin-top: auto;
+    margin-left: auto;
   }
   .availableBots {
     display: flex;
@@ -371,5 +365,28 @@ let launcherOptionsVisible = $state(false);
     filter: invert() brightness(var(--icon-brightness));;
     height: 28px;
     width: 28px;
+  }
+  .donateBar {
+    display: flex;
+    width: 100%;
+    padding: 1rem 2rem;
+    margin-top: 0.5rem;
+    border-radius: 0px 0px 1rem 1rem;
+    justify-content: space-between;
+    background-color: #e8a0ac;
+    color: #1c0004;
+  }
+  .donateBar button {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    color: #1c0004;
+    font-weight: 600;
+  }
+  .donateBar button::after {
+    content: var(--icon-url);
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-left: 0.5rem;
   }
 </style>
