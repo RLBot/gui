@@ -285,6 +285,7 @@ let launcherOptionsVisible = $state(false);
     height: fit-content;
   }
   .heart {
+    /* Recolor svg to red, calculated with https://change-svg-color.vercel.app/ */
     filter: invert(22%) sepia(86%) saturate(7360%) hue-rotate(357deg) brightness(101%) contrast(114%);
   }
   button.donate .heart {
