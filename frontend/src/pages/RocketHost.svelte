@@ -186,11 +186,10 @@ let launcherOptionsVisible = $state(false);
 
     <div class="buttons">
       <!-- svelte-ignore a11y_invalid_attribute -->
-      <a href="javascript:" onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")} target="_blank">
-        <button class="donate" title="RocketHost is reliant on donations; please consider giving $1/month to help us expand server capacity!">
-          Donate <img src={heartIcon} class="heart" alt="Heart" width="16px">
-        </button>
-      </a>
+      <button class="donate" onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")}>
+        Donate <img src={heartIcon} class="heart" alt="Heart" width="16px">
+      </button>
+
       <button class="start" disabled={waiting} onclick={()=>{
         let launcher = localStorage.getItem("MS_LAUNCHER");
         if (!launcher) {
@@ -232,6 +231,10 @@ let launcherOptionsVisible = $state(false);
       </button>
     </div>
   </footer>
+
+  <div>
+    RocketHost is reliant on donations; $1/month will help us expand server capacity!
+  </div>
 </div>
 
 <Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
@@ -274,7 +277,7 @@ let launcherOptionsVisible = $state(false);
   .buttons {
     height: auto;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 0.5rem;
   }
   .buttons button {
