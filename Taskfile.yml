@@ -1,178 +1,32 @@
-version: "3"
+version: '3'
+
+includes:
+  common: ./build/Taskfile.yml
+  windows: ./build/windows/Taskfile.yml
+  linux: ./build/linux/Taskfile.yml
 
 vars:
   APP_NAME: "rlbotgui"
   BIN_DIR: "bin"
-  VITE_PORT: "{{.WAILS_VITE_PORT | default 9245}}"
+  VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
 
 tasks:
-  ## -------------------------- Build -------------------------- ##
-
   build:
     summary: Builds the application
     cmds:
-      # Build for current OS
-      - task: build:{{OS}}
+      - task: "{{OS}}:build"
 
-  build:go:
-    summary: Builds the application without frontend
+  package:
+    summary: Packages a production build of the application
     cmds:
-      # Build for current OS
-      - task: build:{{OS}}:go
-
-  build:windows:go:
-    summary: Builds the application without frontend for Windows
-    deps:
-      - task: go:mod:tidy
-        vars:
-          BUILD_FLAGS: "{{.BUILD_FLAGS}}"
-      - task: generate:icons
-        vars:
-          ARCH: "{{.ARCH}}"
-    cmds:
-      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/rlbotgui.exe
-    vars:
-      BUILD_FLAGS: '{{if ne .DEV "true"}}-tags production -trimpath -ldflags="-w -s -H windowsgui"{{else}}-gcflags=all="-l"{{end}}'
-    env:
-      GOOS: windows
-      CGO_ENABLED: 1
-      GOARCH: "{{.ARCH | default ARCH}}"
-      CC: x86_64-w64-mingw32-gcc
-      DEV: '{{.DEV | default "true"}}'
-
-  build:windows:
-    summary: Builds the application for Windows
-    deps:
-      - task: build:frontend
-        vars:
-          BUILD_FLAGS: "{{.BUILD_FLAGS}}"
-    cmds:
-      - task: build:windows:go
-
-  ## ------> Linux <-------
-
-  build:linux:go:
-    summary: Builds the application without the frontend for Linux
-    deps:
-      - task: go:mod:tidy
-        vars:
-          BUILD_FLAGS: "{{.BUILD_FLAGS}}"
-      - task: generate:icons
-        vars:
-          ARCH: "{{.ARCH}}"
-    cmds:
-      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/rlbotgui
-    vars:
-      BUILD_FLAGS: '{{if ne .DEV "true"}}-tags production -trimpath -ldflags="-w -s"{{else}}-gcflags=all="-l"{{end}}'
-    env:
-      GOOS: linux
-      CGO_ENABLED: 1
-      GOARCH: "{{.ARCH | default ARCH}}"
-      DEV: '{{.DEV | default "true"}}'
-
-  build:linux:
-    summary: Builds the application for Linux
-    deps:
-      - task: build:frontend
-        vars:
-          BUILD_FLAGS: "{{.BUILD_FLAGS}}"
-    cmds:
-      - task: build:linux:go
-
-  ## -------------------------- Misc -------------------------- ##
-
-  generate:icons:
-    summary: Generates Windows `.ico` file from an image
-    dir: build
-    sources:
-      - "appicon.png"
-    generates:
-      - "icon.ico"
-    cmds:
-      # Generates both .ico
-      - wails3 generate icons -input appicon.png -windowsfilename icon.ico
-
-  install:frontend:deps:
-    summary: Install frontend dependencies
-    dir: frontend
-    sources:
-      - package.json
-      - package-lock.json
-    generates:
-      - node_modules/*
-    preconditions:
-      - sh: pnpm version
-        msg: "Looks like pnpm isn't installed."
-    cmds:
-      # - npm install --silent --no-progress
-      - pnpm install
-
-  build:frontend:
-    summary: Build the frontend project
-    dir: frontend
-    sources:
-      - "**/*"
-    generates:
-      - dist/*
-    deps:
-      - install:frontend:deps
-      - task: generate:bindings
-        vars:
-          BUILD_FLAGS: "{{.BUILD_FLAGS}}"
-    cmds:
-      - pnpm run build # -q
-
-  generate:bindings:
-    summary: Generates bindings for the frontend
-    sources:
-      - "**/*.go"
-      - go.mod
-      - go.sum
-    generates:
-      - "frontend/bindings/**/*"
-    cmds:
-      # For a complete list of options, run `wails3 generate bindings -help`
-      - wails3 generate bindings -f '{{.BUILD_FLAGS}}'
-
-  go:mod:tidy:
-    summary: Runs `go mod tidy`
-    internal: true
-    generates:
-      - go.sum
-    sources:
-      - go.mod
-    cmds:
-      - go mod tidy
-
-  # ----------------------- dev ----------------------- #
+      - task: "{{OS}}:package"
 
   run:
     summary: Runs the application
     cmds:
-      - task: run:{{OS}}
-
-  run:windows:
-    cmds:
-      - '{{.BIN_DIR}}\\{{.APP_NAME}}.exe'
-
-  run:linux:
-    cmds:
-      - "{{.BIN_DIR}}/{{.APP_NAME}}"
-
-  dev:frontend:
-    summary: Runs the frontend in development mode
-    dir: frontend
-    deps:
-      - task: install:frontend:deps
-    cmds:
-      - pnpm run dev --port {{.VITE_PORT}}
+      - task: "{{OS}}:run"
 
   dev:
     summary: Runs the application in development mode
     cmds:
-      - wails3 dev -port {{.VITE_PORT}}
-
-  dev:reload:
-    summary: Reloads the application
-    cmds:
-      - task: run
+      - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}

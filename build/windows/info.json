@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.1.0",
+			"CompanyName": "RLBot",
+			"FileDescription": "A GUI for RLBot v5",
+			"LegalCopyright": "(c) 2026, RLBot Contributors",
+			"ProductName": "RLBotGUI",
+			"Comments": ""
+		}
+	}
+}
