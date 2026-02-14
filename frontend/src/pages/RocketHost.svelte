@@ -178,7 +178,6 @@ let launcherOptionsVisible = $state(false);
       </select>
     </div>
     <div>
-      <label for="mapselect">Launcher</label>
       <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
     </div>
     <button class="start" disabled={waiting} onclick={()=>{
@@ -225,7 +224,7 @@ let launcherOptionsVisible = $state(false);
   <div class="donateBar" style="--icon-url: url({heartIcon});">
     <div>
       <h3>Please consider donating</h3>
-      <p>RocketHost is reliant on donations; any amount will help expanding server capacity</p>
+      <p>RocketHost relies on donations; any amount will help expand server capacity</p>
     </div>
     <button
       onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")}
@@ -263,6 +262,7 @@ let launcherOptionsVisible = $state(false);
   }
   .options > div {
     display: flex;
+    justify-content: end;
     flex-direction: column;
   }
   .options select {
@@ -370,16 +370,14 @@ let launcherOptionsVisible = $state(false);
     display: flex;
     width: 100%;
     padding: 1rem 2rem;
-    margin-top: 0.5rem;
     border-radius: 0px 0px 1rem 1rem;
     justify-content: space-between;
-    background-color: #e8a0ac;
-    color: #1c0004;
+    border-bottom: solid 0.2rem #e8a0ac;
   }
   .donateBar button {
     display: flex;
     align-items: center;
-    background-color: white;
+    background-color: #e8a0ac;
     color: #1c0004;
     font-weight: 600;
   }
