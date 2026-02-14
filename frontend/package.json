@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "rsbuild dev",
-    "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@thisux/sveltednd": "^0.0.20",
@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.9",
-    "@rsbuild/core": "^1.6.14",
-    "@rsbuild/plugin-svelte": "^1.0.11",
-    "typescript": "^5.9.3"
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "typescript": "^5.9.3",
+    "vite": "npm:vite@7.3.1"
   }
 }
