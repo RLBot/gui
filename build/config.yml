@@ -1,5 +1,15 @@
 version: "3"
 
+# This information is used to generate the build assets.
+info:
+  companyName: "RLBot" # The name of the company
+  productName: "RLBotGUI" # The name of the application
+  productIdentifier: "org.rlbot.gui" # The unique product identifier
+  description: "A GUI for RLBot v5" # The application description
+  copyright: "(c) 2026, RLBot Contributors" # Copyright text
+  # comments: "Some Product Comments" # Comments
+  # version: "0.0.1" # The application version
+
 dev_mode:
     root_path: .
     log_level: warn
@@ -16,17 +26,13 @@ dev_mode:
             - .gitkeep
         watched_extension:
             - "*.go"
+            # - "*.js" # Watch for changes to JS/TS files included using the //wails:include directive.
+            # - "*.ts" # The frontend directory will be excluded entirely by the setting above.
         git_ignore: true
     executes:
-        - cmd: wails3 task build
-          type: once
-        - cmd: wails3 task install:frontend:deps
-          type: once
-        - cmd: wails3 task dev:frontend
+        - cmd: wails3 build DEV=true
+          type: blocking
+        - cmd: wails3 task common:dev:frontend
           type: background
-        - cmd: go mod tidy
-          type: blocking
-        - cmd: wails3 task build:go
-          type: blocking
         - cmd: wails3 task run
           type: primary
