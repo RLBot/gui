@@ -5,7 +5,7 @@ import Modal from "./Modal.svelte";
 import ProgressBar from "./ProgressBar.svelte";
 
 const OFFICIAL_BOTPACK_REPOS = [
-  "VirxEC/botpack-test",
+  "RLBot/botpack",
   "VirxEC/pytorch-archive",
 ];
 
