@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -126,18 +127,35 @@ func (a *App) ServiceStartup(ctx context.Context, options application.ServiceOpt
 }
 
 func recursiveTomlSearch(root, tomlType string) ([]string, error) {
+	// The botpack requires a recusion depth of 3, so limit the search there
+	folderRecusionDepthLimit := 3
+	prefixDepth := strings.Count(root, string(filepath.Separator))
+	depthLimit := prefixDepth + folderRecusionDepthLimit
+
+	skipDirs := []string{"venv", "pytorch-archive"}
+
 	var matches []string
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Skip certain directories
-		if entry.IsDir() && (entry.Name() == "venv" || entry.Name() == ".venv" || strings.HasPrefix(entry.Name(), ".")) {
-			return filepath.SkipDir
+		if entry.IsDir() {
+			// Limit search to 1 level deep
+			if strings.Count(path, string(filepath.Separator)) > depthLimit {
+				return filepath.SkipDir
+			}
+
+			// Skip certain directories / hidden directories
+			if slices.Contains(skipDirs, entry.Name()) || strings.HasPrefix(entry.Name(), ".") {
+				return filepath.SkipDir
+			}
+
+			return nil
 		}
 
-		if entry.IsDir() || filepath.Ext(entry.Name()) != ".toml" {
+		// Skip non-tomls
+		if filepath.Ext(entry.Name()) != ".toml" {
 			return nil
 		}
 
