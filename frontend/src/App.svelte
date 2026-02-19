@@ -3,6 +3,9 @@ import { Toaster } from "svelte-5-french-toast";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
 import logo from "./assets/rlbot_logo.svg";
+import controlsCloseIcon from "./assets/window_controls/close.svg";
+import controlsMaximizeIcon from "./assets/window_controls/maximize.svg";
+import controlsMinimizeIcon from "./assets/window_controls/minimize.svg";
 import Events from "./components/Events.svelte";
 import GuiSettings from "./components/GuiSettings.svelte";
 import Home from "./pages/Home.svelte";
@@ -11,7 +14,8 @@ import StoryMode from "./pages/StoryMode.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import { parseJSON } from "./index";
 import arenaImages from "./arena-images";
-import { currentTheme, THEMES } from "./settings";
+import { currentTheme, showWindowControls, THEMES } from "./settings";
+import { Window } from "@wailsio/runtime";
 
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
@@ -126,6 +130,17 @@ let paths: {
           >
         </div>
       </div>
+      <div class={"controls" + ($showWindowControls ? "" : " hidden")}>
+        <button onclick={Window.Minimise} class="minimise">
+          <img src={controlsMinimizeIcon} alt="-">
+        </button>
+        <button onclick={Window.ToggleMaximise} class="maximise">
+          <img src={controlsMaximizeIcon} alt="□">
+        </button>
+        <button onclick={Window.Close} class="close">
+          <img src={controlsCloseIcon} alt="X">
+        </button>
+      </div>
     </div>
   </div>
 
@@ -148,7 +163,7 @@ let paths: {
   </div>
 
   <div
-    class={"pageContainer" + (activePage == "welcome" ? "" : " hidden")}
+    class={"pageContainer" + (activePage == "welcome" ? " welcome" : " hidden")}
   >
     <Welcome bind:paths closeMe={()=>{activePage = "home"}} />
   </div>
@@ -170,13 +185,16 @@ let paths: {
     background-attachment: fixed;
   }
   .navbar {
+    --wails-draggable: drag;
     display: flex;
     height: 3rem;
     justify-content: space-between;
-    padding: 0.1rem;
     background: var(--background);
     color: var(--foreground);
     transition: translate 0.2s ease-in-out;
+  }
+  .navbar > * > * {
+    --wails-draggable: no-drag;
   }
 
   .navbar:has(.dropdown:focus-within) {
@@ -219,6 +237,25 @@ let paths: {
   .navbar .dropmenu > * {
     margin: 0.2rem;
   }
+  .navbar .controls {
+    display: flex;
+    align-items: start;
+    height: 100%;
+    margin: 0rem;
+  }
+  .navbar .controls button {
+    display: flex;
+    padding: 1rem;
+    height: 100%;
+    width: 3rem;
+    background: transparent;
+  }
+  .navbar .controls button img {
+    background: transparent;
+    filter: brightness(var(--icon-brightness));
+    width: 100%;
+    height: auto;
+  }
   a {
     cursor: pointer;
     display: flex;
@@ -234,11 +271,14 @@ let paths: {
     visibility: visible;
     overflow: auto;
   }
-  .hidden {
+  .pageContainer.welcome {
+    --wails-draggable: drag;
+  }
+  .hidden, .hidden * {
     opacity: 0;
     z-index: -99999;
     visibility: hidden;
-    display: none;
+    display: none !important;
   }
   #events {
     padding: 0.3rem 0.5rem;

@@ -25,8 +25,6 @@ tasks:
     label: build:frontend (DEV={{.DEV}})
     summary: Build the frontend project
     dir: frontend
-    sources:
-      - "**/*"
     generates:
       - dist/**/*
     deps:

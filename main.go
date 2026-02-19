@@ -33,6 +33,11 @@ func main() {
 	// see https://github.com/tauri-apps/tauri/issues/9394
 	if checkNvidia() {
 		os.Setenv("__NV_DISABLE_EXPLICIT_SYNC", "1")
+
+		// wails sets this to "1", but that breaks blur, and we already work around
+		// this using the variable above.
+		// TODO: file issue in the wails repo
+		os.Setenv("WEBKIT_DISABLE_DMABUF_RENDERER", "0")
 	}
 
 	// Create an instance of the app structure
@@ -55,21 +60,16 @@ func main() {
 	// Create application with options
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:     "RLBotGUI",
-		Width:     1300,
-		Height:    870,
+		Width:     1100,
+		Height:    800,
 		MinWidth:  650,
 		MinHeight: 400,
-		// AssetServer: &assetserver.Options{
-		// 	Assets: assets,
-		// },
+		Frameless: true,
+		Windows: application.WindowsWindow{
+	    DisableFramelessWindowDecorations: false,
+			HiddenOnTaskbar: false,
+		},
 		BackgroundColour: application.NewRGBA(27, 38, 54, 1),
-		// Bind: []interface{}{
-		// 	app,
-		// 	&HumanInfo{},
-		// 	&PsyonixBotInfo{},
-		// 	&BotInfo{},
-		// 	*Player,
-		// },
 	})
 
 	// go func() {

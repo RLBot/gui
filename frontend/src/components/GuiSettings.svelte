@@ -1,7 +1,8 @@
 <script lang="ts">
-import { currentTheme, THEMES } from "../settings";
+import { currentTheme, showWindowControls, THEMES } from "../settings";
 import Modal from "./Modal.svelte";
 import NiceSelect from "./NiceSelect.svelte";
+import Switch from "./Switch.svelte";
 
 // TODO: Save settings, svelte store + localstorage?
 //       Perhaps change all localstorage state to svelte stores?
@@ -12,14 +13,21 @@ let { visible = $bindable(false) } = $props();
 <Modal bind:visible title="GUI Settings">
   <div class="inner">
 
-    <label>Theme</label>
-    <NiceSelect
-      bind:value={$currentTheme}
-      options={Object.fromEntries(
-        Object.keys(THEMES).map(k => [k, k])
-      )}
-      placeholder="Select a theme"
-    />
+    <div>
+      <label>Theme</label>
+      <NiceSelect
+        bind:value={$currentTheme}
+        options={Object.fromEntries(
+          Object.keys(THEMES).map(k => [k, k])
+        )}
+        placeholder="Select a theme"
+      />
+    </div>
+
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <Switch bind:checked={$showWindowControls} />
+      <p>Custom window controls</p>
+    </div>
     <!-- TODO: Match start timeouts -->
     <!-- TODO: Refresh bots behavior (remove on refresh, remove not found agents, etc.) -->
     <!-- TODO: Telemetry settings if added -->
@@ -33,6 +41,7 @@ let { visible = $bindable(false) } = $props();
     justify-content: center;
     flex-direction: column;
     height: 100%;
+    gap: 1rem;
   }
   h3 {
     padding: 5rem;
