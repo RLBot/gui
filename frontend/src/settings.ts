@@ -43,3 +43,10 @@ showWindowControls.subscribe((value) => {
   init = false;
   localStorage.setItem("FRAMELESS", value.toString());
 });
+
+export const zoomLevel = writable(
+  Number(localStorage.getItem("ZOOM")) || 1,
+);
+zoomLevel.subscribe((value) => {
+  Window.SetZoom(value)
+});

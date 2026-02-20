@@ -333,7 +333,7 @@ const ALL_MAPS = getMaps();
     flex-grow: 1;
     margin-right: .5rem;
   }
-  .mutatorResetButton {
+  button.mutatorResetButton {
     background-color: red;
     color: white
   }

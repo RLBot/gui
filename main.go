@@ -69,7 +69,8 @@ func main() {
 	    DisableFramelessWindowDecorations: false,
 			HiddenOnTaskbar: false,
 		},
-		BackgroundColour: application.NewRGBA(27, 38, 54, 1),
+		BackgroundType: application.BackgroundTypeTransparent,
+		// BackgroundColour: application.NewRGBA(27, 38, 54, 1),
 	})
 
 	// go func() {

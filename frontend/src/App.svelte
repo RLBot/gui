@@ -1,4 +1,6 @@
 <script lang="ts">
+import { flip } from "svelte/animate";
+import { cubicInOut } from "svelte/easing";
 import { Toaster } from "svelte-5-french-toast";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
@@ -20,7 +22,16 @@ import { Window } from "@wailsio/runtime";
 const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
 
-let activePage = $state(
+const pageMap = {
+  home: { name: "Home", component: Home, hidden: false },
+  welcome: { name: "Welcome", component: Welcome, hidden: true },
+  rhost: { name: "Rocket Host", component: RocketHost, hidden: false },
+  storymode: { name: "Story Mode", component: StoryMode, hidden: false },
+} as const;
+
+type page = keyof typeof pageMap;
+
+let activePage: page = $state(
   localStorage.getItem("SHOW_WELCOME") !== "false" ? "welcome" : "home",
 );
 
@@ -54,34 +65,53 @@ let paths: {
   visible: boolean;
   isDependency: boolean;
 }[] = $state(parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []);
+
+let roundedCorners = $state(false);
+async function handleResize(){
+  roundedCorners =
+    $showWindowControls &&
+    !(await Window.IsFullscreen()) &&
+    !(await Window.IsMaximised())
+}
+$effect(()=>{$showWindowControls;handleResize()})
+handleResize();
+
+let borderStyle = $derived(roundedCorners ?
+  "border-radius: .6rem;" : "");
+
+$effect(()=>{document.body.style = borderStyle});
 </script>
 
 <Toaster />
 
+<svelte:window onresize={handleResize} />
+
 <main
   class={mainClassString}
-  style={`background-image: url("${backgroundImage}")`}
+  style={`background-image: url("${backgroundImage}");${borderStyle}`}
 >
   <div class={"navbar blurred" + (activePage == "welcome" ? " offset" : "")}>
     <div>
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_missing_attribute -->
-      <a
-        onclick={() => {
-          activePage = "home";
-        }}
-      >
-        <img class="logo" src={logo} alt="logo" />
-        <h1>RLBot</h1>
-      </a>
-
-      {#if activePage == "rhost"}
-        <h3>&nbsp; / Rocket Host</h3>
-      {/if}
-      {#if activePage == "storymode"}
-        <h3>&nbsp; / Story Mode</h3>
-      {/if}
+      <img class="logo" src={logo} alt="logo" />
+      <h1>RLBot</h1>
+      <h3 style="margin: .5rem; opacity: 0.8;">/</h3>
+      <div class="pageNav">
+        {#each
+          (Object.keys(pageMap) as page[])
+            .filter(p => !pageMap[p].hidden)
+            .sort((a, b) => b == activePage ? 1 : a ==activePage ? -1 : 0)
+          as page (page)}
+          <a
+            href="#"
+            onclick={() => activePage = page}
+            animate:flip={{ duration: 200, easing: cubicInOut }}
+          >
+            <h3 class={activePage === page ? "active" : ""}>
+              {pageMap[page].name}
+            </h3>
+          </a>
+        {/each}
+      </div>
     </div>
     <div class="navbuttons">
       <button id={eventsNow > 0 || eventsFuture > 0 ? "events" : ""} onclick={() => eventsVisible = true}>
@@ -99,17 +129,6 @@ let paths: {
         </span>
         {/if}
       </button>
-      <button onclick={() => {
-        activePage = "storymode";
-      }}
-        >Story Mode</button
-      >
-      <button
-        onclick={() => {
-          activePage = "rhost";
-        }}>Rocket Host</button
-      >
-      <div class="spacer"></div>
       <div class="dropdown">
         <button>Menu</button>
         <div class="dropmenu right">
@@ -178,18 +197,41 @@ let paths: {
     height: 100%;
     width: 100%;
     flex-direction: column;
+    --header-height: 2.5rem;
 
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
   }
+  .pageNav {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .pageNav a {
+    color: var(--foreground);
+    text-decoration: none;
+  }
+  .pageNav h3 {
+    cursor: pointer;
+    transition: font-size .2s ease-in-out;
+  }
+  .pageNav h3:not(.active) {
+    opacity: 0.8;
+    font-size: 1rem;
+  }
+  .pageNav h3.active {
+    font-size: 1.3rem;
+  }
   .navbar {
     --wails-draggable: drag;
     display: flex;
-    height: 3rem;
+    height: var(--header-height);
     justify-content: space-between;
     background: var(--background);
+    --blur-radius: 4rem;
+    --blur-alpha: 0.9;
     color: var(--foreground);
     transition: translate 0.2s ease-in-out;
   }
@@ -216,20 +258,24 @@ let paths: {
   }
   h1 {
     margin: 0px;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
+    font-size: calc(var(--header-height) * 2/3);
   }
   .logo {
-    height: 3rem;
+    height: 100%;
+    max-width: var(--header-height);
     margin-right: 0.2rem;
     padding: 0.3rem;
   }
   .navbuttons > * {
     margin: 0px 0.25rem;
   }
-  .navbuttons > button {
+  .navbuttons > button,
+  .navbuttons > .dropdown > button {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: calc(var(--header-height) * 0.8);
   }
   .navbar .dropmenu {
     padding: 0.2rem;
@@ -242,16 +288,18 @@ let paths: {
     align-items: start;
     height: 100%;
     margin: 0rem;
+    margin-left: 0.5rem;
   }
   .navbar .controls button {
     display: flex;
-    padding: 1rem;
+    padding: calc(var(--header-height) * .3);
     height: 100%;
-    width: 3rem;
-    background: transparent;
+    width: var(--header-height);
+    border-radius: 50%;
+    background-color: transparent;
+    backdrop-filter: none;
   }
   .navbar .controls button img {
-    background: transparent;
     filter: brightness(var(--icon-brightness));
     width: 100%;
     height: auto;
@@ -284,18 +332,18 @@ let paths: {
     padding: 0.3rem 0.5rem;
   }
   #events span {
-    align-items: center;
-    vertical-align: middle;
+    display: flex;
     margin-left: 0.5rem;
     background-color: red;
-    color: white;
-    padding: 0.1rem 0.3rem 0 0.3rem;
+    padding: 0.15rem;
+    padding-right: .3rem;
+    gap: 0.2rem;
+    align-items: center;
     border-radius: 0.2rem;
   }
   #events img {
     filter: invert() brightness(var(--icon-brightness));
-    width: 20px;
-    vertical-align: middle;
-    margin-bottom: 4px;
+    height: 100%;
+    width: auto;
   }
 </style>

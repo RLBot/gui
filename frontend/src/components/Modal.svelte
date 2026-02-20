@@ -35,7 +35,7 @@ function handleMouseDown(e: MouseEvent) {
   bind:this={wrap}
   onclick={handleOuter}
   onmousedown={handleMouseDown}
-  use:portal={"body"}
+  use:portal={"main"}
 >
   <div class="modal">
     <header>
@@ -65,7 +65,7 @@ function handleMouseDown(e: MouseEvent) {
     display: flex;
     height: 100vh;
     width: 100vw;
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
     justify-content: center;
@@ -106,6 +106,8 @@ function handleMouseDown(e: MouseEvent) {
   header button {
     padding: 0px;
     background-color: transparent;
+  }
+  header button img {
     filter: invert() brightness(var(--icon-brightness));
   }
   .modalBody {

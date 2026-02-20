@@ -1,5 +1,10 @@
 <script lang="ts">
-import { currentTheme, showWindowControls, THEMES } from "../settings";
+import {
+  currentTheme,
+  showWindowControls,
+  zoomLevel,
+  THEMES,
+} from "../settings";
 import Modal from "./Modal.svelte";
 import NiceSelect from "./NiceSelect.svelte";
 import Switch from "./Switch.svelte";
@@ -21,6 +26,15 @@ let { visible = $bindable(false) } = $props();
           Object.keys(THEMES).map(k => [k, k])
         )}
         placeholder="Select a theme"
+      />
+    </div>
+
+    <div>
+      <label>Zoom Level</label>
+      <NiceSelect
+        bind:value={$zoomLevel}
+        options={{"1.0": 1, "1.25": 1.25, "1.5": 1.5, "2.0": 2}}
+        placeholder="Select a zoom level"
       />
     </div>
 
