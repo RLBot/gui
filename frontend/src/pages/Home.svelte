@@ -5,7 +5,8 @@ import {
   App,
   BotInfo,
   ExtraOptions,
-  PlayerJs,
+  HumanInfo,
+  PsyonixBotInfo,
   Result,
   type StartMatchOptions,
 } from "../../bindings/gui/index.js";
@@ -109,12 +110,46 @@ let showPathsViewer = $state(false);
 let latestBotUpdateTime = null;
 let loadingPlayers = $state(false);
 
+function objectsToDraggablePlayers(
+  items: any[] | null,
+): DraggablePlayer[] | null {
+  if (items === null) return null;
+
+  let players = [];
+
+  for (let item of items) {
+    let player: DraggablePlayer = {
+      id: crypto.randomUUID(),
+      displayName: item.displayName,
+      icon: item.icon,
+      tags: item.tags,
+      player: new HumanInfo(),
+      uniquePathSegment: item.uniquePathSegment,
+      overrides: item.overrides,
+    };
+
+    if ("config" in item) {
+      player.player = BotInfo.createFrom(item);
+    } else if ("skill" in item) {
+      player.player = PsyonixBotInfo.createFrom(item);
+    }
+
+    players.push(player);
+  }
+
+  return players;
+}
+
 let players: DraggablePlayer[] = $state(BASE_PLAYERS.slice(1));
 let bluePlayers: DraggablePlayer[] = $state(
-  parseJSON(localStorage.getItem("BLUE_PLAYERS")) || [BASE_PLAYERS[0]],
+  objectsToDraggablePlayers(
+    parseJSON(localStorage.getItem("BLUE_PLAYERS")),
+  ) || [BASE_PLAYERS[0]],
 );
 let orangePlayers: DraggablePlayer[] = $state(
-  parseJSON(localStorage.getItem("ORANGE_PLAYERS")) || [],
+  objectsToDraggablePlayers(
+    parseJSON(localStorage.getItem("ORANGE_PLAYERS")),
+  ) || [],
 );
 let showHuman = $derived(
   !(
@@ -123,11 +158,26 @@ let showHuman = $derived(
   ),
 );
 
+function serializePlayers(realPlayers: DraggablePlayer[]): string {
+  let players = [];
+  for (let player of realPlayers) {
+    players.push({
+      ...player.player,
+      displayName: player.displayName,
+      tags: player.tags,
+      uniquePathSegment: player.uniquePathSegment,
+      overrides: player.overrides,
+    });
+  }
+
+  return JSON.stringify(players);
+}
+
 $effect(() => {
-  localStorage.setItem("BLUE_PLAYERS", JSON.stringify(bluePlayers));
+  localStorage.setItem("BLUE_PLAYERS", serializePlayers(bluePlayers));
 });
 $effect(() => {
-  localStorage.setItem("ORANGE_PLAYERS", JSON.stringify(orangePlayers));
+  localStorage.setItem("ORANGE_PLAYERS", serializePlayers(orangePlayers));
 });
 
 let latestScriptUpdateTime = null;
@@ -218,7 +268,7 @@ async function updateBots() {
     distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
       return {
         displayName: x.config.settings.name,
-        icon: x.config.settings.logoFile,
+        icon: x.icon,
         player: new BotInfo(x),
         id: crypto.randomUUID(),
         tags: x.config.details.tags,

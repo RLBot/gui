@@ -21,7 +21,7 @@ SuperJSON.registerClass(BotInfo);
 SuperJSON.registerClass(PsyonixBotInfo);
 SuperJSON.registerClass(HumanInfo);
 
-export function parseJSON(item: string | null): any | null {
+export function parseJSON<T>(item: string | null): T | null {
   if (item === null) {
     return null;
   }
@@ -68,9 +68,6 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
       player.config.settings.runCommand = "";
       player.config.settings.runCommandLinux = "";
     }
-    // We don't need to know the icon to start a bot.
-    // This fixes oversized requests that result in a CORS error on windows (WebView2)
-    player.config.settings.logoFile = "";
 
     return {
       sort: "rlbot",
