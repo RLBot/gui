@@ -81,6 +81,16 @@ body {
     Cantarell, "Helvetica Neue", sans-serif;
 }
 
+body:not(.loaded) {
+  background-color: black !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+}
+body:not(.loaded)::after {
+  content: "Loading...";
+}
+
 h1,
 h2,
 h3,

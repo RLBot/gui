@@ -67,24 +67,30 @@ let paths: {
 }[] = $state(parseJSON(window.localStorage.getItem("BOT_SEARCH_PATHS")) || []);
 
 let roundedCorners = $state(false);
-async function handleResize(){
+async function handleResize() {
   roundedCorners =
     $showWindowControls &&
     !(await Window.IsFullscreen()) &&
-    !(await Window.IsMaximised())
+    !(await Window.IsMaximised());
 }
-$effect(()=>{$showWindowControls;handleResize()})
+$effect(() => {
+  $showWindowControls;
+  handleResize();
+});
 handleResize();
 
-let borderStyle = $derived(roundedCorners ?
-  "border-radius: .6rem;" : "");
+let borderStyle = $derived(roundedCorners ? "border-radius: .6rem;" : "");
 
-$effect(()=>{document.body.style = borderStyle});
+$effect(() => {
+  document.body.style = borderStyle;
+});
 </script>
 
 <Toaster />
 
-<svelte:window onresize={handleResize} />
+<svelte:window onresize={handleResize} onload={()=>{
+  document.body.classList.add("loaded")
+}} />
 
 <main
   class={mainClassString}
