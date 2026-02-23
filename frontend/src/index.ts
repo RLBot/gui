@@ -10,6 +10,11 @@ import {
 import App from "./App.svelte";
 import SuperJSON from "superjson";
 
+SuperJSON.registerClass(BotInfo);
+SuperJSON.registerClass(PsyonixBotInfo);
+SuperJSON.registerClass(HumanInfo);
+SuperJSON.registerClass(LoadoutConfig);
+
 const app: any = mount(App, {
   target: document.body,
   // props: {
@@ -17,18 +22,28 @@ const app: any = mount(App, {
   // },
 });
 
-SuperJSON.registerClass(BotInfo);
-SuperJSON.registerClass(PsyonixBotInfo);
-SuperJSON.registerClass(HumanInfo);
-
 export function parseJSON(item: string | null): any | null {
   if (item === null) {
-    return null;
+    return null
   }
 
   try {
     return JSON.parse(item);
-  } catch {
+  } catch (e) {
+    console.warn("JSON Parse error", e)
+    return null;
+  }
+}
+
+export function parseSuperJSON(item: string | null): any | null {
+  if (item === null) {
+    return null
+  }
+
+  try {
+    return SuperJSON.parse(item);
+  } catch (e) {
+    console.warn("SuperJSON Parse error", e)
     return null;
   }
 }

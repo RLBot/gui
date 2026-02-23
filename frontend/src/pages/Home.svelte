@@ -22,12 +22,14 @@ import {
   type ToggleableScript,
   draggablePlayerToPlayerJs,
   parseJSON,
+  parseSuperJSON,
 } from "../index";
 import { mapStore } from "../settings";
 import {
   DebugRendering,
   ExistingMatchBehavior,
 } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
+import SuperJSON from "superjson";
 
 let {
   paths = $bindable([]),
@@ -111,10 +113,10 @@ let loadingPlayers = $state(false);
 
 let players: DraggablePlayer[] = $state(BASE_PLAYERS.slice(1));
 let bluePlayers: DraggablePlayer[] = $state(
-  parseJSON(localStorage.getItem("BLUE_PLAYERS")) || [BASE_PLAYERS[0]],
+  parseSuperJSON(localStorage.getItem("BLUE_PLAYERS")) || [BASE_PLAYERS[0]],
 );
 let orangePlayers: DraggablePlayer[] = $state(
-  parseJSON(localStorage.getItem("ORANGE_PLAYERS")) || [],
+  parseSuperJSON(localStorage.getItem("ORANGE_PLAYERS")) || [],
 );
 let showHuman = $derived(
   !(
@@ -124,10 +126,10 @@ let showHuman = $derived(
 );
 
 $effect(() => {
-  localStorage.setItem("BLUE_PLAYERS", JSON.stringify(bluePlayers));
+  localStorage.setItem("BLUE_PLAYERS", SuperJSON.stringify(bluePlayers));
 });
 $effect(() => {
-  localStorage.setItem("ORANGE_PLAYERS", JSON.stringify(orangePlayers));
+  localStorage.setItem("ORANGE_PLAYERS", SuperJSON.stringify(orangePlayers));
 });
 
 let latestScriptUpdateTime = null;
