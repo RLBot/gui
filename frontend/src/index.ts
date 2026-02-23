@@ -85,7 +85,7 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
     }
     // We don't need to know the icon to start a bot.
     // This fixes oversized requests that result in a CORS error on windows (WebView2)
-    player.config.settings.logoFile = "";
+    player.icon = "";
 
     return {
       sort: "rlbot",

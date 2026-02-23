@@ -220,7 +220,7 @@ async function updateBots() {
     distinguishDuplicates(result).map(([x, uniquePathSegment]) => {
       return {
         displayName: x.config.settings.name,
-        icon: x.config.settings.logoFile,
+        icon: x.icon,
         player: new BotInfo(x),
         id: crypto.randomUUID(),
         tags: x.config.details.tags,
