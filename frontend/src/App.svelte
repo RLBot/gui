@@ -1,6 +1,4 @@
 <script lang="ts">
-import { flip } from "svelte/animate";
-import { cubicInOut } from "svelte/easing";
 import { Toaster } from "svelte-5-french-toast";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
@@ -23,7 +21,7 @@ const backgroundImage =
   arenaImages[Math.floor(Math.random() * arenaImages.length)];
 
 const pageMap = {
-  home: { name: "Home", component: Home, hidden: false },
+  home: { name: "RLBot", component: Home, hidden: false },
   welcome: { name: "Welcome", component: Welcome, hidden: true },
   rhost: { name: "Rocket Host", component: RocketHost, hidden: false },
   storymode: { name: "Story Mode", component: StoryMode, hidden: false },
@@ -99,20 +97,16 @@ $effect(() => {
   <div class={"navbar blurred" + (activePage == "welcome" ? " offset" : "")}>
     <div>
       <img class="logo" src={logo} alt="logo" />
-      <h1>RLBot</h1>
-      <h3 style="margin: .5rem; opacity: 0.8;">/</h3>
       <div class="pageNav">
         {#each
           (Object.keys(pageMap) as page[])
             .filter(p => !pageMap[p].hidden)
-            .sort((a, b) => b == activePage ? 1 : a ==activePage ? -1 : 0)
           as page (page)}
           <a
-            href="#"
+            href="#_"
             onclick={() => activePage = page}
-            animate:flip={{ duration: 200, easing: cubicInOut }}
           >
-            <h3 class={activePage === page ? "active" : ""}>
+            <h3 class={`nav${page}` + (activePage === page ? " active" : "")}>
               {pageMap[page].name}
             </h3>
           </a>
@@ -220,15 +214,33 @@ $effect(() => {
     text-decoration: none;
   }
   .pageNav h3 {
+    position: relative;
     cursor: pointer;
-    transition: font-size .2s ease-in-out;
+    font-size: calc(var(--header-height) * 0.5);
+    transition: opacity 0.2s cubic-bezier(0.10, 0.90, 0.55, 0.85);
   }
   .pageNav h3:not(.active) {
     opacity: 0.8;
-    font-size: 1rem;
   }
-  .pageNav h3.active {
-    font-size: 1.3rem;
+  .pageNav h3.navhome {
+    font-size: calc(var(--header-height) * 0.8);
+    font-weight: 800;
+  }
+  .pageNav h3.active:not(.navhome)::after {
+    transform: scaleX(1);
+  }
+  .pageNav h3::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.1875rem;
+    width: 100%;
+    height: 0.125rem;
+    background: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.4s cubic-bezier(0.10, 0.90, 0.55, 0.85);
   }
   .navbar {
     --wails-draggable: drag;
@@ -261,11 +273,6 @@ $effect(() => {
   .navbar * {
     user-select: none;
     -webkit-user-select: none;
-  }
-  h1 {
-    margin: 0px;
-    margin-bottom: 0.1rem;
-    font-size: calc(var(--header-height) * 2/3);
   }
   .logo {
     height: 100%;
