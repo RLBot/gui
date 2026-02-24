@@ -33,12 +33,12 @@ func main() {
 	// see https://github.com/tauri-apps/tauri/issues/9394
 	if checkNvidia() {
 		os.Setenv("__NV_DISABLE_EXPLICIT_SYNC", "1")
-
-		// wails sets this to "1", but that breaks blur, and we already work around
-		// this using the variable above.
-		// TODO: file issue in the wails repo
-		os.Setenv("WEBKIT_DISABLE_DMABUF_RENDERER", "0")
 	}
+
+	// wails sets this to "1", but that breaks blur, and we already work around
+	// this using the variable above.
+	// TODO: file issue in the wails repo
+	os.Setenv("WEBKIT_DISABLE_DMABUF_RENDERER", "0")
 
 	// Create an instance of the app structure
 	app := application.New(application.Options{
