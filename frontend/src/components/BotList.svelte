@@ -591,6 +591,10 @@ function SelectedToggleFavorite() {
     gap: 1rem;
     grid-area: main;
   }
+  .info-main a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   .info-extra {
     display: flex;
     flex-direction: column;
