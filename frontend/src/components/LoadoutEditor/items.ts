@@ -34,7 +34,7 @@ function renameItem(item: CsvItem, category: string) {
 }
 
 // this is "Black Market Drop", "Exotic Drop" etc that have the category "Body" for some reason
-const EXCLUDE_ITEMS = [5364, 5365, 5366, 5367, 5368, 5369];
+const EXCLUDE_ITEMS = [3315, 3316, 3138, 5364, 5365, 5366, 5367, 5368, 5369];
 
 export async function getAndParseItems() {
   const resp = await fetch(ItemsCsv);
@@ -74,7 +74,7 @@ export async function getAndParseItems() {
         item.name = renameItem(item, category);
 
         // rename the original item as well
-        if (needsHandling) {
+        if (needsHandling && category !== "Body") {
           const item = items[category][idx];
           nameCounts[item.name] = [false, idx];
           item.name = renameItem(item, category);
