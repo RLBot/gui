@@ -163,7 +163,7 @@ type BotInfo struct {
 	Config   BotConfig      `json:"config"`
 	Loadout  *LoadoutConfig `json:"loadout,omitempty"`
 	TomlPath string         `json:"tomlPath"`
-	Icon 	 string 		`json:"icon"`
+	Icon     string         `json:"icon"`
 }
 
 func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
@@ -280,7 +280,7 @@ func (a *App) GetBots(paths []string) []BotInfo {
 		}
 
 		// Read logo file and convert it to data url so the frontend can use it
-		var icon string;
+		var icon string
 		logo_data, err := os.ReadFile(logo_file)
 		if err != nil {
 			// only warn if the logo file was explicitly set
@@ -306,7 +306,7 @@ func (a *App) GetBots(paths []string) []BotInfo {
 			Config:   conf,
 			Loadout:  loadout,
 			TomlPath: potentialConfigPath,
-			Icon: icon,
+			Icon:     icon,
 		})
 	}
 

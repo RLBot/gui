@@ -4,10 +4,7 @@ import { App } from "../../bindings/gui";
 import Modal from "./Modal.svelte";
 import ProgressBar from "./ProgressBar.svelte";
 
-const OFFICIAL_BOTPACK_REPOS = [
-  "RLBot/botpack",
-  "VirxEC/pytorch-archive",
-];
+const OFFICIAL_BOTPACK_REPOS = ["RLBot/botpack", "VirxEC/pytorch-archive"];
 
 let {
   visible = $bindable(false),
