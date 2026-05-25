@@ -2,7 +2,7 @@
 import { Toaster } from "svelte-5-french-toast";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
-import logo from "./assets/rlbot_logo.svg";
+import logo from "./assets/rlbot_logo.png";
 import Events from "./components/Events.svelte";
 import GuiSettings from "./components/GuiSettings.svelte";
 import Home from "./pages/Home.svelte";
