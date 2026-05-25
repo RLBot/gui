@@ -8,6 +8,7 @@ import Plus from "../assets/plus.svg.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
 import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
+import RLLobby from "../components/RLLobby.svelte";
 import { Browser } from "@wailsio/runtime";
 
 let waiting = $state(false);
@@ -73,6 +74,7 @@ refreshRHostServers();
 let blueBots: string[] = $state([]);
 let orangeBots: string[] = $state([]);
 let launcherOptionsVisible = $state(false);
+let lobbiesVisible = $state(false);
 
 function startRHostMatch() {
   let launcher = localStorage.getItem("MS_LAUNCHER");
@@ -221,6 +223,9 @@ function startRHostMatch() {
         </select>
       </div>
       <div>
+        <button onclick={() => { lobbiesVisible = true }}>Browse Lobbies</button>
+      </div>
+      <div>
         <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
       </div>
       <button class="start" disabled={waiting} onclick={startRHostMatch}>
@@ -241,6 +246,8 @@ function startRHostMatch() {
     >Donate</button>
   </div>
 </div>
+
+<RLLobby bind:servers bind:launcherOptionsVisible bind:visible={lobbiesVisible} />
 
 <Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
   <LauncherSelector />
