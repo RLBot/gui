@@ -140,12 +140,7 @@ func (a *App) GetRLLobbies() ([]RLLobbyListing, error) {
 		return nil, err
 	}
 
-	// sort data by Name, then SecondsSinceUpdate (most recent first)
 	sort.Slice(data.Lobbies, func(i, j int) bool {
-		if data.Lobbies[i].Name == data.Lobbies[j].Name {
-			return data.Lobbies[i].SecondsSinceUpdate < data.Lobbies[j].SecondsSinceUpdate
-		}
-
 		return data.Lobbies[i].Name < data.Lobbies[j].Name
 	})
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 import toast from "svelte-5-french-toast";
 import { App, RLLobbyListing } from "../../bindings/gui/index.js";
+import reloadIcon from "../assets/reload.svg";
 import Modal from "./Modal.svelte";
 
 let {
@@ -9,6 +10,37 @@ let {
   visible = $bindable(false),
 } = $props();
 let joiningLobbyId = $state<string | null>(null);
+let lobbies = $state<RLLobbyListing[]>([]);
+let lobbiesLoading = $state(false);
+let lobbiesError = $state<string | null>(null);
+let hasLoaded = $state(false);
+
+async function loadLobbies() {
+  if (lobbiesLoading) return;
+  lobbiesLoading = true;
+  lobbiesError = null;
+
+  try {
+    lobbies = await App.GetRLLobbies();
+    hasLoaded = true;
+  } catch (error) {
+    lobbiesError = error?.message || String(error);
+  } finally {
+    lobbiesLoading = false;
+  }
+}
+
+$effect(() => {
+  if (!visible && hasLoaded) {
+    hasLoaded = false;
+  }
+});
+
+$effect(() => {
+  if (visible && !hasLoaded) {
+    loadLobbies();
+  }
+});
 
 function getServerName(name: string, ipAddress: string) {
   if (servers) {
@@ -68,51 +100,80 @@ async function joinLobby(lobby: RLLobbyListing) {
 }
 </script>
 
-<Modal title="RocketHost Lobbies" bind:visible>
-  {#if visible}
-    {#await App.GetRLLobbies()}
-      <p>Loading lobbies...</p>
-    {:then lobbies}
-      {#if lobbies.length === 0}
-        <p>No public lobbies found.</p>
-      {:else}
-        <div class="lobbyList">
-          {#each lobbies as lobby}
-            <div class="lobbyEntry">
-              <div class="lobbyHeader">
-                <h3>{getServerName(lobby.name, lobby.ipAddress)}</h3>
-                <div class="lobbyActions">
-                  <span>{lobby.playerCount} player(s)</span>
-                  <button
-                    class="join"
-                    disabled={joiningLobbyId === lobby.id}
-                    onclick={() => joinLobby(lobby)}
-                  >
-                    {joiningLobbyId === lobby.id ? "Joining..." : "Join"}
-                  </button>
-                </div>
-              </div>
-              <div class="lobbyMeta">
-                <span>{lobby.map}</span>
-                <span>|</span>
-                <span>{lobby.secondsSinceUpdate}s ago</span>
-              </div>
+{#snippet lobbyTitle()}
+  <div class="lobbyTitle">
+    <span>RocketHost Lobbies</span>
+    <button
+      class="refresh"
+      type="button"
+      title="Refresh lobbies"
+      disabled={lobbiesLoading}
+      onclick={loadLobbies}
+    >
+      <img src={reloadIcon} alt="Refresh lobbies" />
+    </button>
+  </div>
+{/snippet}
+
+<Modal title={lobbyTitle} bind:visible>
+  {#if !hasLoaded && lobbiesLoading}
+    <p>Loading lobbies...</p>
+  {:else if lobbies.length === 0 && !lobbiesError}
+    <p>No public lobbies found.</p>
+  {:else if lobbies.length > 0}
+    <div class="lobbyList">
+      {#each lobbies as lobby}
+        <div class="lobbyEntry">
+          <div class="lobbyHeader">
+            <h3>{getServerName(lobby.name, lobby.ipAddress)}:{lobby.port}</h3>
+            <div class="lobbyActions">
+              <span>{lobby.playerCount} player(s)</span>
+              <button
+                class="join"
+                disabled={joiningLobbyId === lobby.id}
+                onclick={() => joinLobby(lobby)}
+              >
+                {joiningLobbyId === lobby.id ? "Joining..." : "Join"}
+              </button>
             </div>
-          {/each}
+          </div>
+          <div class="lobbyMeta">
+            <span>{lobby.map}</span>
+            <span>|</span>
+            <span>{lobby.secondsSinceUpdate}s ago</span>
+          </div>
         </div>
-      {/if}
-    {:catch error}
-      <p class="lobbyError">Failed to load lobbies: {error?.message || error}</p>
-    {/await}
+      {/each}
+    </div>
+  {/if}
+
+  {#if lobbiesError}
+    <p class="lobbyError">Failed to load lobbies: {lobbiesError}</p>
   {/if}
 </Modal>
 
 <style>
+  .lobbyTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .lobbyTitle .refresh {
+    padding: 2px 4px 2px 4px;
+  }
+  .lobbyTitle .refresh:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  .refresh img {
+    filter: invert() brightness(var(--icon-brightness));
+    width: 24px;
+  }
   .lobbyList {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
-    min-width: 350px;
+    min-width: 400px;
   }
   .lobbyEntry {
     background-color: var(--background-alt);
