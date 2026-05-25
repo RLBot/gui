@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -82,11 +83,30 @@ type RHostServer struct {
 	Domain   string `json:"domain"`
 }
 
+type RLLobbyListing struct {
+	Id                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Map                string   `json:"map"`
+	Description        string   `json:"description"`
+	PlayerCount        int      `json:"playerCount"`
+	Players            []string `json:"players"`
+	HasPassword        bool     `json:"hasPassword"`
+	IpAddress          string   `json:"ipAddress"`
+	Port               int      `json:"port"`
+	SecondsSinceUpdate int      `json:"secondsSinceUpdate"`
+}
+
+type RLLobbyResponse struct {
+	Lobbies []RLLobbyListing `json:"lobbies"`
+}
+
 func (a *App) GetRHostServers() ([]RHostServer, error) {
 	resp, err := http.Get("http://serverlist.jetfox.ovh/servers")
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading body: %v\n", err)
@@ -99,6 +119,32 @@ func (a *App) GetRHostServers() ([]RHostServer, error) {
 	}
 
 	return data, nil
+}
+
+func (a *App) GetRLLobbies() ([]RLLobbyListing, error) {
+	resp, err := http.Get("https://rllobby.martinn.no/rllobby/lobby")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading body: %v\n", err)
+		return nil, err
+	}
+
+	var data RLLobbyResponse
+	if err := json.Unmarshal(body, &data); err != nil {
+		fmt.Printf("Error parsing JSON: %v\n", err)
+		return nil, err
+	}
+
+	sort.Slice(data.Lobbies, func(i, j int) bool {
+		return data.Lobbies[i].Name < data.Lobbies[j].Name
+	})
+
+	return data.Lobbies, nil
 }
 
 // /?mapName=ARC_Darc_P&gameMode=TAGame.GameInfo_Soccar_TA&
@@ -269,4 +315,81 @@ outer:
 	conn.SendPacket(&flat.DisconnectSignalT{})
 
 	return result.Message, nil
+}
+
+func (a *App) JoinLobby(settings RHostMatchSettings) error {
+	if settings.Server == "" {
+		return errors.New("server is required")
+	}
+
+	conn, err := rlbot.Connect(a.rlbotAddress)
+	if err != nil {
+		return errors.New("Failed to connect to RLBotServer at " + a.rlbotAddress)
+	}
+
+	var launcher flat.Launcher
+	switch settings.Launcher {
+	case "steam":
+		launcher = flat.LauncherSteam
+	case "epic":
+		launcher = flat.LauncherEpic
+	case "custom":
+		launcher = flat.LauncherCustom
+	case "nolaunch":
+		launcher = flat.LauncherNoLaunch
+	default:
+		println("No launcher chosen, defaulting to NoLaunch")
+		launcher = flat.LauncherNoLaunch
+	}
+
+	err = conn.SendPacket(&flat.MatchConfigurationT{
+		PlayerConfigurations:  []*flat.PlayerConfigurationT{},
+		ScriptConfigurations:  []*flat.ScriptConfigurationT{},
+		GameMode:              flat.GameModeSoccar,
+		Mutators:              &flat.MutatorSettingsT{},
+		ExistingMatchBehavior: flat.ExistingMatchBehaviorRestart,
+		GameMapUpk:            settings.Map,
+		EnableStateSetting:    true,
+		EnableRendering:       flat.DebugRenderingOnByDefault,
+		Launcher:              launcher,
+		LauncherArg:           settings.LauncherArg,
+	})
+	if err != nil {
+		return errors.New("Couldn't send matchconfiguration packet")
+	}
+
+	err = conn.SendPacket(&flat.ConnectionSettingsT{
+		AgentId:              "",
+		WantsBallPredictions: false,
+		WantsComms:           false,
+		CloseBetweenMatches:  false,
+	})
+	if err != nil {
+		return errors.New("Couldn't send connectionsettings packet")
+	}
+
+	for {
+		packet, err := conn.RecvPacket()
+		if err != nil {
+			return errors.New("Error reading packet from rlbotserver: " + err.Error())
+		}
+		_, ok := packet.Value.(*flat.FieldInfoT)
+		if ok {
+			break
+		}
+	}
+
+	err = conn.SendPacket(&flat.DesiredGameStateT{
+		ConsoleCommands: []*flat.ConsoleCommandT{
+			{
+				Command: fmt.Sprintf("open %s?Lan?Password=", settings.Server),
+			},
+		},
+	})
+	if err != nil {
+		return errors.New("Couldn't send join message")
+	}
+
+	conn.SendPacket(&flat.DisconnectSignalT{})
+	return nil
 }
