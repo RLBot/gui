@@ -292,8 +292,18 @@ function startRHostMatch() {
   }
   .availableBotsList {
     display: inline-grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
+  }
+  @media (max-width: 1250px) {
+    .availableBotsList {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 850px) {
+    .availableBotsList {
+      grid-template-columns: repeat(1, 1fr);
+    }
   }
   .expandMe {
     flex-grow: 1;
