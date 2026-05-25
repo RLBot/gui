@@ -73,6 +73,48 @@ refreshRHostServers();
 let blueBots: string[] = $state([]);
 let orangeBots: string[] = $state([]);
 let launcherOptionsVisible = $state(false);
+
+function startRHostMatch() {
+  let launcher = localStorage.getItem("MS_LAUNCHER");
+  if (!launcher) {
+    toast.error("Please select a launcher first", {
+      position: "top-center",
+      duration: 5000,
+    });
+
+    launcherOptionsVisible = true;
+    return;
+  }
+
+  waiting = true;
+  let id = toast.loading("Starting rocket host game...", {
+    position: "top-center",
+  });
+  App.StartRHostMatch({
+    server: serverAddr,
+    map: $mapStore,
+    blueBots,
+    orangeBots,
+    launcher,
+    launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || "",
+  })
+    .then((addr) => {
+      waiting = false;
+      toast.success(`Started game with address ${addr}`, {
+        position: "top-center",
+        duration: 10000,
+        id,
+      });
+    })
+    .catch((e) => {
+      waiting = false;
+      toast.error("Failed to start Rocket Host game\n" + e, {
+        position: "top-center",
+        duration: 8000,
+        id,
+      });
+    });
+}
 </script>
 
 <div class="page blurred">
@@ -161,64 +203,32 @@ let launcherOptionsVisible = $state(false);
   </div>
 
   <div class="options">
-    <div>
-      <label for="serverselect">Server</label>
-      <select name="serverselect" id="serverselect" bind:value={serverAddr}>
-        {#each servers as value, i}
-          <option value={`${value.ip}:${value.port}`}>{value.location}</option>
-        {/each}
-      </select>
-    </div>
-    <div>
-      <label for="mapselect">Map</label>
-      <select name="mapselect" id="mapselect" bind:value={$mapStore}>
-        {#each Object.entries(MAPS_STANDARD) as map, i}
-          <option value={map[1]}>{map[0]}</option>
-        {/each}
-      </select>
-    </div>
-    <div>
-      <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
-    </div>
-    <button class="start" disabled={waiting} onclick={()=>{
-      let launcher = localStorage.getItem("MS_LAUNCHER");
-      if (!launcher) {
-        toast.error("Please select a launcher first", {
-          position: "top-center",
-          duration: 5000,
-        });
-
-        launcherOptionsVisible = true;
-        return;
-      }
-
-      waiting = true;
-      let id = toast.loading("Starting rocket host game...", {
-        position: "top-center"
-      })
-      App.StartRHostMatch({
-        server: serverAddr,
-        map: $mapStore,
-        blueBots,
-        orangeBots,
-        launcher,
-        launcherArg: localStorage.getItem("MS_LAUNCHER_ARG") || ''
-      }).then((addr)=>{
-        waiting = false;
-        toast.success(
-          `Started game with address ${addr}`,
-          {position: "top-center", duration: 10000, id}
-        )
-      }).catch((e)=>{
-        waiting = false;
-        toast.error(
-          "Failed to start Rocket Host game\n" + e,
-          {position: "top-center", duration: 8000, id}
-        )
-      })
-    }}>
-      Start
-    </button>
+    {#if servers.length > 0}
+      <div>
+        <label for="serverselect">Server</label>
+          <select name="serverselect" id="serverselect" bind:value={serverAddr}>
+            {#each servers as value, i}
+              <option value={`${value.ip}:${value.port}`}>{value.location}</option>
+            {/each}
+          </select>
+      </div>
+      <div>
+        <label for="mapselect">Map</label>
+        <select name="mapselect" id="mapselect" bind:value={$mapStore}>
+          {#each Object.entries(MAPS_STANDARD) as map, i}
+            <option value={map[1]}>{map[0]}</option>
+          {/each}
+        </select>
+      </div>
+      <div>
+        <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
+      </div>
+      <button class="start" disabled={waiting} onclick={startRHostMatch}>
+        Start
+      </button>
+    {:else}
+      <div class="maintenance">RocketHost is currently down for maintenance. Please try again later.</div>
+    {/if}
   </div>
 
   <div class="donateBar" style="--icon-url: url({heartIcon});">
@@ -365,6 +375,17 @@ let launcherOptionsVisible = $state(false);
     filter: invert() brightness(var(--icon-brightness));;
     height: 28px;
     width: 28px;
+  }
+  .maintenance {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--orange);
+    background-color: var(--background-alt);
+    color: var(--orange);
+    font-weight: 600;
+    line-height: 1.4;
   }
   .donateBar {
     display: flex;
