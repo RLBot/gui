@@ -1,7 +1,6 @@
 <script lang="ts">
 import { type DragDropState, draggable, droppable } from "@thisux/sveltednd";
 import SuperJSON from "superjson";
-import { untrack } from "svelte";
 import { flip } from "svelte/animate";
 import { fade } from "svelte/transition";
 import type { DraggablePlayer } from "../..";
@@ -11,6 +10,7 @@ import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
 import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
+
 import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
 
 let {
@@ -21,11 +21,11 @@ let {
   globalAutoStart: boolean;
 } = $props();
 
-function remove(id: string): any {
+function remove(id: string) {
   items = items.filter((x) => x.id !== id);
 }
 
-function dupe(id: string): any {
+function dupe(id: string) {
   const index = items.findIndex((x) => x.id === id);
   if (index !== -1) {
     // Create a copy with a new ID
@@ -51,9 +51,9 @@ async function showEditModal(d: DraggablePlayer) {
 
 function reasonsForManualStart(d: DraggablePlayer): string[] {
   let reasons: string[] = [];
-  if (d.player instanceof BotInfo) {
+  if (d.info instanceof BotInfo) {
     if (!globalAutoStart) reasons.push("Auto-start disabled in Extra");
-    if (!d.player.config.settings.runCommand)
+    if (!d.info.config.settings.runCommand)
       reasons.push("No run_command declared");
     if (!d.overrides.autoStart) reasons.push("Auto-start disabled for bot");
   }
@@ -65,7 +65,7 @@ function canAutoStart(d: DraggablePlayer): boolean {
 }
 
 function hasOverrides(d: DraggablePlayer): boolean {
-  let expectedName = d.player instanceof BotInfo ? d.displayName : "";
+  let expectedName = d.info instanceof BotInfo ? d.displayName : "";
   return (
     d.overrides.name !== expectedName ||
     !d.overrides.autoStart ||
@@ -165,11 +165,11 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
             src={bot.icon || defaultIcon}
             alt="icon"
             style={ /* Fix light and dark theme for default icon */
-              (!bot.icon || bot.player instanceof HumanInfo)
+              (!bot.icon || bot.info instanceof HumanInfo)
               ? "filter: brightness(var(--icon-brightness))" : ""
             }
           />
-          <p>{bot.displayName === bot.overrides.name || (bot.player instanceof PsyonixBotInfo && bot.overrides.name === "") ? bot.displayName : `${bot.overrides.name}`}</p>
+          <p>{bot.displayName === bot.overrides.name || (bot.info instanceof PsyonixBotInfo && bot.overrides.name === "") ? bot.displayName : `${bot.overrides.name}`}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
@@ -182,7 +182,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
               <img src={duplicateIcon} alt="Dupe">
             </button>
           {/if}
-          {#if bot.player instanceof BotInfo || bot.player instanceof PsyonixBotInfo}
+          {#if bot.info instanceof BotInfo || bot.info instanceof PsyonixBotInfo}
             <button class={hasOverrides(bot) ? "edit has-overrides" : "edit"} title="Edit" onclick={() => showEditModal(bot)}>
               <img src={editIcon} alt="Edit">
             </button>

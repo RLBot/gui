@@ -14,7 +14,7 @@ let {
 function clearOverrides() {
   if (player) {
     player.overrides.name =
-      player.player instanceof PsyonixBotInfo ? "" : player.displayName;
+      player.info instanceof PsyonixBotInfo ? "" : player.displayName;
     player.overrides.loadout = null;
     player.overrides.autoStart = true;
   }
@@ -22,7 +22,7 @@ function clearOverrides() {
 
 function hasNameOverride(): boolean {
   if (!player) return false;
-  let expectedName = player.player instanceof BotInfo ? player.displayName : "";
+  let expectedName = player.info instanceof BotInfo ? player.displayName : "";
   return player.overrides.name !== expectedName;
 }
 
@@ -45,13 +45,13 @@ async function pickLoadoutOverride() {
     >
     <br />
     <br />
-    {#if player.player instanceof BotInfo || player.player instanceof PsyonixBotInfo}
+    {#if player.info instanceof BotInfo || player.info instanceof PsyonixBotInfo}
         <p style={player.overrides.loadout ? "color: orange;" : ""}>Loadout: {player.overrides.loadout ? "Customized" : ""}</p>
         <button onclick={pickLoadoutOverride}>Pick TOML</button>
         <br />
         <br />
     {/if}
-    {#if player.player instanceof BotInfo}
+    {#if player.info instanceof BotInfo}
         <input
                 type="checkbox"
                 id={`edit-auto-start-${player.id}`}

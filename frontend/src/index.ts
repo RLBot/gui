@@ -15,7 +15,7 @@ SuperJSON.registerClass(PsyonixBotInfo);
 SuperJSON.registerClass(HumanInfo);
 SuperJSON.registerClass(LoadoutConfig);
 
-const app: any = mount(App, {
+const app = mount(App, {
   target: document.body,
   // props: {
   //   name: "world",
@@ -58,7 +58,7 @@ export interface DraggablePlayer {
   id: string;
   displayName: string;
   icon: string;
-  player: BotInfo | PsyonixBotInfo | HumanInfo;
+  info: BotInfo | PsyonixBotInfo | HumanInfo;
   tags: string[];
   uniquePathSegment?: string;
   overrides: PlayerFieldOverrides;
@@ -68,17 +68,17 @@ export interface ToggleableScript {
   id: string;
   displayName: string;
   icon: string;
-  config: BotInfo;
+  info: BotInfo;
   tags: string[];
   uniquePathSegment?: string;
 }
 
 export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
-  if (d.player instanceof BotInfo) {
-    let player = BotInfo.createFrom(structuredClone(d.player));
+  if (d.info instanceof BotInfo) {
+    const player = BotInfo.createFrom(structuredClone(d.info));
     // Apply overrides
     player.config.settings.name = d.overrides.name;
-    player.loadout = d.overrides.loadout ?? d.player.loadout;
+    player.loadout = d.overrides.loadout ?? d.info.loadout;
     if (!d.overrides.autoStart) {
       player.config.settings.runCommand = "";
       player.config.settings.runCommandLinux = "";
@@ -93,11 +93,11 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
     };
   }
 
-  if (d.player instanceof PsyonixBotInfo) {
-    let player = PsyonixBotInfo.createFrom(structuredClone(d.player));
+  if (d.info instanceof PsyonixBotInfo) {
+    const player = PsyonixBotInfo.createFrom(structuredClone(d.info));
     // Apply overrides
     player.name = d.overrides.name;
-    player.loadout = d.overrides.loadout ?? d.player.loadout;
+    player.loadout = d.overrides.loadout ?? d.info.loadout;
 
     return {
       sort: "psyonix",
@@ -107,7 +107,7 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
 
   return {
     sort: "human",
-    player: d.player,
+    player: d.info,
   };
 }
 
