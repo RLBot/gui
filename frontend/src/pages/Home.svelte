@@ -297,14 +297,18 @@ async function updateScripts() {
   });
 
   for (const script of scripts) {
-    if (enabledScripts[script.id] === undefined) {
-      enabledScripts[script.id] = false;
+    const agentId = script.info.config.settings.agentId;
+
+    if (enabledScripts[agentId] === undefined) {
+      enabledScripts[agentId] = false;
     }
   }
 
-  for (const id in Object.keys(enabledScripts)) {
-    if (!scripts.some((script) => script.id === id)) {
-      delete enabledScripts[id];
+  for (const agentId in Object.keys(enabledScripts)) {
+    if (
+      !scripts.some((script) => script.info.config.settings.agentId === agentId)
+    ) {
+      delete enabledScripts[agentId];
     }
   }
 

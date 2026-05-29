@@ -383,12 +383,12 @@ function SelectedToggleFavorite() {
   {#each filteredScripts as script (script.id)}
     {@const warningText = scriptDuplicateAgentIdWarning(script)}
 
-    <div class="bot blurred" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
+    <div class="bot blurred" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.info.config.settings.agentId)}>
       <Switch
-        checked={enabledScripts[script.id]}
+        checked={enabledScripts[script.info.config.settings.agentId]}
         width={36}
         height={22}
-        onchange={() => toggleScript(script.id)}
+        onchange={() => toggleScript(script.info.config.settings.agentId)}
       />
       <img
         src={script.icon || defaultIcon}
