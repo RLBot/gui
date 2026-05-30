@@ -209,15 +209,19 @@ function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
   if (!(d.info instanceof BotInfo)) return null;
   if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
 
-  const agentId = d.info.config.settings.agentId || "(empty)";
-  return `Duplicate agent id "${agentId}" found in another toml file`;
+  const agentId = d.info.config.settings.agentId;
+  return agentId
+    ? `Duplicate agent id "${agentId}" found in another config`
+    : "Empty agent id found, RLBot will refuse to start matches with this bot";
 }
 
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
   if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
 
-  const agentId = d.info.config.settings.agentId || "(empty)";
-  return `Duplicate agent id "${agentId}" found in another toml file`;
+  const agentId = d.info.config.settings.agentId;
+  return agentId
+    ? `Duplicate agent id "${agentId}" found in another config`
+    : "Empty agent id found, RLBot will refuse to start matches with this bot";
 }
 
 function handleTagClick(tag: string) {

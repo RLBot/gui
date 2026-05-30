@@ -182,7 +182,7 @@ function collectDuplicateAgentIds(
     if (bot.info instanceof BotInfo) {
       const agentId = bot.info.config.settings.agentId;
 
-      if (agentIds.has(agentId)) {
+      if (!agentId || agentIds.has(agentId)) {
         duplicateAgentIds.add(agentId);
       } else {
         agentIds.add(agentId);
@@ -193,7 +193,7 @@ function collectDuplicateAgentIds(
   for (const script of scripts) {
     const agentId = script.info.config.settings.agentId;
 
-    if (agentIds.has(agentId)) {
+    if (!agentId || agentIds.has(agentId)) {
       duplicateAgentIds.add(agentId);
     } else {
       agentIds.add(agentId);
