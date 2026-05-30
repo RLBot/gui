@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@thisux/sveltednd": "^0.0.20",
+    "@thisux/sveltednd": "^0.4.1",
     "@wailsio/runtime": "3.0.0-alpha.72",
     "superjson": "^2.2.6",
     "svelte": "^5.46.0",

@@ -10,6 +10,8 @@ import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
 import RLLobby from "../components/RLLobby.svelte";
 import { Browser } from "@wailsio/runtime";
+import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
+import { flip } from "svelte/animate";
 
 let waiting = $state(false);
 
@@ -74,7 +76,60 @@ refreshRHostServers();
 let blueBots: string[] = $state([]);
 let orangeBots: string[] = $state([]);
 let launcherOptionsVisible = $state(false);
-let lobbiesVisible = $state(false);
+
+let activePage: "start" | "rllobby" = $state("start");
+const RH_BOTLIST = "rh-botlist";
+const RH_BLUE = "rh-blue";
+const RH_ORANGE = "rh-orange";
+const flipDurationMs = 200;
+
+function onDragEnd(state: DragDropState) {
+  const { targetContainer, sourceContainer } = state;
+  if (!targetContainer) return;
+  console.log("onDragEnd", targetContainer, sourceContainer);
+}
+
+async function onDrop(state: DragDropState<string>) {
+  const {
+    targetContainer,
+    sourceContainer,
+    dropPosition,
+    draggedItem: draggedItemStr,
+  } = state;
+  if (!targetContainer) return;
+
+  // biome-ignore format: preserve manual layout
+  let sourceItems =
+    sourceContainer.startsWith(RH_BOTLIST) ? Object.values(botFamilies).flat() :
+    sourceContainer.startsWith(RH_BLUE) ? blueBots :
+    sourceContainer.startsWith(RH_ORANGE) ? orangeBots :
+    [];
+
+  // biome-ignore format: preserve manual layout
+  let targetItems =
+    targetContainer.startsWith(RH_BLUE) ? blueBots :
+    targetContainer.startsWith(RH_ORANGE) ? orangeBots :
+    [];
+
+  console.log(sourceItems, targetItems);
+
+  let draggedItem: { bot: string; i: number | null } =
+    JSON.parse(draggedItemStr);
+  let dropIndex = +(targetContainer.split("_").at(-1) ?? -1);
+
+  if (dropPosition === "after") dropIndex += 1;
+
+  let item = draggedItem.bot;
+
+  if (draggedItem.i !== null) {
+    sourceItems.splice(draggedItem.i, 1);
+    if (sourceItems === targetItems) {
+      dropIndex = draggedItem.i < dropIndex ? dropIndex - 1 : dropIndex;
+    }
+  }
+
+  targetItems.splice(dropIndex, 0, item);
+}
 
 function startRHostMatch() {
   let launcher = localStorage.getItem("MS_LAUNCHER");
@@ -120,134 +175,113 @@ function startRHostMatch() {
 </script>
 
 <div class="page blurred">
-  <div class="availableBots">
-    <h2>Available bots</h2>
-    <div class="availableBotsList">
-      {#each Object.keys(botFamilies) as family, i}
-        <div class="botEntry blurred">
-          {#if botFamilies[family].length == 1}
-            <p>{botFamilies[family][0]}</p>
-            <div class="expandMe"></div>
-            <button
-              class="addToTeam blue"
-              onclick={() => {blueBots.push(botFamilies[family][0].split("(")[0].trim())}}
+  <div class="internalNav">
+    <button
+      class={activePage === "start" ? "active" : ""}
+      onclick={() => { activePage = "start"; }}
+    >Rocket Host</button>
+    <button
+      class={activePage === "rllobby" ? "active" : ""}
+      onclick={() => { activePage = "rllobby"; }}
+    >Lobbies</button>
+  </div>
+  <div class={"internalPage " + (activePage !== "start" ? "hidden" : "")}>
+    <div class="availableBots">
+      <h2>Available bots</h2>
+      <div class="availableBotsList">
+        {#each Object.keys(botFamilies) as family, _ }
+          {#each botFamilies[family] as version, _ (family + version)}
+            <div
+              class="botEntry blurred"
+              use:draggable={{
+                container: RH_BOTLIST,
+                dragData: JSON.stringify({ bot: version.split("(")[0].trim(), i: null })
+              }}
+              animate:flip={{ duration: flipDurationMs }}
             >
-              <Plus />
-            </button>
-            <button
-              class="addToTeam orange"
-              onclick={() => {orangeBots.push(botFamilies[family][0].split("(")[0].trim())}}
+              <p>{version}</p>
+            </div>
+          {/each}
+        {/each}
+      </div>
+    </div>
+
+    <div class="teams">
+      {#each [
+        {team: "blue", bots: blueBots, containerName: RH_BLUE},
+        {team: "orange", bots: orangeBots, containerName: RH_ORANGE},
+      ] as {team, bots, containerName}}
+      <div class={team}>
+        <h2>{team.toUpperCase()}</h2>
+        <div class="botList" use:droppable={{ container: `${containerName}_-1`, callbacks: { onDrop }, disabled: bots.length != 0 }}>
+          {#each bots as bot, i}
+            <div
+              class="bot blurred"
+              use:draggable={{ container: `${containerName}_${i}`, dragData: JSON.stringify({ bot, i }), callbacks: { onDragEnd } }}
+              use:droppable={{ container: `${containerName}_${i}`, callbacks: { onDrop } }}
             >
-              <Plus />
-            </button>
+              <p>{bot}</p>
+              <button class="close" onclick={()=>{bots.splice(i, 1)}}>
+                <img src={closeIcon} alt="X" />
+              </button>
+            </div>
+          {/each}
+          {#if bots.length == 0}
+            <p>No bots selected for this team</p>
           {:else}
-            <p>{family}</p>
-            <select
-              name={botFamilies[family] + "-select"}
-              id={botFamilies[family] + "-select"}
-            >
-              {#each botFamilies[family] as version, i}
-                <option value={version.split("(")[0].trim()}
-                  >{version}</option
-                >
-              {/each}
-            </select>
-            <div class="expandMe"></div>
-            <button class="addToTeam blue" onclick={() => {
-              blueBots.push((
-                document.getElementById(botFamilies[family] + "-select"
-              ) as any).value);
-            }}>
-              <Plus />
-            </button>
-            <button class="addToTeam orange" onclick={() => {
-              orangeBots.push((
-                document.getElementById(botFamilies[family] + "-select"
-              ) as any).value);
-            }}>
-              <Plus />
-            </button>
+            <div
+              style="flex:1;width:100%"
+              use:droppable={{ container: `${containerName}_${bots.length}`, callbacks: { onDrop }}}
+            ></div>
           {/if}
         </div>
+      </div>
       {/each}
     </div>
-  </div>
 
-  <div class="teams">
-    <div class="blue">
-      <h2>Blue</h2>
-      <div class="botList">
-        {#each blueBots as bot, i}
-          <div class="bot blurred">
-            <p>{bot}</p>
-            <button class="close" onclick={()=>{blueBots.splice(i, 1)}}>
-              <img src={closeIcon} alt="X" />
-            </button>
-          </div>
-        {/each}
-        {#if blueBots.length == 0} <p>No bots selected for this team</p> {/if}
-      </div>
-    </div>
-    <div class="orange">
-      <h2>Orange</h2>
-      <div class="botList">
-        {#each orangeBots as bot, i}
-          <div class="bot blurred">
-            <p>{bot}</p>
-            <button class="close" onclick={()=>{orangeBots.splice(i, 1)}}>
-              <img src={closeIcon} alt="X" />
-            </button>
-          </div>
-        {/each}
-        {#if orangeBots.length == 0} <p>No bots selected for this team</p> {/if}
-      </div>
-    </div>
-  </div>
-
-  <div class="options">
-    {#if servers.length > 0}
-      <div>
-        <label for="serverselect">Server</label>
-          <select name="serverselect" id="serverselect" bind:value={serverAddr}>
-            {#each servers as value, i}
-              <option value={`${value.ip}:${value.port}`}>{value.location}</option>
+    <div class="options">
+      {#if servers.length > 0}
+        <div>
+          <label for="serverselect">Server</label>
+            <select name="serverselect" id="serverselect" bind:value={serverAddr}>
+              {#each servers as value, i}
+                <option value={`${value.ip}:${value.port}`}>{value.location}</option>
+              {/each}
+            </select>
+        </div>
+        <div>
+          <label for="mapselect">Map</label>
+          <select name="mapselect" id="mapselect" bind:value={$mapStore}>
+            {#each Object.entries(MAPS_STANDARD) as map, i}
+              <option value={map[1]}>{map[0]}</option>
             {/each}
           </select>
-      </div>
-      <div>
-        <label for="mapselect">Map</label>
-        <select name="mapselect" id="mapselect" bind:value={$mapStore}>
-          {#each Object.entries(MAPS_STANDARD) as map, i}
-            <option value={map[1]}>{map[0]}</option>
-          {/each}
-        </select>
-      </div>
-      <div>
-        <button onclick={() => { lobbiesVisible = true }}>Browse Lobbies</button>
-      </div>
-      <div>
-        <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
-      </div>
-      <button class="start" disabled={waiting} onclick={startRHostMatch}>
-        Start
-      </button>
-    {:else}
-      <div class="maintenance">RocketHost is currently down for maintenance. Please try again later.</div>
-    {/if}
-  </div>
-
-  <div class="donateBar" style="--icon-url: url({heartIcon});">
-    <div>
-      <h3>Please consider donating</h3>
-      <p>RocketHost relies on donations; any amount will help expand server capacity</p>
+        </div>
+        <div>
+          <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
+        </div>
+        <button class="start" disabled={waiting} onclick={startRHostMatch}>
+          Start
+        </button>
+      {:else}
+        <div class="maintenance blurred">RocketHost is currently down for maintenance. Please try again later.</div>
+      {/if}
     </div>
-    <button
-      onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")}
-    >Donate</button>
+
+    <div class="donateBar" style="--icon-url: url({heartIcon});">
+      <div>
+        <h3>Please consider donating</h3>
+        <p>RocketHost relies on donations; any amount will help expand server capacity</p>
+      </div>
+      <button
+        onclick={() => Browser.OpenURL("https://www.patreon.com/WcW")}
+      >Donate</button>
+    </div>
+  </div>
+  <div class={"internalPage " + (activePage !== "rllobby" ? "hidden" : "")}>
+    <RLLobby bind:servers bind:launcherOptionsVisible/>
   </div>
 </div>
-
-<RLLobby bind:servers bind:launcherOptionsVisible bind:visible={lobbiesVisible} />
 
 <Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
   <LauncherSelector />
@@ -257,17 +291,40 @@ function startRHostMatch() {
   .page {
     display: flex;
     height: fit-content;
-    min-width: min(80vh, 100vw);
     background-color: var(--background);
-    padding-top: 2rem;
     border-radius: 1rem;
-    margin-top: 3rem;
+    margin: 3rem;
+    margin-bottom: 0;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
+    width: 100%;
+  }
+  .internalPage {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
     gap: 1.5rem;
   }
-  .page > * {
+  .internalPage > * {
     padding: 0 2rem;
+  }
+  .internalNav {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2px;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .internalNav button {
+    flex: 1;
+    font-size: 1.2rem;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+  }
+  .internalNav button.active {
+    border-bottom: 2px solid var(--foreground);
   }
   h2 {
     margin-bottom: 0.5rem;
@@ -298,19 +355,10 @@ function startRHostMatch() {
     flex-direction: column;
   }
   .availableBotsList {
-    display: inline-grid;
+    display: flex;
+    flex-wrap: wrap;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
-  }
-  @media (max-width: 1250px) {
-    .availableBotsList {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 850px) {
-    .availableBotsList {
-      grid-template-columns: repeat(1, 1fr);
-    }
   }
   .expandMe {
     flex-grow: 1;
@@ -328,6 +376,7 @@ function startRHostMatch() {
     margin: 0px;
     margin-right: 1rem;
     margin-left: 0.5rem;
+    padding: .2rem;
     font-size: 1.1rem;
   }
   .botEntry select {
@@ -354,8 +403,8 @@ function startRHostMatch() {
   .teams {
     display: flex;
     width: 100%;
-    justify-content: center;
     gap: 1rem;
+    align-items: stretch;
   }
   .teams > div {
     display: flex;
@@ -368,6 +417,7 @@ function startRHostMatch() {
     border-top: solid 3px;
     padding: 0.5rem;
     gap: 0.3rem;
+    flex: 1;
   }
   .blue > .botList {
     border-color: #0054a6;
@@ -385,6 +435,9 @@ function startRHostMatch() {
     border-radius: 0.3rem;
     font-size: 1.1rem;
   }
+  .bot * {
+    user-select: none;
+  }
   button.close {
     padding: 0px;
   }
@@ -394,15 +447,13 @@ function startRHostMatch() {
     width: 28px;
   }
   .maintenance {
-    flex: 1;
+    width: 100%;
     text-align: center;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--orange);
-    background-color: var(--background-alt);
     color: var(--orange);
     font-weight: 600;
-    line-height: 1.4;
   }
   .donateBar {
     display: flex;
@@ -424,5 +475,8 @@ function startRHostMatch() {
     height: 1.5rem;
     width: 1.5rem;
     margin-left: 0.5rem;
+  }
+  .hidden, .hidden * {
+    display: none;
   }
 </style>
