@@ -221,7 +221,7 @@ function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
   const agentId = d.info.config.settings.agentId;
   return agentId
     ? `Duplicate agent id "${agentId}" found in another config`
-    : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
+    : "Empty agent id found. Please add an agent_id field with a unique value to the script's toml file.";
 }
 
 function handleTagClick(tag: string) {
