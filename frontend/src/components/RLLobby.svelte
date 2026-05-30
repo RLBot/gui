@@ -4,16 +4,16 @@ import { App, RLLobbyListing } from "../../bindings/gui/index.js";
 import reloadIcon from "../assets/reload.svg";
 import Modal from "./Modal.svelte";
 
-let {
-  servers = $bindable(),
-  launcherOptionsVisible = $bindable(),
-  visible = $bindable(false),
-} = $props();
+let { servers = $bindable(), launcherOptionsVisible = $bindable() } = $props();
 let joiningLobbyId = $state<string | null>(null);
 let lobbies = $state<RLLobbyListing[]>([]);
 let lobbiesLoading = $state(false);
 let lobbiesError = $state<string | null>(null);
-let hasLoaded = $state(false);
+let selectedLobby = $state<RLLobbyListing>({
+  ipAddress: "127.0.0.1",
+  port: 7777,
+  map: "Stadium_P",
+});
 
 async function loadLobbies() {
   if (lobbiesLoading) return;
@@ -22,25 +22,14 @@ async function loadLobbies() {
 
   try {
     lobbies = await App.GetRLLobbies();
-    hasLoaded = true;
+    lobbies.sort((a, b) => a.secondsSinceUpdate - b.secondsSinceUpdate);
   } catch (error) {
     lobbiesError = error?.message || String(error);
   } finally {
     lobbiesLoading = false;
   }
 }
-
-$effect(() => {
-  if (!visible && hasLoaded) {
-    hasLoaded = false;
-  }
-});
-
-$effect(() => {
-  if (visible && !hasLoaded) {
-    loadLobbies();
-  }
-});
+loadLobbies();
 
 function getServerName(name: string, ipAddress: string) {
   if (servers) {
@@ -48,6 +37,10 @@ function getServerName(name: string, ipAddress: string) {
     if (server) {
       return server.location;
     }
+  }
+
+  if (name == undefined) {
+    return ipAddress;
   }
 
   return name.replace(/:\d+$/, "");
@@ -100,9 +93,9 @@ async function joinLobby(lobby: RLLobbyListing) {
 }
 </script>
 
-{#snippet lobbyTitle()}
+<div class="container">
   <div class="lobbyTitle">
-    <span>RocketHost Lobbies</span>
+    <h2>RocketHost Lobbies</h2>
     <button
       class="refresh"
       type="button"
@@ -113,50 +106,68 @@ async function joinLobby(lobby: RLLobbyListing) {
       <img src={reloadIcon} alt="Refresh lobbies" />
     </button>
   </div>
-{/snippet}
 
-<Modal title={lobbyTitle} bind:visible>
-  {#if !hasLoaded && lobbiesLoading}
-    <p>Loading lobbies...</p>
-  {:else if lobbies.length === 0 && !lobbiesError}
-    <p>No public lobbies found.</p>
-  {:else if lobbies.length > 0}
+  {#if !lobbiesError}
     <div class="lobbyList">
-      {#each lobbies as lobby}
-        <div class="lobbyEntry">
-          <div class="lobbyHeader">
-            <h3>{getServerName(lobby.name, lobby.ipAddress)}:{lobby.port}</h3>
-            <div class="lobbyActions">
-              <span>{lobby.playerCount} player(s)</span>
-              <button
-                class="join"
-                disabled={joiningLobbyId === lobby.id}
-                onclick={() => joinLobby(lobby)}
-              >
-                {joiningLobbyId === lobby.id ? "Joining..." : "Join"}
-              </button>
+      {#if lobbies.length === 0}
+        <p>No public lobbies found.</p>
+      {:else if lobbies.length > 0}
+          {#each lobbies as lobby}
+            <div class="lobbyEntry blurred">
+              <div class="lobbyHeader">
+                <h3>{getServerName(lobby.name, lobby.ipAddress)}:{lobby.port}</h3>
+                <div class="lobbyActions">
+                  <button
+                    class="select"
+                    disabled={joiningLobbyId === lobby.id}
+                    onclick={() => selectedLobby = lobby}
+                  >
+                    Select
+                    <!-- {joiningLobbyId === lobby.id ? "Joining..." : "Join"} -->
+                  </button>
+                </div>
+              </div>
+              <div class="lobbyMeta">
+                <span>{lobby.map}</span>
+                <span>|</span>
+                <span>{lobby.secondsSinceUpdate}s ago</span>
+                <span>|</span>
+                <span>{lobby.playerCount} player(s)</span>
+              </div>
             </div>
-          </div>
-          <div class="lobbyMeta">
-            <span>{lobby.map}</span>
-            <span>|</span>
-            <span>{lobby.secondsSinceUpdate}s ago</span>
-          </div>
-        </div>
-      {/each}
+          {/each}
+      {/if}
     </div>
-  {/if}
-
-  {#if lobbiesError}
+  {:else}
     <p class="lobbyError">Failed to load lobbies: {lobbiesError}</p>
   {/if}
-</Modal>
+  <div class="inputs">
+    <div style="display:flex;flex-direction:column;">
+      <label>Ip/Host</label>
+      <input bind:value={selectedLobby.ipAddress} type="text" placeholder="Host/IP">
+    </div>
+    <div style="display:flex;flex-direction:column;">
+      <label>Port</label>
+      <input bind:value={selectedLobby.port} type="number" placeholder="Port">
+    </div>
+    <button onclick={joinLobby.bind(null, selectedLobby)}>Join</button>
+  </div>
+</div>
 
 <style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    margin: 2rem;
+    margin-top: 0;
+    gap: 1rem;
+  }
   .lobbyTitle {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.6rem;
+    width: 100%;
   }
   .lobbyTitle .refresh {
     padding: 2px 4px 2px 4px;
@@ -170,13 +181,16 @@ async function joinLobby(lobby: RLLobbyListing) {
     width: 24px;
   }
   .lobbyList {
-    display: flex;
-    flex-direction: column;
+    width: 100%;
+    display: grid;
+    /* The Magic Line */
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
     gap: 0.6rem;
-    min-width: 400px;
   }
   .lobbyEntry {
-    background-color: var(--background-alt);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
     border-radius: 0.4rem;
     padding: 0.6rem 0.8rem;
   }
@@ -191,10 +205,11 @@ async function joinLobby(lobby: RLLobbyListing) {
     align-items: center;
     gap: 0.6rem;
   }
-  button.join {
-    background-color: #15680e;
+  button.select {
+    background-color: var(--blue);
+    padding: .2rem;
   }
-  button.join:disabled {
+  button.select:disabled {
     opacity: 0.7;
     cursor: not-allowed;
   }
@@ -211,5 +226,18 @@ async function joinLobby(lobby: RLLobbyListing) {
   .lobbyError {
     color: var(--orange);
     font-weight: 600;
+  }
+  .inputs {
+    width: 100%;
+    display: flex;
+    gap: .2rem;
+    justify-content: end;
+    align-items: end;
+  }
+  .inputs button {
+    background: green;
+    height: fit-content;
+    padding-left:  1.5rem;
+    padding-right: 1.5rem;
   }
 </style>

@@ -182,7 +182,11 @@ func (a *App) StartRHostMatch(settings RHostMatchSettings) (string, error) {
 			respRHostChan <- Result{false, err.Error()}
 			return
 		}
-		respRHostChan <- Result{resp.StatusCode == 200, string(body)}
+		if resp.StatusCode != 200 {
+			respRHostChan <- Result{false, fmt.Sprintf("%d %s", resp.StatusCode, string(body))}
+			return
+		}
+		respRHostChan <- Result{true, string(body)}
 	}()
 
 	// TODO: Save this in App struct
