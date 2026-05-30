@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { DraggablePlayer } from "../..";
 import TeamBotList from "./TeamBotList.svelte";
 
 let {
@@ -7,8 +8,8 @@ let {
   selectedTeam = $bindable(null),
   globalAutoStart = $bindable(true),
 }: {
-  bluePlayers: any[];
-  orangePlayers: any[];
+  bluePlayers: DraggablePlayer[];
+  orangePlayers: DraggablePlayer[];
   selectedTeam: "blue" | "orange" | null;
   globalAutoStart: boolean;
 } = $props();

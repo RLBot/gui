@@ -171,18 +171,53 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   return uniquePathSegments;
 }
 
+function collectDuplicateAgentIds(
+  bots: DraggablePlayer[],
+  scripts: ToggleableScript[],
+): Set<string> {
+  const agentIds = new Set<string>();
+  const duplicateAgentIds = new Set<string>();
+
+  for (const bot of bots) {
+    if (bot.info instanceof BotInfo) {
+      const agentId = bot.info.config.settings.agentId;
+
+      if (!agentId || agentIds.has(agentId)) {
+        duplicateAgentIds.add(agentId);
+      } else {
+        agentIds.add(agentId);
+      }
+    }
+  }
+
+  for (const script of scripts) {
+    const agentId = script.info.config.settings.agentId;
+
+    if (!agentId || agentIds.has(agentId)) {
+      duplicateAgentIds.add(agentId);
+    } else {
+      agentIds.add(agentId);
+    }
+  }
+
+  return duplicateAgentIds;
+}
+
+const duplicateAgentIds = $derived.by(() =>
+  collectDuplicateAgentIds(players, scripts),
+);
+
 function updateTeam(team: DraggablePlayer[]) {
   let newTeam: DraggablePlayer[] = [];
   for (let player of team) {
-    const botInfo = player.player;
+    const botInfo = player.info;
     if (!(botInfo instanceof BotInfo)) {
       newTeam.push(player);
       continue;
     }
 
     const found = players.find(
-      (p) =>
-        p.player instanceof BotInfo && p.player.tomlPath === botInfo.tomlPath,
+      (p) => p.info instanceof BotInfo && p.info.tomlPath === botInfo.tomlPath,
     );
     if (!found) {
       // bot was removed
@@ -221,7 +256,7 @@ async function updateBots() {
       return {
         displayName: x.config.settings.name,
         icon: x.icon,
-        player: new BotInfo(x),
+        info: new BotInfo(x),
         id: crypto.randomUUID(),
         tags: x.config.details.tags,
         uniquePathSegment,
@@ -255,21 +290,25 @@ async function updateScripts() {
       id: crypto.randomUUID(),
       displayName: x.config.settings.name,
       icon: x.config.settings.logoFile,
-      config: x,
+      info: x,
       tags: x.config.details.tags,
       uniquePathSegment,
     };
   });
 
   for (const script of scripts) {
-    if (enabledScripts[script.id] === undefined) {
-      enabledScripts[script.id] = false;
+    const agentId = script.info.config.settings.agentId;
+
+    if (enabledScripts[agentId] === undefined) {
+      enabledScripts[agentId] = false;
     }
   }
 
-  for (const id in Object.keys(enabledScripts)) {
-    if (!scripts.some((script) => script.id === id)) {
-      delete enabledScripts[id];
+  for (const agentId in Object.keys(enabledScripts)) {
+    if (
+      !scripts.some((script) => script.info.config.settings.agentId === agentId)
+    ) {
+      delete enabledScripts[agentId];
     }
   }
 
@@ -335,7 +374,7 @@ async function onMatchStart(randomizeMap: boolean) {
   const options: StartMatchOptions = {
     map: $mapStore,
     gameMode: mode,
-    scripts: scripts.filter((x) => enabledScripts[x.id]).map((x) => x.config),
+    scripts: scripts.filter((x) => enabledScripts[x.id]).map((x) => x.info),
     bluePlayers: bluePlayers.map(draggablePlayerToPlayerJs),
     orangePlayers: orangePlayers.map(draggablePlayerToPlayerJs),
     launcher,
@@ -432,10 +471,18 @@ function handleSearch(event: Event) {
       searchQuery={searchQuery}
       selectedTeam={selectedTeam}
       map={$mapStore}
+      {duplicateAgentIds}
     />
   </div>
 
-  <div class="teams"><Teams bind:bluePlayers bind:orangePlayers bind:selectedTeam bind:globalAutoStart={extraOptions.autoStartAgents} /></div>
+  <div class="teams">
+    <Teams
+      bind:bluePlayers
+      bind:orangePlayers
+      bind:selectedTeam
+      bind:globalAutoStart={extraOptions.autoStartAgents}
+    />
+  </div>
 
   <div class="box blurred">
     <MatchSettings

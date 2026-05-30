@@ -7,7 +7,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     displayName: "Human",
     icon: controller,
     id: crypto.randomUUID(),
-    player: new HumanInfo(),
+    info: new HumanInfo(),
     tags: ["human"],
     overrides: { name: "Human", loadout: null, autoStart: true },
   },
@@ -15,7 +15,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     displayName: "Psyonix Beginner",
     icon: "",
     id: crypto.randomUUID(),
-    player: new PsyonixBotInfo({
+    info: new PsyonixBotInfo({
       name: "",
       skill: 0,
     }),
@@ -26,7 +26,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     displayName: "Psyonix Rookie",
     icon: "",
     id: crypto.randomUUID(),
-    player: new PsyonixBotInfo({
+    info: new PsyonixBotInfo({
       name: "",
       skill: 1,
     }),
@@ -37,7 +37,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     displayName: "Psyonix Pro",
     icon: "",
     id: crypto.randomUUID(),
-    player: new PsyonixBotInfo({
+    info: new PsyonixBotInfo({
       name: "",
       skill: 2,
     }),
@@ -48,7 +48,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     displayName: "Psyonix Allstar",
     icon: "",
     id: crypto.randomUUID(),
-    player: new PsyonixBotInfo({
+    info: new PsyonixBotInfo({
       name: "",
       skill: 3,
     }),

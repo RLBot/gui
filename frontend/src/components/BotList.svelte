@@ -7,6 +7,7 @@ import { flip } from "svelte/animate";
 import { App, BotInfo, HumanInfo, PsyonixBotInfo } from "../../bindings/gui";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
+import warningIcon from "../assets/exclamation-triangle-fill.svg";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
 import { BASE_PLAYERS } from "../base-players";
@@ -30,6 +31,7 @@ let {
   bluePlayers = $bindable(),
   orangePlayers = $bindable(),
   map,
+  duplicateAgentIds = new Set<string>(),
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -40,6 +42,7 @@ let {
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
   map: string;
+  duplicateAgentIds: Set<string>;
 } = $props();
 const flipDurationMs = 100;
 
@@ -140,7 +143,7 @@ function filterScripts(
         case Category.Special:
           return true;
         case Category.Favorites:
-          return favorites.includes(script.config.tomlPath);
+          return favorites.includes(script.info.tomlPath);
         default:
           return true; // Unknown category selected, allow all
       }
@@ -173,8 +176,8 @@ function filterBots(
         case Category.Special:
           return bot.tags.some((tag) => subCategoryTags[mainTag].includes(tag));
         case Category.Favorites:
-          return bot.player instanceof BotInfo
-            ? favorites.includes(bot.player.tomlPath)
+          return bot.info instanceof BotInfo
+            ? favorites.includes(bot.info.tomlPath)
             : false;
         default:
           return true; // Unknown category selected, allow all
@@ -200,6 +203,25 @@ function filterBots(
   }
 
   return filtered;
+}
+
+function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
+  if (!(d.info instanceof BotInfo)) return null;
+  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
+
+  const agentId = d.info.config.settings.agentId;
+  return agentId
+    ? `Duplicate agent id "${agentId}" found in another config`
+    : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
+}
+
+function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
+  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
+
+  const agentId = d.info.config.settings.agentId;
+  return agentId
+    ? `Duplicate agent id "${agentId}" found in another config`
+    : "Empty agent id found. Please add an agent_id field with a unique value to the script's toml file.";
 }
 
 function handleTagClick(tag: string) {
@@ -229,14 +251,14 @@ function toggleScript(id: string) {
 }
 
 function handleBotInfoClick(bot: DraggablePlayer) {
-  if (bot.player instanceof BotInfo) {
-    selectedAgent = [bot.player, bot.displayName, bot.icon];
+  if (bot.info instanceof BotInfo) {
+    selectedAgent = [bot.info, bot.displayName, bot.icon];
     showInfoModal = true;
   }
 }
 
 function handleScriptInfoClick(script: ToggleableScript) {
-  selectedAgent = [script.config, script.displayName, script.icon];
+  selectedAgent = [script.info, script.displayName, script.icon];
   showInfoModal = true;
 }
 
@@ -312,6 +334,8 @@ function SelectedToggleFavorite() {
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredBots as bot (bot.id)}
+    {@const warningText = botDuplicateAgentIdWarning(bot)}
+
     <div
       class="bot blurred"
       use:draggable={{
@@ -326,7 +350,7 @@ function SelectedToggleFavorite() {
         src={bot.icon || defaultIcon}
         alt="icon"
         style={ /* Fix light and dark theme for default icon */
-          (!bot.icon || bot.player instanceof HumanInfo)
+          (!bot.icon || bot.info instanceof HumanInfo)
           ? "filter: brightness(var(--icon-brightness))" : ""
         }
       />
@@ -334,7 +358,12 @@ function SelectedToggleFavorite() {
       {#if bot.uniquePathSegment}
         <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
       {/if}
-      {#if bot.player && bot.player instanceof BotInfo}
+      {#if warningText}
+        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+          <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        </a>
+      {/if}
+      {#if bot.info && bot.info instanceof BotInfo}
         <button class="info-button" onclick={(e) => {e.stopPropagation();handleBotInfoClick(bot)}}>
           <img src={infoIcon} alt="i">
         </button>
@@ -358,12 +387,14 @@ function SelectedToggleFavorite() {
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredScripts as script (script.id)}
-    <div class="bot blurred" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.id)}>
+    {@const warningText = scriptDuplicateAgentIdWarning(script)}
+
+    <div class="bot blurred" animate:flip={{ duration: flipDurationMs }} onclick={() => toggleScript(script.info.config.settings.agentId)}>
       <Switch
-        checked={enabledScripts[script.id]}
+        checked={enabledScripts[script.info.config.settings.agentId]}
         width={36}
         height={22}
-        onchange={() => toggleScript(script.id)}
+        onchange={() => toggleScript(script.info.config.settings.agentId)}
       />
       <img
         src={script.icon || defaultIcon}
@@ -376,6 +407,11 @@ function SelectedToggleFavorite() {
       <p>{script.displayName}</p>
       {#if script.uniquePathSegment}
         <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
+      {/if}
+      {#if warningText}
+        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+          <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        </a>
       {/if}
       <button
         class="info-button"
@@ -630,6 +666,11 @@ function SelectedToggleFavorite() {
   .toml-path {
     font-size: 0.8rem;
     color: grey;
+  }
+  .duplicate-agent-icon {
+    max-height: 1.5rem;
+    /* filter calculated with https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(83%) sepia(55%) saturate(4490%) hue-rotate(5deg) brightness(103%) contrast(102%);
   }
   #scripts-header {
     margin-top: 12px;
