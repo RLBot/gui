@@ -212,7 +212,7 @@ function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
   const agentId = d.info.config.settings.agentId;
   return agentId
     ? `Duplicate agent id "${agentId}" found in another config`
-    : "Empty agent id found, RLBot will refuse to start matches with this bot";
+    : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
 }
 
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
@@ -221,7 +221,7 @@ function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
   const agentId = d.info.config.settings.agentId;
   return agentId
     ? `Duplicate agent id "${agentId}" found in another config`
-    : "Empty agent id found, RLBot will refuse to start matches with this bot";
+    : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
 }
 
 function handleTagClick(tag: string) {
@@ -359,7 +359,9 @@ function SelectedToggleFavorite() {
         <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
       {/if}
       {#if warningText}
-        <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+          <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        </a>
       {/if}
       {#if bot.info && bot.info instanceof BotInfo}
         <button class="info-button" onclick={(e) => {e.stopPropagation();handleBotInfoClick(bot)}}>
@@ -407,7 +409,9 @@ function SelectedToggleFavorite() {
         <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
       {/if}
       {#if warningText}
-        <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+          <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+        </a>
       {/if}
       <button
         class="info-button"
