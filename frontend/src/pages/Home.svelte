@@ -135,7 +135,17 @@ $effect(() => {
 let latestScriptUpdateTime = null;
 let loadingScripts = $state(false);
 let scripts: ToggleableScript[] = $state([]);
-let enabledScripts: { [key: string]: boolean } = $state({});
+const enabledScriptsStorageKey = "ENABLED_SCRIPTS";
+let enabledScripts: { [key: string]: boolean } = $state(
+  parseJSON(localStorage.getItem(enabledScriptsStorageKey)) || {},
+);
+
+$effect(() => {
+  localStorage.setItem(
+    enabledScriptsStorageKey,
+    JSON.stringify(enabledScripts),
+  );
+});
 
 function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
   const uniqueNames = [
@@ -304,14 +314,6 @@ async function updateScripts() {
     }
   }
 
-  for (const agentId in Object.keys(enabledScripts)) {
-    if (
-      !scripts.some((script) => script.info.config.settings.agentId === agentId)
-    ) {
-      delete enabledScripts[agentId];
-    }
-  }
-
   loadingScripts = false;
 }
 
@@ -374,7 +376,9 @@ async function onMatchStart(randomizeMap: boolean) {
   const options: StartMatchOptions = {
     map: $mapStore,
     gameMode: mode,
-    scripts: scripts.filter((x) => enabledScripts[x.id]).map((x) => x.info),
+    scripts: scripts
+      .filter((x) => enabledScripts[x.info.config.settings.agentId])
+      .map((x) => x.info),
     bluePlayers: bluePlayers.map(draggablePlayerToPlayerJs),
     orangePlayers: orangePlayers.map(draggablePlayerToPlayerJs),
     launcher,
