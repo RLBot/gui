@@ -202,8 +202,8 @@ func (a *App) SandboxSetState(setting SandboxStateSetting) error {
 	}
 
 	if len(setting.Cars) > 0 {
-		carStates := make([]*flat.DesiredCarStateT, len(setting.Cars))
-		for i, cs := range setting.Cars {
+		carStates := make([]*flat.DesiredCarStateT, 0)
+		for _, cs := range setting.Cars {
 			carState := &flat.DesiredCarStateT{}
 			if cs.Location != nil {
 				carState.Physics = &flat.DesiredPhysicsT{
@@ -237,14 +237,14 @@ func (a *App) SandboxSetState(setting SandboxStateSetting) error {
 			if cs.Boost != nil {
 				carState.BoostAmount = &flat.FloatT{Val: *cs.Boost}
 			}
-			// Pad with empty states up to the car index so RLBotServer applies to the right car
-			if cs.Index > 0 {
-				padded := make([]*flat.DesiredCarStateT, cs.Index+1)
-				padded[cs.Index] = carState
+			// Ensure slice is large enough to hold this car index
+			needed := int(cs.Index + 1)
+			if len(carStates) < needed {
+				padded := make([]*flat.DesiredCarStateT, needed)
+				copy(padded, carStates)
 				carStates = padded
-			} else {
-				carStates[i] = carState
 			}
+			carStates[cs.Index] = carState
 		}
 		desired.CarStates = carStates
 	}
