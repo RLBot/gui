@@ -69,6 +69,10 @@ let previousSecondsElapsed = $state(0);
 let packetHistory: SandboxGamePacket[] = $state([]);
 let hasPacketHistory = $state(false);
 
+// Saved state for save/load
+let savedState = $state<SandboxGamePacket | null>(null);
+let hasSavedState = $state(false);
+
 // Controls
 let watching = $state(false);
 let frozen = $state(false);
@@ -365,6 +369,8 @@ $effect(() => {
   previousSecondsElapsed = 0;
   packetHistory = [];
   hasPacketHistory = false;
+  savedState = null;
+  hasSavedState = false;
   latestPacket = null;
   lastUpdateTime = 0;
 
@@ -426,6 +432,8 @@ $effect(() => {
         previousSecondsElapsed = 0;
         packetHistory = [];
         hasPacketHistory = false;
+        savedState = null;
+        hasSavedState = false;
         lastUpdateTime = 0;
 
         // Reset debug rendering to defaults for the current match config
@@ -532,6 +540,8 @@ $effect(() => {
     renderingDisabled = false;
     packetHistory = [];
     hasPacketHistory = false;
+    savedState = null;
+    hasSavedState = false;
     previousSecondsElapsed = 0;
     lastUpdateTime = 0;
   };
@@ -584,6 +594,12 @@ function rewind() {
         y: c.physics.velocity.y,
         z: c.physics.velocity.z,
       },
+      rotation: {
+        pitch: c.physics.rotation.pitch,
+        yaw: c.physics.rotation.yaw,
+        roll: c.physics.rotation.roll,
+      },
+      boost: c.boost,
     }));
 
     const ballPhys = firstPacket.ball.physics;
@@ -604,6 +620,54 @@ function rewind() {
     });
   }
   hasPacketHistory = false;
+}
+
+function saveState() {
+  if (latestPacket) {
+    savedState = latestPacket;
+    hasSavedState = true;
+  }
+}
+
+function loadSavedState() {
+  if (!savedState) return;
+
+  const carsSetting = savedState.cars.map((c) => ({
+    index: c.index,
+    location: {
+      x: c.physics.location.x,
+      y: c.physics.location.y,
+      z: c.physics.location.z,
+    },
+    velocity: {
+      x: c.physics.velocity.x,
+      y: c.physics.velocity.y,
+      z: c.physics.velocity.z,
+    },
+    rotation: {
+      pitch: c.physics.rotation.pitch,
+      yaw: c.physics.rotation.yaw,
+      roll: c.physics.rotation.roll,
+    },
+    boost: c.boost,
+  }));
+
+  const ballPhys = savedState.ball.physics;
+  App.SandboxSetState({
+    cars: carsSetting,
+    ball: {
+      location: {
+        x: ballPhys.location.x,
+        y: ballPhys.location.y,
+        z: ballPhys.location.z,
+      },
+      velocity: {
+        x: ballPhys.velocity.x,
+        y: ballPhys.velocity.y,
+        z: ballPhys.velocity.z,
+      },
+    },
+  });
 }
 
 function handleWatchingChange() {
@@ -717,9 +781,17 @@ function executeCommand() {
             </label>
           </div>
 
-          <button onclick={rewind} disabled={!hasPacketHistory} class="rewind-btn">
-            Rewind 5 Seconds
-          </button>
+          <div class="state-btn-row">
+            <button onclick={rewind} disabled={!hasPacketHistory}>
+              Rewind 5s
+            </button>
+            <button onclick={saveState}>
+              Save State
+            </button>
+            <button onclick={loadSavedState} disabled={!hasSavedState}>
+              Load State
+            </button>
+          </div>
         </div>
 
         <div class="control-section">
@@ -942,8 +1014,14 @@ function executeCommand() {
     margin-bottom: 0.75rem;
   }
 
-  .rewind-btn {
-    margin-top: 0.5rem;
+  .state-btn-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .state-btn-row button {
+    flex: 1;
   }
 
   .input-row {
