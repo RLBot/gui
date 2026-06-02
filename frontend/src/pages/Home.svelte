@@ -317,6 +317,31 @@ async function updateScripts() {
   loadingScripts = false;
 }
 
+async function getLatestBotInfo(tomlPath: string): Promise<BotInfo | null> {
+  try {
+    await updateBots();
+    const found = players.find(
+      (p) => p.info instanceof BotInfo && p.info.tomlPath === tomlPath,
+    );
+    return found ? (found.info as BotInfo) : null;
+  } catch (err) {
+    console.error("Failed to get latest bot info: ", err);
+    return null;
+  }
+}
+
+async function getLatestScriptInfo(tomlPath: string): Promise<ScriptInfo | null> {
+  try {
+    await updateScripts();
+    const found = scripts.find((s) => s.info.tomlPath === tomlPath);
+    return found ? (found.info as BotInfo) : null;
+  } catch (err) {
+    console.error("Failed to get latest script info: ", err);
+    return null;
+  }
+}
+
+
 $effect(() => {
   localStorage.setItem("BOT_SEARCH_PATHS", JSON.stringify(paths));
   updateBots();
@@ -372,6 +397,9 @@ async function onMatchStart(randomizeMap: boolean) {
         Math.floor(Math.random() * Object.keys(MAPS_STANDARD).length)
       ];
   }
+
+  await updateBots();
+  await updateScripts();
 
   const options: StartMatchOptions = {
     map: $mapStore,
@@ -476,6 +504,8 @@ function handleSearch(event: Event) {
       selectedTeam={selectedTeam}
       map={$mapStore}
       {duplicateAgentIds}
+      getLatestBotInfo={getLatestBotInfo}
+      getLatestScriptInfo={getLatestScriptInfo}
     />
   </div>
 
