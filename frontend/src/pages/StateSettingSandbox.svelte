@@ -1,9 +1,21 @@
 <script lang="ts">
 import { Browser, Events } from "@wailsio/runtime";
 import { App } from "../../bindings/gui/index.js";
+import arenaDiagramUrl from "../assets/arena_diagram.png";
 
 const PIXEL_HEIGHT = 580;
 const CANVAS_WIDTH = 410;
+
+// Loaded arena background image
+let arenaBgImage: HTMLImageElement | null = null;
+{
+  const img = new Image();
+  img.onload = () => {
+    arenaBgImage = img;
+    if (canvasCtx) render();
+  };
+  img.src = arenaDiagramUrl;
+}
 const HISTORY_SECONDS = 5;
 const HISTORY_INCREMENT_SECONDS = 0.1;
 
@@ -121,36 +133,13 @@ function toPacketVec(
 }
 
 function drawField(ctx: CanvasRenderingContext2D) {
-  // Field background
-  ctx.fillStyle = "#1a3a1a";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, PIXEL_HEIGHT);
-
-  // Center line - horizontal (midfield, Y=0 in game)
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, PIXEL_HEIGHT / 2);
-  ctx.lineTo(CANVAS_WIDTH, PIXEL_HEIGHT / 2);
-  ctx.stroke();
-
-  // Center circle
-  ctx.beginPath();
-  ctx.arc(CANVAS_WIDTH / 2, PIXEL_HEIGHT / 2, 60, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Goal areas - at the top and bottom of the field (Y-axis extremes)
-  const goalWidth = 100;
-  const goalHeight = 30;
-  ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-  // Top goal (forward, positive Y in game - but inverted by -20 factor)
-  ctx.fillRect(CANVAS_WIDTH / 2 - goalWidth / 2, 0, goalWidth, goalHeight);
-  // Bottom goal (backward, negative Y in game)
-  ctx.fillRect(
-    CANVAS_WIDTH / 2 - goalWidth / 2,
-    PIXEL_HEIGHT - goalHeight,
-    goalWidth,
-    goalHeight,
-  );
+  if (arenaBgImage) {
+    ctx.drawImage(arenaBgImage, 0, 0, CANVAS_WIDTH, PIXEL_HEIGHT);
+  } else {
+    // Fallback until image loads
+    ctx.fillStyle = "#1a1a2e";
+    ctx.fillRect(0, 0, CANVAS_WIDTH, PIXEL_HEIGHT);
+  }
 }
 
 function drawBall(ctx: CanvasRenderingContext2D) {
@@ -170,7 +159,7 @@ function drawCar(ctx: CanvasRenderingContext2D, car: CarState) {
   ctx.save();
   ctx.translate(car.x, car.y);
   ctx.rotate(car.rotation);
-  ctx.fillStyle = car.team === 0 ? "#026df9" : "#f95402";
+  ctx.fillStyle = car.team === 0 ? "blue" : "orange";
   ctx.fillRect(-w / 2, -h / 2, w, h);
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2;
@@ -244,7 +233,7 @@ function render() {
         car.y,
         car.vx,
         car.vy,
-        car.team === 0 ? "#3a7bd5" : "#d57a3a",
+        car.team === 0 ? "blue" : "orange",
         2300,
       );
     }
@@ -787,7 +776,7 @@ function executeCommand() {
                       }]);
                     }}
                   />
-                  {agent.name} ({agent.is_bot ? "BOT" : "SCRIPT"})
+                  {agent.name}
                 </label>
               </div>
             {/each}
