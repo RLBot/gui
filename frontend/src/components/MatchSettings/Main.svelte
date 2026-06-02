@@ -36,6 +36,12 @@ const renderingOptions: { [n: string]: number } = {
   "Always off": 2,
 };
 
+const performanceMonitorOptions: { [n: string]: number } = {
+  "Show when suboptimal": 0,
+  "Always show": 1,
+  "Never show": 2,
+};
+
 function cleanCase(toClean: string): string {
   const halfClean = toClean.replaceAll("_", " ");
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
@@ -203,6 +209,10 @@ const ALL_MAPS = getMaps();
     <br />
     <p>Rendering (bots can draw on screen)</p>
     <NiceSelect bind:value={extraOptions.enableRendering} options={renderingOptions} placeholder="Rendering" />
+    <br />
+    <br />
+    <p>Performance Monitor</p>
+    <NiceSelect bind:value={extraOptions.performanceMonitor} options={performanceMonitorOptions} placeholder="Performance Monitor" />
     <br />
     <br />
     <input
