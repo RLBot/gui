@@ -6,7 +6,7 @@ toolchain go1.24.4
 
 require (
 	github.com/BurntSushi/toml v1.5.0
-	github.com/RLBot/go-interface v0.0.0-20250705224140-6c179505c975
+	github.com/RLBot/go-interface v0.0.0-20260602190105-919cd596b426
 	github.com/ncruces/zenity v0.10.14
 	github.com/ulikunitz/xz v0.5.15
 	github.com/wailsapp/mimetype v1.4.1
@@ -31,7 +31,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/google/flatbuffers v25.9.23+incompatible // indirect
+	github.com/google/flatbuffers v25.12.19+incompatible // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jchv/go-winloader v0.0.0-20250406163304-c1995be93bd1 // indirect

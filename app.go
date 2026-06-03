@@ -174,15 +174,16 @@ type Result struct {
 }
 
 type ExtraOptions struct {
-	Freeplay              bool                `json:"freeplay"`
-	EnableRendering       flat.DebugRendering `json:"enableRendering"`
-	EnableStateSetting    bool                `json:"enableStateSetting"`
-	InstantStart          bool                `json:"instantStart"`
-	SkipReplays           bool                `json:"skipReplays"`
-	AutoSaveReplay        bool                `json:"autoSaveReplay"`
-	ExistingMatchBehavior byte                `json:"existingMatchBehavior"`
-	AutoStartAgents       bool                `json:"autoStartAgents"`
-	WaitForAgents         bool                `json:"waitForAgents"`
+	Freeplay              bool                    `json:"freeplay"`
+	EnableRendering       flat.DebugRendering     `json:"enableRendering"`
+	EnableStateSetting    bool                    `json:"enableStateSetting"`
+	InstantStart          bool                    `json:"instantStart"`
+	SkipReplays           bool                    `json:"skipReplays"`
+	AutoSaveReplay        bool                    `json:"autoSaveReplay"`
+	ExistingMatchBehavior byte                    `json:"existingMatchBehavior"`
+	AutoStartAgents       bool                    `json:"autoStartAgents"`
+	WaitForAgents         bool                    `json:"waitForAgents"`
+	PerformanceMonitor    flat.PerformanceMonitor `json:"performanceMonitor"`
 }
 
 type StartMatchOptions struct {
@@ -424,6 +425,7 @@ func (a *App) StartMatch(options StartMatchOptions) Result {
 		Freeplay:              options.ExtraOptions.Freeplay,
 		EnableRendering:       options.ExtraOptions.EnableRendering,
 		EnableStateSetting:    options.ExtraOptions.EnableStateSetting,
+		PerformanceMonitor:    options.ExtraOptions.PerformanceMonitor,
 		InstantStart:          options.ExtraOptions.InstantStart,
 		SkipReplays:           options.ExtraOptions.SkipReplays,
 		AutoSaveReplay:        options.ExtraOptions.AutoSaveReplay,

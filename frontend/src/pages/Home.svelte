@@ -28,6 +28,7 @@ import { mapStore } from "../settings";
 import {
   DebugRendering,
   ExistingMatchBehavior,
+  PerformanceMonitor,
 } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 import SuperJSON from "superjson";
 
@@ -336,6 +337,7 @@ $effect(() => {
 let extraOptions: ExtraOptions = $state({
   existingMatchBehavior: ExistingMatchBehavior.ExistingMatchBehaviorRestart,
   enableRendering: DebugRendering.DebugRenderingOffByDefault,
+  performanceMonitor: PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal,
   enableStateSetting: true,
   autoStartAgents: true,
   waitForAgents: true,
