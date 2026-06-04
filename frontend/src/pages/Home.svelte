@@ -319,28 +319,76 @@ async function updateScripts() {
 
 async function getLatestBotInfo(tomlPath: string): Promise<BotInfo | null> {
   try {
-    await updateBots();
-    const found = players.find(
+    const result = await App.GetBots([tomlPath]);
+
+    const found = result.find((b) => b.tomlPath === tomlPath);
+    if (!found) return null; // No bot found
+
+    const botInfo = new BotInfo(found);
+
+    const index = players.findIndex(
       (p) => p.info instanceof BotInfo && p.info.tomlPath === tomlPath,
     );
-    return found ? (found.info as BotInfo) : null;
+
+    if (index !== -1) {
+      players[index] = {
+        ...players[index],
+        displayName: found.config.settings.name,
+        icon: found.icon,
+        info: botInfo,
+        tags: found.config.details.tags,
+      };
+
+      players = [...players];
+      bluePlayers = updateTeam(bluePlayers);
+      orangePlayers = updateTeam(orangePlayers);
+    }
+
+    return botInfo;
   } catch (err) {
     console.error("Failed to get latest bot info: ", err);
     return null;
   }
 }
 
-async function getLatestScriptInfo(tomlPath: string): Promise<ScriptInfo | null> {
+async function getLatestScriptInfo(tomlPath: string): Promise<BotInfo | null> {
   try {
-    await updateScripts();
-    const found = scripts.find((s) => s.info.tomlPath === tomlPath);
-    return found ? (found.info as BotInfo) : null;
+    const result = await App.GetScripts([tomlPath]);
+
+    const found = result.find((s) => s.tomlPath === tomlPath);
+    if (!found) return null; // No script found
+
+    const index = scripts.findIndex((s) => s.info.tomlPath === tomlPath);
+
+    if (index !== -1) {
+      const oldAgentId = scripts[index].info.config.settings.agentId;
+      const newAgentId = found.config.settings.agentId;
+
+      scripts[index] = {
+        ...scripts[index],
+        displayName: found.config.settings.name,
+        icon: found.config.settings.logoFile,
+        info: found,
+        tags: found.config.details.tags,
+      };
+
+      scripts = [...scripts];
+
+      if (enabledScripts[newAgentId] === undefined) {
+        enabledScripts[newAgentId] = false;
+      }
+
+      if (oldAgentId !== newAgentId && enabledScripts[oldAgentId] === undefined) {
+        enabledScripts[oldAgentId] = false;
+      }
+    }
+
+    return found;
   } catch (err) {
     console.error("Failed to get latest script info: ", err);
     return null;
   }
 }
-
 
 $effect(() => {
   localStorage.setItem("BOT_SEARCH_PATHS", JSON.stringify(paths));
