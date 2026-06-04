@@ -446,8 +446,27 @@ async function onMatchStart(randomizeMap: boolean) {
       ];
   }
 
-  await updateBots();
-  await updateScripts();
+  // Update bots and scripts
+  const botsInMatch = [
+      ...new Set(
+        [...bluePlayers, ...orangePlayers]
+          .filter((p) => p.info instanceof BotInfo)
+          .map((p) => (p.info as BotInfo).tomlPath),
+      ),
+    ];
+
+    const scriptsInMatch = [
+      ...new Set(
+        scripts // We could reuse this for StartMatchOptions, and not map twice
+          .filter((x) => enabledScripts[x.info.config.settings.agentId])
+          .map((x) => x.info.tomlPath),
+      ),
+    ];
+
+    await Promise.all([
+      ...botsInMatch.map((tomlPath) => getLatestBotInfo(tomlPath)),
+      ...scriptsInMatch.map((tomlPath) => getLatestScriptInfo(tomlPath)),
+    ]);
 
   const options: StartMatchOptions = {
     map: $mapStore,
