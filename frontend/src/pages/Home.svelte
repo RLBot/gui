@@ -332,11 +332,10 @@ async function getLatestBotInfo(tomlPath: string): Promise<BotInfo | null> {
     );
 
     if (index !== -1) {
-
-      players[index].info = botInfo
-      players[index].displayName = found.config.settings.name
-      players[index].icon = found.icon
-      players[index].tags = found.config.details.tags
+      players[index].info = botInfo;
+      players[index].displayName = found.config.settings.name;
+      players[index].icon = found.icon;
+      players[index].tags = found.config.details.tags;
 
       bluePlayers = updateTeam(bluePlayers);
       orangePlayers = updateTeam(orangePlayers);
@@ -362,14 +361,14 @@ async function getLatestScriptInfo(tomlPath: string): Promise<BotInfo | null> {
       const oldAgentId = scripts[index].info.config.settings.agentId;
       const newAgentId = found.config.settings.agentId;
 
-      scripts[index].displayName = found.config.settings.name
-      scripts[index].icon = found.config.settings.logoFile
-      scripts[index].info = found
-      scripts[index].tags = found.config.details.tags
+      scripts[index].displayName = found.config.settings.name;
+      scripts[index].icon = found.config.settings.logoFile;
+      scripts[index].info = found;
+      scripts[index].tags = found.config.details.tags;
 
-      enabledScripts[newAgentId] = enabledScripts[oldAgentId]
+      enabledScripts[newAgentId] = enabledScripts[oldAgentId];
       if (oldAgentId !== newAgentId) {
-        delete enabledScripts[oldAgentId]
+        delete enabledScripts[oldAgentId];
       }
     }
 
@@ -439,25 +438,25 @@ async function onMatchStart(randomizeMap: boolean) {
 
   // Update bots and scripts
   const botsInMatch = [
-      ...new Set(
-        [...bluePlayers, ...orangePlayers]
-          .filter((p) => p.info instanceof BotInfo)
-          .map((p) => (p.info as BotInfo).tomlPath),
-      ),
-    ];
+    ...new Set(
+      [...bluePlayers, ...orangePlayers]
+        .filter((p) => p.info instanceof BotInfo)
+        .map((p) => (p.info as BotInfo).tomlPath),
+    ),
+  ];
 
-    const scriptsInMatch = [
-      ...new Set(
-        scripts // We could reuse this for StartMatchOptions, and not map twice
-          .filter((x) => enabledScripts[x.info.config.settings.agentId])
-          .map((x) => x.info.tomlPath),
-      ),
-    ];
+  const scriptsInMatch = [
+    ...new Set(
+      scripts // We could reuse this for StartMatchOptions, and not map twice
+        .filter((x) => enabledScripts[x.info.config.settings.agentId])
+        .map((x) => x.info.tomlPath),
+    ),
+  ];
 
-    await Promise.all([
-      ...botsInMatch.map((tomlPath) => getLatestBotInfo(tomlPath)),
-      ...scriptsInMatch.map((tomlPath) => getLatestScriptInfo(tomlPath)),
-    ]);
+  await Promise.all([
+    ...botsInMatch.map((tomlPath) => getLatestBotInfo(tomlPath)),
+    ...scriptsInMatch.map((tomlPath) => getLatestScriptInfo(tomlPath)),
+  ]);
 
   const options: StartMatchOptions = {
     map: $mapStore,

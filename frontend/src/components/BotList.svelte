@@ -256,12 +256,15 @@ function toggleScript(id: string) {
 
 async function handleBotInfoClick(bot: DraggablePlayer) {
   if (bot.info instanceof BotInfo) {
-
     try {
       if (getLatestBotInfo) {
         const refreshed = await getLatestBotInfo(bot.info.tomlPath);
         if (refreshed) {
-          selectedAgent = [refreshed, refreshed.config?.settings?.name ?? bot.displayName, (refreshed as any).icon ?? bot.icon];
+          selectedAgent = [
+            refreshed,
+            refreshed.config?.settings?.name ?? bot.displayName,
+            (refreshed as any).icon ?? bot.icon,
+          ];
           showInfoModal = true;
           return;
         }
@@ -276,18 +279,23 @@ async function handleBotInfoClick(bot: DraggablePlayer) {
 }
 
 async function handleScriptInfoClick(script: ToggleableScript) {
-
   try {
     if (getLatestScriptInfo) {
       const refreshed = await getLatestScriptInfo(script.info.tomlPath);
       if (refreshed) {
-        selectedAgent = [refreshed, refreshed.config?.settings?.name ?? script.displayName, (refreshed as any).icon ?? script.icon];
+        selectedAgent = [
+          refreshed,
+          refreshed.config?.settings?.name ?? script.displayName,
+          (refreshed as any).icon ?? script.icon,
+        ];
         showInfoModal = true;
         return;
       }
     }
   } catch (err) {
-    toast.error("Failed to get latest script info: " + err, { duration: 10000 });
+    toast.error("Failed to get latest script info: " + err, {
+      duration: 10000,
+    });
   }
 
   selectedAgent = [script.info, script.displayName, script.icon];
