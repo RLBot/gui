@@ -972,7 +972,6 @@ function executeCommand() {
   }
 
   .arena-canvas {
-    border: 2px solid #333;
     border-radius: 4px;
     cursor: grab;
     display: block;
