@@ -32,6 +32,8 @@ let {
   orangePlayers = $bindable(),
   map,
   duplicateAgentIds = new Set<string>(),
+  getLatestBotInfo,
+  getLatestScriptInfo,
 }: {
   bots: DraggablePlayer[];
   scripts: ToggleableScript[];
@@ -43,6 +45,8 @@ let {
   orangePlayers: DraggablePlayer[];
   map: string;
   duplicateAgentIds: Set<string>;
+  getLatestBotInfo?: (tomlPath: string) => Promise<BotInfo | null>;
+  getLatestScriptInfo?: (tomlPath: string) => Promise<BotInfo | null>;
 } = $props();
 const flipDurationMs = 100;
 
@@ -250,14 +254,42 @@ function toggleScript(id: string) {
   enabledScripts[id] = !enabledScripts[id];
 }
 
-function handleBotInfoClick(bot: DraggablePlayer) {
+async function handleBotInfoClick(bot: DraggablePlayer) {
   if (bot.info instanceof BotInfo) {
+
+    try {
+      if (getLatestBotInfo) {
+        const refreshed = await getLatestBotInfo(bot.info.tomlPath);
+        if (refreshed) {
+          selectedAgent = [refreshed, refreshed.config?.settings?.name ?? bot.displayName, (refreshed as any).icon ?? bot.icon];
+          showInfoModal = true;
+          return;
+        }
+      }
+    } catch (err) {
+      toast.error("Failed to get latest bot info: " + err, { duration: 10000 });
+    }
+
     selectedAgent = [bot.info, bot.displayName, bot.icon];
     showInfoModal = true;
   }
 }
 
-function handleScriptInfoClick(script: ToggleableScript) {
+async function handleScriptInfoClick(script: ToggleableScript) {
+
+  try {
+    if (getLatestScriptInfo) {
+      const refreshed = await getLatestScriptInfo(script.info.tomlPath);
+      if (refreshed) {
+        selectedAgent = [refreshed, refreshed.config?.settings?.name ?? script.displayName, (refreshed as any).icon ?? script.icon];
+        showInfoModal = true;
+        return;
+      }
+    }
+  } catch (err) {
+    toast.error("Failed to get latest script info: " + err, { duration: 10000 });
+  }
+
   selectedAgent = [script.info, script.displayName, script.icon];
   showInfoModal = true;
 }

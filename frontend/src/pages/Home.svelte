@@ -318,6 +318,79 @@ async function updateScripts() {
   loadingScripts = false;
 }
 
+async function getLatestBotInfo(tomlPath: string): Promise<BotInfo | null> {
+  try {
+    const result = await App.GetBots([tomlPath]);
+
+    const found = result.find((b) => b.tomlPath === tomlPath);
+    if (!found) return null; // No bot found
+
+    const botInfo = new BotInfo(found);
+
+    const index = players.findIndex(
+      (p) => p.info instanceof BotInfo && p.info.tomlPath === tomlPath,
+    );
+
+    if (index !== -1) {
+      players[index] = {
+        ...players[index],
+        displayName: found.config.settings.name,
+        icon: found.icon,
+        info: botInfo,
+        tags: found.config.details.tags,
+      };
+
+      players = [...players];
+      bluePlayers = updateTeam(bluePlayers);
+      orangePlayers = updateTeam(orangePlayers);
+    }
+
+    return botInfo;
+  } catch (err) {
+    console.error("Failed to get latest bot info: ", err);
+    return null;
+  }
+}
+
+async function getLatestScriptInfo(tomlPath: string): Promise<BotInfo | null> {
+  try {
+    const result = await App.GetScripts([tomlPath]);
+
+    const found = result.find((s) => s.tomlPath === tomlPath);
+    if (!found) return null; // No script found
+
+    const index = scripts.findIndex((s) => s.info.tomlPath === tomlPath);
+
+    if (index !== -1) {
+      const oldAgentId = scripts[index].info.config.settings.agentId;
+      const newAgentId = found.config.settings.agentId;
+
+      scripts[index] = {
+        ...scripts[index],
+        displayName: found.config.settings.name,
+        icon: found.config.settings.logoFile,
+        info: found,
+        tags: found.config.details.tags,
+      };
+
+      scripts = [...scripts];
+
+      if (enabledScripts[newAgentId] === undefined) {
+        enabledScripts[newAgentId] = false;
+      }
+
+      if (oldAgentId !== newAgentId && enabledScripts[oldAgentId] === undefined) {
+        enabledScripts[oldAgentId] = false;
+      }
+    }
+
+    return found;
+  } catch (err) {
+    console.error("Failed to get latest script info: ", err);
+    return null;
+  }
+}
+
 $effect(() => {
   localStorage.setItem("BOT_SEARCH_PATHS", JSON.stringify(paths));
   updateBots();
@@ -374,6 +447,28 @@ async function onMatchStart(randomizeMap: boolean) {
         Math.floor(Math.random() * Object.keys(MAPS_STANDARD).length)
       ];
   }
+
+  // Update bots and scripts
+  const botsInMatch = [
+      ...new Set(
+        [...bluePlayers, ...orangePlayers]
+          .filter((p) => p.info instanceof BotInfo)
+          .map((p) => (p.info as BotInfo).tomlPath),
+      ),
+    ];
+
+    const scriptsInMatch = [
+      ...new Set(
+        scripts // We could reuse this for StartMatchOptions, and not map twice
+          .filter((x) => enabledScripts[x.info.config.settings.agentId])
+          .map((x) => x.info.tomlPath),
+      ),
+    ];
+
+    await Promise.all([
+      ...botsInMatch.map((tomlPath) => getLatestBotInfo(tomlPath)),
+      ...scriptsInMatch.map((tomlPath) => getLatestScriptInfo(tomlPath)),
+    ]);
 
   const options: StartMatchOptions = {
     map: $mapStore,
@@ -478,6 +573,8 @@ function handleSearch(event: Event) {
       selectedTeam={selectedTeam}
       map={$mapStore}
       {duplicateAgentIds}
+      getLatestBotInfo={getLatestBotInfo}
+      getLatestScriptInfo={getLatestScriptInfo}
     />
   </div>
 
