@@ -1,4 +1,5 @@
 <script lang="ts">
+import { fade } from "svelte/transition";
 import { MAPS_NON_STANDARD, MAPS_STANDARD } from "../../arena-names";
 import LauncherSelector from "../LauncherSelector.svelte";
 import Modal from "../Modal.svelte";
@@ -19,6 +20,7 @@ let {
 
 let showExtraOptions = $state(false);
 let showMutators = $state(false);
+let mutatorSearchQuery = $state("");
 let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
@@ -92,6 +94,14 @@ function filterMutatorOptions() {
 
   return filtered;
 }
+
+let searchedMutatorOptions = $derived(
+  mutatorSearchQuery
+    ? filteredMutatorOptions.filter((key) =>
+        cleanCase(key).toLowerCase().includes(mutatorSearchQuery.toLowerCase()),
+      )
+    : filteredMutatorOptions,
+);
 
 function countModifiedMutators(): number {
   let count = 0;
@@ -170,9 +180,16 @@ const ALL_MAPS = getMaps();
 </Modal>
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
+  <div class="mutator-search">
+    <input
+      type="search"
+      placeholder="Search mutators…"
+      bind:value={mutatorSearchQuery}
+    />
+  </div>
   <div class="mutators">
-    {#each filteredMutatorOptions as mutatorKey}
-      <div class="mutator">
+    {#each searchedMutatorOptions as mutatorKey (mutatorKey)}
+      <div class="mutator" transition:fade={{ duration: 100 }}>
         <label
           class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
           for={mutatorKey}>{cleanCase(mutatorKey)}</label
@@ -309,6 +326,24 @@ const ALL_MAPS = getMaps();
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .mutator-search {
+    margin-bottom: 0.75rem;
+  }
+  .mutator-search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--border, #555);
+    background: var(--background, #222);
+    color: var(--foreground, #eee);
+    font-size: 0.9rem;
+  }
+  .mutator-search input:focus {
+    outline: none;
+    border-color: var(--accent, #4a9eff);
   }
 
   .mutators {
