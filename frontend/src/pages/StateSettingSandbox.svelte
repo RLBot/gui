@@ -300,6 +300,7 @@ function hitTestCar(pos: { x: number; y: number }): number {
 }
 
 function handleMouseDown(e: MouseEvent) {
+  if (!watching) return;
   const pos = getCanvasPos(e);
   if (!pos) return;
 
@@ -776,6 +777,11 @@ function executeCommand() {
           onmouseup={handleMouseUp}
           onmouseleave={handleMouseUp}
         ></canvas>
+        {#if !watching}
+          <div class="canvas-overlay">
+            Enable 'Watch Game' to drag and drop objects around
+          </div>
+        {/if}
       </div>
 
       <div class="controls">
@@ -1001,6 +1007,22 @@ function executeCommand() {
 
   .canvas-container {
     flex-shrink: 0;
+    position: relative;
+  }
+
+  .canvas-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 24px;
+    border-radius: 4px;
+    text-align: center;
+    padding: 20px;
+    pointer-events: none;
   }
 
   .arena-canvas {
