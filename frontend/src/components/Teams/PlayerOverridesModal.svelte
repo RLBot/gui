@@ -13,8 +13,7 @@ let {
 
 function clearOverrides() {
   if (player) {
-    player.overrides.name =
-      player.info instanceof PsyonixBotInfo ? "" : player.displayName;
+    player.overrides.name = null;
     player.overrides.loadout = null;
     player.overrides.autoStart = true;
   }
@@ -22,8 +21,7 @@ function clearOverrides() {
 
 function hasNameOverride(): boolean {
   if (!player) return false;
-  let expectedName = player.info instanceof BotInfo ? player.displayName : "";
-  return player.overrides.name !== expectedName;
+  return player.overrides.name !== null;
 }
 
 async function pickLoadoutOverride() {
@@ -39,9 +37,12 @@ async function pickLoadoutOverride() {
     <p style={hasNameOverride() ? "color: orange;" : ""}>In-game name:</p>
     <input
             type="text"
-            placeholder="Bot name"
+            placeholder=""
             id={`edit-name-${player.id}`}
-            bind:value={player.overrides.name}
+            bind:value={
+                () => player?.overrides.name ?? player.displayName,
+                (v) => player.overrides.name = (v === player.displayName) ? null : v
+            }
     >
     <br />
     <br />

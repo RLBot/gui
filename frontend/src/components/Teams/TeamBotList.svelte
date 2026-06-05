@@ -65,9 +65,8 @@ function canAutoStart(d: DraggablePlayer): boolean {
 }
 
 function hasOverrides(d: DraggablePlayer): boolean {
-  let expectedName = d.info instanceof BotInfo ? d.displayName : "";
   return (
-    d.overrides.name !== expectedName ||
+    d.overrides.name !== null ||
     !d.overrides.autoStart ||
     d.overrides.loadout != null
   );
@@ -169,7 +168,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
               ? "filter: brightness(var(--icon-brightness))" : ""
             }
           />
-          <p>{bot.displayName === bot.overrides.name || (bot.info instanceof PsyonixBotInfo && bot.overrides.name === "") ? bot.displayName : `${bot.overrides.name}`}</p>
+          <p>{bot.overrides.name === null ? bot.displayName : bot.overrides.name}</p>
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
