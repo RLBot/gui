@@ -616,6 +616,11 @@ function rewind() {
           y: ballPhys.velocity.y,
           z: ballPhys.velocity.z,
         },
+        rotation: {
+          pitch: ballPhys.rotation.pitch,
+          yaw: ballPhys.rotation.yaw,
+          roll: ballPhys.rotation.roll,
+        },
       },
     });
   }
@@ -665,6 +670,11 @@ function loadSavedState() {
         x: ballPhys.velocity.x,
         y: ballPhys.velocity.y,
         z: ballPhys.velocity.z,
+      },
+      rotation: {
+        pitch: ballPhys.rotation.pitch,
+        yaw: ballPhys.rotation.yaw,
+        roll: ballPhys.rotation.roll,
       },
     },
   });

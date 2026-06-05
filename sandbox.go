@@ -65,6 +65,7 @@ type SandboxStateSetting struct {
 type SandboxBallSetting struct {
 	Location *SandboxVec3 `json:"location,omitempty"`
 	Velocity *SandboxVec3 `json:"velocity,omitempty"`
+	Rotation *SandboxRot3 `json:"rotation,omitempty"`
 }
 
 type SandboxCarSetting struct {
