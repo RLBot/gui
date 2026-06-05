@@ -718,7 +718,7 @@ function executeCommand() {
   {#if connectionState === "connecting"}
     <div class="loading">
       <div class="spinner"></div>
-      <h2>Connecting to RLBotServer...</h2>
+      <h2>Waiting for match start...</h2>
       {#if errorMessage}
         <p class="error">{errorMessage}</p>
       {/if}
