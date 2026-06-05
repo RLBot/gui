@@ -49,7 +49,7 @@ export function parseSuperJSON(item: string | null): any | null {
 }
 
 export interface PlayerFieldOverrides {
-  name: string;
+  name: string | null;
   loadout: LoadoutConfig | null;
   autoStart: boolean;
 }
@@ -77,7 +77,7 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
   if (d.info instanceof BotInfo) {
     const player = BotInfo.createFrom(structuredClone(d.info));
     // Apply overrides
-    player.config.settings.name = d.overrides.name;
+    player.config.settings.name = d.overrides.name ?? player.config.settings.name;
     player.loadout = d.overrides.loadout ?? d.info.loadout;
     if (!d.overrides.autoStart) {
       player.config.settings.runCommand = "";
@@ -96,7 +96,7 @@ export function draggablePlayerToPlayerJs(d: DraggablePlayer): PlayerJs {
   if (d.info instanceof PsyonixBotInfo) {
     const player = PsyonixBotInfo.createFrom(structuredClone(d.info));
     // Apply overrides
-    player.name = d.overrides.name;
+    player.name = d.overrides.name ?? "";  // Emptry string means random name for Psyonix bots
     player.loadout = d.overrides.loadout ?? d.info.loadout;
 
     return {

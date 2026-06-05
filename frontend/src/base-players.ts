@@ -9,7 +9,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
     id: crypto.randomUUID(),
     info: new HumanInfo(),
     tags: ["human"],
-    overrides: { name: "Human", loadout: null, autoStart: true },
+    overrides: { name: null, loadout: null, autoStart: true },
   },
   {
     displayName: "Psyonix Beginner",
@@ -20,7 +20,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
       skill: 0,
     }),
     tags: ["psyonix"],
-    overrides: { name: "", loadout: null, autoStart: true },
+    overrides: { name: null, loadout: null, autoStart: true },
   },
   {
     displayName: "Psyonix Rookie",
@@ -31,7 +31,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
       skill: 1,
     }),
     tags: ["psyonix"],
-    overrides: { name: "", loadout: null, autoStart: true },
+    overrides: { name: null, loadout: null, autoStart: true },
   },
   {
     displayName: "Psyonix Pro",
@@ -42,7 +42,7 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
       skill: 2,
     }),
     tags: ["psyonix"],
-    overrides: { name: "", loadout: null, autoStart: true },
+    overrides: { name: null, loadout: null, autoStart: true },
   },
   {
     displayName: "Psyonix Allstar",
@@ -53,6 +53,6 @@ export const BASE_PLAYERS: DraggablePlayer[] = [
       skill: 3,
     }),
     tags: ["psyonix"],
-    overrides: { name: "", loadout: null, autoStart: true },
+    overrides: { name: null, loadout: null, autoStart: true },
   },
 ];

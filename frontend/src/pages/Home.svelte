@@ -272,7 +272,7 @@ async function updateBots() {
         tags: x.config.details.tags,
         uniquePathSegment,
         overrides: {
-          name: x.config.settings.name,
+          name: null,
           loadout: null,
           autoStart: true,
         },
