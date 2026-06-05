@@ -332,15 +332,12 @@ async function getLatestBotInfo(tomlPath: string): Promise<BotInfo | null> {
     );
 
     if (index !== -1) {
-      players[index] = {
-        ...players[index],
-        displayName: found.config.settings.name,
-        icon: found.icon,
-        info: botInfo,
-        tags: found.config.details.tags,
-      };
 
-      players = [...players];
+      players[index].info = botInfo
+      players[index].displayName = found.config.settings.name
+      players[index].icon = found.icon
+      players[index].tags = found.config.details.tags
+
       bluePlayers = updateTeam(bluePlayers);
       orangePlayers = updateTeam(orangePlayers);
     }
@@ -365,22 +362,14 @@ async function getLatestScriptInfo(tomlPath: string): Promise<BotInfo | null> {
       const oldAgentId = scripts[index].info.config.settings.agentId;
       const newAgentId = found.config.settings.agentId;
 
-      scripts[index] = {
-        ...scripts[index],
-        displayName: found.config.settings.name,
-        icon: found.config.settings.logoFile,
-        info: found,
-        tags: found.config.details.tags,
-      };
+      scripts[index].displayName = found.config.settings.name
+      scripts[index].icon = found.config.settings.logoFile
+      scripts[index].info = found
+      scripts[index].tags = found.config.details.tags
 
-      scripts = [...scripts];
-
-      if (enabledScripts[newAgentId] === undefined) {
-        enabledScripts[newAgentId] = false;
-      }
-
-      if (oldAgentId !== newAgentId && enabledScripts[oldAgentId] === undefined) {
-        enabledScripts[oldAgentId] = false;
+      enabledScripts[newAgentId] = enabledScripts[oldAgentId]
+      if (oldAgentId !== newAgentId) {
+        delete enabledScripts[oldAgentId]
       }
     }
 
