@@ -313,12 +313,22 @@ const ALL_MAPS = getMaps();
 
   .mutators {
     display: grid;
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: auto auto auto auto auto;
     gap: 1rem;
   }
-  @media (max-width: 800px) {
+  @media (max-width: 980px) {
+    .mutators {
+      grid-template-columns: auto auto auto auto;
+    }
+  }
+  @media (max-width: 840px) {
     .mutators {
       grid-template-columns: auto auto auto;
+    }
+  }
+  @media (max-width: 650px) {
+    .mutators {
+      grid-template-columns: auto auto;
     }
   }
   .mutator {
