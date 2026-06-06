@@ -145,14 +145,15 @@ export const mutators: { [x: string]: string[] } = {
 
 export const mutatorCategories: Record<string, string[]> = {
   match: [
+    "audio",
     "match_length",
     "max_score",
     "overtime",
     "series_length",
     "max_time",
-    "territory",
     "game_event",
     "match_admin",
+    "rumble",
   ],
   ball: [
     "multi_ball",
@@ -163,6 +164,8 @@ export const mutatorCategories: Record<string, string[]> = {
     "ball_bounciness",
     "ball_gravity",
     "stale_ball",
+    "spawn_demoball",
+    "locked_damage_phase",
   ],
   movement: [
     "game_speed",
@@ -183,13 +186,8 @@ export const mutatorCategories: Record<string, string[]> = {
     "assist_goal_score",
     "scoring_rule",
     "keep_up_rules",
-  ],
-  misc: [
-    "rumble",
     "demolish",
     "respawn_time",
-    "audio",
-    "locked_damage_phase",
-    "spawn_demoball",
+    "territory",
   ],
 };

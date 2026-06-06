@@ -1,16 +1,19 @@
 <script lang="ts">
 import { portal } from "svelte-portal";
 import close from "../assets/close.svg";
+
 let {
   title = "Modal",
   visible = $bindable(true),
   closeable = true,
   children,
+  footer,
 }: {
   title?: string | (() => any);
   visible?: boolean;
   closeable?: boolean;
   children?: () => any;
+  footer?: () => any;
 } = $props();
 
 let wrap: EventTarget;
@@ -57,6 +60,11 @@ function handleMouseDown(e: MouseEvent) {
     <div class="modalBody">
       {@render children?.()}
     </div>
+    {#if footer}
+      <div class="modalFooter">
+        {@render footer()}
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -90,6 +98,9 @@ function handleMouseDown(e: MouseEvent) {
     border-radius: 0.6rem;
     min-width: 20vw;
     min-height: 20vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.5);
   }
   header {
@@ -111,7 +122,14 @@ function handleMouseDown(e: MouseEvent) {
   .modalBody {
     padding: 1rem;
     max-width: 90vw;
-    max-height: 80vh;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .modalFooter {
+    padding: 1rem;
+    border-top: 1px solid var(--background-alt);
+    flex-shrink: 0;
   }
 </style>
