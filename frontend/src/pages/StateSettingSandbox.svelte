@@ -523,7 +523,7 @@ $effect(() => {
           result.seconds_elapsed - tail.seconds_elapsed >
           HISTORY_INCREMENT_SECONDS
         ) {
-          packetHistory = [...packetHistory, result];
+          packetHistory.push(result);
           if (
             packetHistory.length >
             HISTORY_SECONDS / HISTORY_INCREMENT_SECONDS

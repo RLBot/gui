@@ -426,17 +426,15 @@ func simplifyMatchConfig(mc *flat.MatchConfigurationT) SandboxMatchConfig {
 	// Collect bots (players that are not humans)
 	// The loop index corresponds to the player's position in the GamePacket's Players array.
 	for i, player := range mc.PlayerConfigurations {
-		if player.Variety != nil && player.Variety.Type != flat.PlayerClassHuman {
-			name := ""
-			switch v := player.Variety.Value.(type) {
-			case *flat.CustomBotT:
-				name = v.Name
-			case *flat.PsyonixBotT:
-				name = v.Name
-			}
+		if player.Variety == nil {
+			continue
+		}
+
+		switch v := player.Variety.Value.(type) {
+		case *flat.CustomBotT:
 			cfg.Agents = append(cfg.Agents, SandboxRenderAgent{
 				Index: i,
-				Name:  name,
+				Name:  v.Name,
 				IsBot: true,
 			})
 		}
