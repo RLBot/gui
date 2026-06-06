@@ -145,15 +145,12 @@ export const mutators: { [x: string]: string[] } = {
 
 export const mutatorCategories: Record<string, string[]> = {
   match: [
-    "audio",
     "match_length",
     "max_score",
     "overtime",
     "series_length",
     "max_time",
-    "game_event",
     "match_admin",
-    "rumble",
   ],
   ball: [
     "multi_ball",
@@ -189,5 +186,8 @@ export const mutatorCategories: Record<string, string[]> = {
     "demolish",
     "respawn_time",
     "territory",
+    "game_event",
+    "audio",
+    "rumble",
   ],
 };
