@@ -1,12 +1,13 @@
 <script lang="ts">
 import { fade } from "svelte/transition";
+import type { ExtraOptions } from "../../../bindings/gui";
 import { MAPS_NON_STANDARD, MAPS_STANDARD } from "../../arena-names";
 import LauncherSelector from "../LauncherSelector.svelte";
 import Modal from "../Modal.svelte";
 import NiceSelect from "../NiceSelect.svelte";
 import Select from "../NiceSelect.svelte";
 import { type Gamemode, gamemodes } from "./rlmodes";
-import { mutators as mutatorOptions } from "./rlmutators";
+import { mutatorCategories, mutators as mutatorOptions } from "./rlmutators";
 
 let {
   map = $bindable(),
@@ -14,8 +15,16 @@ let {
   extraOptions = $bindable(),
   mutators = $bindable(),
   launcherOptionsVisible = $bindable(),
-  onStart = (randomizeMap: boolean) => {},
-  onStop = () => {},
+  onStart,
+  onStop,
+}: {
+  map: string;
+  mode: string;
+  extraOptions: ExtraOptions;
+  mutators: { [k: string]: number };
+  launcherOptionsVisible: boolean;
+  onStart: (randomizeMap: boolean) => void;
+  onStop: () => void;
 } = $props();
 
 let showExtraOptions = $state(false);
@@ -49,6 +58,25 @@ function cleanCase(toClean: string): string {
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
 }
 
+function buildSearchedMutatorOptions(query: string) {
+  if (!query) {
+    return Object.entries(mutatorCategories).map(([name, keys]) => ({
+      name,
+      keys: [...keys].sort(),
+    }));
+  }
+
+  const lowerQuery = query.toLowerCase();
+  return Object.entries(mutatorCategories)
+    .map(([name, keys]) => ({
+      name,
+      keys: keys
+        .filter((key) => cleanCase(key).toLowerCase().includes(lowerQuery))
+        .sort(),
+    }))
+    .filter((group) => group.keys.length > 0);
+}
+
 function resetMutators() {
   for (const key of Object.keys(mutators)) {
     mutators[key] = 0;
@@ -76,7 +104,7 @@ function setPreset(presetData: Gamemode) {
     randomizeMap = true;
   }
 
-  for (const key of filteredMutatorOptions) {
+  for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {
       mutators[key] = mutatorOptions[key].indexOf(presetData.mutators[key]);
     } else {
@@ -85,22 +113,10 @@ function setPreset(presetData: Gamemode) {
   }
 }
 
-const filteredMutatorOptions = filterMutatorOptions();
-function filterMutatorOptions() {
-  let filtered = Object.keys(mutatorOptions).filter(
-    (key) => key !== "game_mode",
-  );
-  filtered.sort();
-
-  return filtered;
-}
+const allMutatorKeys = Object.values(mutatorCategories).flat();
 
 let searchedMutatorOptions = $derived(
-  mutatorSearchQuery
-    ? filteredMutatorOptions.filter((key) =>
-        cleanCase(key).toLowerCase().includes(mutatorSearchQuery.toLowerCase()),
-      )
-    : filteredMutatorOptions,
+  buildSearchedMutatorOptions(mutatorSearchQuery),
 );
 
 function countModifiedMutators(): number {
@@ -188,24 +204,27 @@ const ALL_MAPS = getMaps();
     />
   </div>
   <div class="mutators">
-    {#each searchedMutatorOptions as mutatorKey (mutatorKey)}
-      <div class="mutator" transition:fade={{ duration: 100 }}>
-        <label
-          class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
-          for={mutatorKey}>{cleanCase(mutatorKey)}</label
-        >
+    {#each searchedMutatorOptions as { name, keys } (name)}
+      <div class="category-header">{cleanCase(name)}</div>
+      {#each keys as mutatorKey (mutatorKey)}
+        <div class="mutator" transition:fade={{ duration: 100 }}>
+          <label
+            class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
+            for={mutatorKey}>{cleanCase(mutatorKey)}</label
+          >
 
-        <select
-          name={mutatorKey}
-          id={mutatorKey}
-          bind:value={mutators[mutatorKey]}
-          onchange={() => {selectedPreset = ""}}
-        >
-          {#each mutatorOptions[mutatorKey] as value, i}
-              <option value={i}>{value}</option>
-          {/each}
-        </select>
-      </div>
+          <select
+            name={mutatorKey}
+            id={mutatorKey}
+            bind:value={mutators[mutatorKey]}
+            onchange={() => {selectedPreset = ""}}
+          >
+            {#each mutatorOptions[mutatorKey] as value, i}
+                <option value={i}>{value}</option>
+            {/each}
+          </select>
+        </div>
+      {/each}
     {/each}
   </div>
   <div class="bottomButtons">
@@ -376,6 +395,15 @@ const ALL_MAPS = getMaps();
   }
   label.mutatorChanged {
     color: var(--orange);
+  }
+  .category-header {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border, #555);
+    text-transform: capitalize;
   }
   .bottomButtons {
     display: flex;
