@@ -1,8 +1,8 @@
 <script lang="ts">
 import { Browser, Events } from "@wailsio/runtime";
+import { PerformanceMonitor } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 import { App } from "../../bindings/gui/index.js";
 import arenaDiagramUrl from "../assets/arena_diagram.png";
-import { PerformanceMonitor } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 import NiceSelect from "../components/NiceSelect.svelte";
 
 const PIXEL_HEIGHT = 580;
@@ -736,6 +736,20 @@ function executeCommand() {
     command = "";
   }
 }
+
+function handleRenderToggle(agent: RenderAgent, e: Event) {
+  if (renderingDisabled) return;
+  const el = e.currentTarget as HTMLInputElement;
+  const key = `${agent.is_bot ? "bot" : "script"}-${agent.index}`;
+  const newStatuses = new Map(renderStatuses);
+  newStatuses.set(key, el.checked);
+  renderStatuses = newStatuses;
+  App.SandboxSetRendering({
+    index: agent.index,
+    is_bot: agent.is_bot,
+    status: el.checked,
+  });
+}
 </script>
 
 <div class="page">
@@ -875,17 +889,7 @@ function executeCommand() {
                     type="checkbox"
                     checked={renderStatuses.get(key) ?? false}
                     disabled={renderingDisabled}
-                    onchange={(e) => {
-                      if (renderingDisabled) return;
-                      const newStatuses = new Map(renderStatuses);
-                      newStatuses.set(key, e.currentTarget.checked);
-                      renderStatuses = newStatuses;
-                      App.SandboxSetRendering([{
-                        index: agent.index,
-                        is_bot: agent.is_bot,
-                        status: e.currentTarget.checked,
-                      }]);
-                    }}
+                    onchange={(e) => handleRenderToggle(agent, e)}
                   />
                   {agent.name}
                 </label>

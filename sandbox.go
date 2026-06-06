@@ -343,7 +343,9 @@ func (a *App) sandboxReader(state *SandboxState, conn rlbot.RLBotConnection) {
 
 		packet, err := conn.RecvPacket()
 		if err != nil {
-			// Connection closed
+			a.app.Event.Emit("sandbox:error", map[string]any{
+				"message": "Connection unexpectedly closed: " + err.Error(),
+			})
 			return
 		}
 
@@ -357,8 +359,8 @@ func (a *App) sandboxReader(state *SandboxState, conn rlbot.RLBotConnection) {
 	}
 }
 
-// SandboxSetRendering sends per-agent rendering status updates to RLBot.
-func (a *App) SandboxSetRendering(settings []SandboxRenderingStatus) error {
+// SandboxSetRendering sends a per-agent rendering status update to RLBot.
+func (a *App) SandboxSetRendering(settings SandboxRenderingStatus) error {
 	a.sandboxMu.Lock()
 	state := a.sandbox
 	a.sandboxMu.Unlock()
@@ -374,17 +376,11 @@ func (a *App) SandboxSetRendering(settings []SandboxRenderingStatus) error {
 		return nil
 	}
 
-	for _, s := range settings {
-		err := state.conn.SendPacket(&flat.RenderingStatusT{
-			Index:  s.Index,
-			IsBot:  s.IsBot,
-			Status: s.Status,
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return state.conn.SendPacket(&flat.RenderingStatusT{
+		Index:  settings.Index,
+		IsBot:  settings.IsBot,
+		Status: settings.Status,
+	})
 }
 
 func (a *App) SandboxSetPerfMonDisplayMode(mode int) error {
