@@ -1,11 +1,17 @@
 <script lang="ts">
 /** @import * from '../../bindings/gui' */
+
+import SuperJSON from "superjson";
 import toast from "svelte-5-french-toast";
+import {
+  DebugRendering,
+  ExistingMatchBehavior,
+  PerformanceMonitor,
+} from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
 import {
   App,
   BotInfo,
   ExtraOptions,
-  PlayerJs,
   Result,
   type StartMatchOptions,
 } from "../../bindings/gui/index.js";
@@ -19,18 +25,12 @@ import PathsViewer from "../components/PathsViewer.svelte";
 import Teams from "../components/Teams/Main.svelte";
 import {
   type DraggablePlayer,
-  type ToggleableScript,
   draggablePlayerToPlayerJs,
   parseJSON,
   parseSuperJSON,
+  type ToggleableScript,
 } from "../index";
 import { mapStore } from "../settings";
-import {
-  DebugRendering,
-  ExistingMatchBehavior,
-  PerformanceMonitor,
-} from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
-import SuperJSON from "superjson";
 
 let {
   paths = $bindable([]),
@@ -154,7 +154,7 @@ function distinguishDuplicates(pool: BotInfo[]): [BotInfo, string?][] {
       pool.filter((bot) => bot.tomlPath).map((bot) => bot.config.settings.name),
     ),
   ];
-  const splitPath = (bot: BotInfo) => bot.tomlPath.split(/[\\|\/]/).reverse();
+  const splitPath = (bot: BotInfo) => bot.tomlPath.split(/[\\|/]/).reverse();
 
   let uniquePathSegments: [BotInfo, string?][] = [];
 

@@ -1,11 +1,13 @@
 <script lang="ts">
+import { fly } from "svelte/transition";
+import type { ExtraOptions } from "../../../bindings/gui";
 import { MAPS_NON_STANDARD, MAPS_STANDARD } from "../../arena-names";
 import LauncherSelector from "../LauncherSelector.svelte";
 import Modal from "../Modal.svelte";
 import NiceSelect from "../NiceSelect.svelte";
 import Select from "../NiceSelect.svelte";
 import { type Gamemode, gamemodes } from "./rlmodes";
-import { mutators as mutatorOptions } from "./rlmutators";
+import { mutatorCategories, mutators as mutatorOptions } from "./rlmutators";
 
 let {
   map = $bindable(),
@@ -13,12 +15,27 @@ let {
   extraOptions = $bindable(),
   mutators = $bindable(),
   launcherOptionsVisible = $bindable(),
-  onStart = (randomizeMap: boolean) => {},
-  onStop = () => {},
+  onStart,
+  onStop,
+}: {
+  map: string;
+  mode: string;
+  extraOptions: ExtraOptions;
+  mutators: { [k: string]: number };
+  launcherOptionsVisible: boolean;
+  onStart: (randomizeMap: boolean) => void;
+  onStop: () => void;
 } = $props();
 
 let showExtraOptions = $state(false);
 let showMutators = $state(false);
+let mutatorSearchQuery = $state("");
+$effect(() => {
+  if (!showMutators) {
+    mutatorSearchQuery = "";
+  }
+});
+
 let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
@@ -45,6 +62,63 @@ const performanceMonitorOptions: { [n: string]: number } = {
 function cleanCase(toClean: string): string {
   const halfClean = toClean.replaceAll("_", " ");
   return halfClean.charAt(0).toUpperCase() + halfClean.slice(1);
+}
+
+/**
+ * Build the category list while verifying that every mutator (except game_mode)
+ * appears in exactly one category, so none silently drop out of the UI.
+ */
+function buildMutatorCategories(): { name: string; keys: string[] }[] {
+  const allMutatorKeys = Object.keys(mutators);
+  const seen = new Set<string>();
+  const categories: { name: string; keys: string[] }[] = [];
+
+  for (const [name, keys] of Object.entries(mutatorCategories)) {
+    for (const key of keys) {
+      if (seen.has(key)) {
+        console.warn(`Mutator "${key}" appears in multiple categories`);
+      }
+      seen.add(key);
+    }
+    categories.push({ name, keys: [...keys] });
+  }
+
+  // Catch any mutator keys not assigned to a category
+  const uncategorized = allMutatorKeys.filter(
+    (key) => key !== "game_mode" && !seen.has(key),
+  );
+  if (uncategorized.length > 0) {
+    console.warn(`Mutators not in any category: ${uncategorized.join(", ")}`);
+    categories.push({ name: "other", keys: uncategorized });
+  }
+
+  // Sort once at build time
+  for (const cat of categories) {
+    cat.keys.sort();
+  }
+
+  return categories;
+}
+
+const mutatorCategoryOptions = buildMutatorCategories();
+
+function filterMutatorCategories(
+  categories: { name: string; keys: string[] }[],
+  query: string,
+): { name: string; keys: string[] }[] {
+  if (!query) {
+    return categories;
+  }
+
+  const lowerQuery = query.toLowerCase();
+  return categories
+    .map(({ name, keys }) => ({
+      name,
+      keys: keys.filter((key) =>
+        cleanCase(key).toLowerCase().includes(lowerQuery),
+      ),
+    }))
+    .filter((group) => group.keys.length > 0);
 }
 
 function resetMutators() {
@@ -74,7 +148,7 @@ function setPreset(presetData: Gamemode) {
     randomizeMap = true;
   }
 
-  for (const key of filteredMutatorOptions) {
+  for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {
       mutators[key] = mutatorOptions[key].indexOf(presetData.mutators[key]);
     } else {
@@ -83,15 +157,11 @@ function setPreset(presetData: Gamemode) {
   }
 }
 
-const filteredMutatorOptions = filterMutatorOptions();
-function filterMutatorOptions() {
-  let filtered = Object.keys(mutatorOptions).filter(
-    (key) => key !== "game_mode",
-  );
-  filtered.sort();
+const allMutatorKeys = mutatorCategoryOptions.flatMap((c) => c.keys);
 
-  return filtered;
-}
+let searchedMutatorOptions = $derived(
+  filterMutatorCategories(mutatorCategoryOptions, mutatorSearchQuery),
+);
 
 function countModifiedMutators(): number {
   let count = 0;
@@ -170,110 +240,128 @@ const ALL_MAPS = getMaps();
 </Modal>
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
-  <div class="mutators">
-    {#each filteredMutatorOptions as mutatorKey}
-      <div class="mutator">
-        <label
-          class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
-          for={mutatorKey}>{cleanCase(mutatorKey)}</label
-        >
+  {#snippet children()}
+    <div class="mutator-search">
+      <input
+        type="search"
+        placeholder="Search mutators…"
+        bind:value={mutatorSearchQuery}
+      />
+    </div>
+    <div class="mutators">
+      {#each searchedMutatorOptions as { name, keys } (name)}
+        <div class="category-header" in:fly={{ duration: 500, y: 8 }}>{cleanCase(name)}</div>
+        {#each keys as mutatorKey (mutatorKey)}
+          <div class="mutator" in:fly={{ duration: 500, y: 8 }}>
+            <label
+              class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
+              for={mutatorKey}>{cleanCase(mutatorKey)}</label
+            >
 
-        <select
-          name={mutatorKey}
-          id={mutatorKey}
-          bind:value={mutators[mutatorKey]}
-          onchange={() => {selectedPreset = ""}}
-        >
-          {#each mutatorOptions[mutatorKey] as value, i}
-              <option value={i}>{value}</option>
-          {/each}
-        </select>
-      </div>
-    {/each}
-  </div>
-  <div class="bottomButtons">
-    <p>Settings are saved automatically</p>
-    <NiceSelect bind:value={selectedPreset} options={gamemodes} placeholder="Select a preset" />
-    <button
-      class="mutatorResetButton"
-      onclick={resetMutators}>Reset</button
-    >
-  </div>
+            <select
+              name={mutatorKey}
+              id={mutatorKey}
+              bind:value={mutators[mutatorKey]}
+              onchange={() => {selectedPreset = ""}}
+            >
+              {#each mutatorOptions[mutatorKey] as value, i}
+                  <option value={i}>{value}</option>
+              {/each}
+            </select>
+          </div>
+        {/each}
+      {/each}
+    </div>
+  {/snippet}
+  {#snippet footer()}
+    <footer class="bottomButtons">
+      <p>Settings are saved automatically</p>
+      <NiceSelect bind:value={selectedPreset} options={gamemodes} placeholder="Select a preset" />
+      <button
+        class="mutatorResetButton"
+        onclick={resetMutators}>Reset</button
+      >
+    </footer>
+  {/snippet}
 </Modal>
 
 <Modal title="RLBot Extra Options" bind:visible={showExtraOptions}>
-  <div class="extraoptions">
-    <p>Existing match behaviour</p>
-    <NiceSelect bind:value={extraOptions.existingMatchBehavior} options={existingMatchBehaviors} placeholder="Existing Match Behavior" />
-    <br />
-    <br />
-    <p>Rendering (bots can draw on screen)</p>
-    <NiceSelect bind:value={extraOptions.enableRendering} options={renderingOptions} placeholder="Rendering" />
-    <br />
-    <br />
-    <p>Performance Monitor</p>
-    <NiceSelect bind:value={extraOptions.performanceMonitor} options={performanceMonitorOptions} placeholder="Performance Monitor" />
-    <br />
-    <br />
-    <input
-      type="checkbox"
-      id="enableStateSetting"
-      bind:checked={extraOptions.enableStateSetting}
-    />
-    <label for="enableStateSetting">
-      Enable State Setting (bots can teleport)
-    </label>
-    <br />
-    <input
-      type="checkbox"
-      id="autoStartAgents"
-      bind:checked={extraOptions.autoStartAgents}
-    />
-    <label for="autoStartAgents">
-      Auto-start agents
-    </label>
-    <br />
-    <input
-      type="checkbox"
-      id="waitForAgents"
-      bind:checked={extraOptions.waitForAgents}
-    />
-    <label for="waitForAgents">
-      Wait for agents to connect
-    </label>
-    <br />
-    <input
-      type="checkbox"
-      id="autoSaveReplay"
-      bind:checked={extraOptions.autoSaveReplay}
-    />
-    <label for="autoSaveReplay"> Auto Save Replay </label>
-    <br />
-    <input
-      type="checkbox"
-      id="skipReplays"
-      bind:checked={extraOptions.skipReplays}
-    />
-    <label for="skipReplays"> Skip Replays </label>
-    <br />
-    <input
-      type="checkbox"
-      id="instantStart"
-      bind:checked={extraOptions.instantStart}
-    />
-    <label for="instantStart"> Instant Start </label>
-    <br />
-    <input
-      type="checkbox"
-      id="freeplay"
-      bind:checked={extraOptions.freeplay}
-    />
-    <label for="freeplay"> Freeplay </label>
-    <br />
-  </div>
-  <div class="bottomButtons">
-    <p>Settings are saved automatically</p>
-  </div>
+  {#snippet children()}
+    <div class="extraoptions">
+      <p>Existing match behaviour</p>
+      <NiceSelect bind:value={extraOptions.existingMatchBehavior} options={existingMatchBehaviors} placeholder="Existing Match Behavior" />
+      <br />
+      <br />
+      <p>Rendering (bots can draw on screen)</p>
+      <NiceSelect bind:value={extraOptions.enableRendering} options={renderingOptions} placeholder="Rendering" />
+      <br />
+      <br />
+      <p>Performance Monitor</p>
+      <NiceSelect bind:value={extraOptions.performanceMonitor} options={performanceMonitorOptions} placeholder="Performance Monitor" />
+      <br />
+      <br />
+      <input
+        type="checkbox"
+        id="enableStateSetting"
+        bind:checked={extraOptions.enableStateSetting}
+      />
+      <label for="enableStateSetting">
+        Enable State Setting (bots can teleport)
+      </label>
+      <br />
+      <input
+        type="checkbox"
+        id="autoStartAgents"
+        bind:checked={extraOptions.autoStartAgents}
+      />
+      <label for="autoStartAgents">
+        Auto-start agents
+      </label>
+      <br />
+      <input
+        type="checkbox"
+        id="waitForAgents"
+        bind:checked={extraOptions.waitForAgents}
+      />
+      <label for="waitForAgents">
+        Wait for agents to connect
+      </label>
+      <br />
+      <input
+        type="checkbox"
+        id="autoSaveReplay"
+        bind:checked={extraOptions.autoSaveReplay}
+      />
+      <label for="autoSaveReplay"> Auto Save Replay </label>
+      <br />
+      <input
+        type="checkbox"
+        id="skipReplays"
+        bind:checked={extraOptions.skipReplays}
+      />
+      <label for="skipReplays"> Skip Replays </label>
+      <br />
+      <input
+        type="checkbox"
+        id="instantStart"
+        bind:checked={extraOptions.instantStart}
+      />
+      <label for="instantStart"> Instant Start </label>
+      <br />
+      <input
+        type="checkbox"
+        id="freeplay"
+        bind:checked={extraOptions.freeplay}
+      />
+      <label for="freeplay"> Freeplay </label>
+      <br />
+    </div>
+  {/snippet}
+  {#snippet footer()}
+    <footer class="bottomButtons">
+      <p>Settings are saved automatically</p>
+    </footer>
+  {/snippet}
 </Modal>
 
 <style>
@@ -311,14 +399,53 @@ const ALL_MAPS = getMaps();
     gap: 0.5rem;
   }
 
-  .mutators {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    gap: 1rem;
+  .mutator-search {
+    flex-shrink: 0;
+    background: var(--background);
+    padding: 0.5rem 0 0.75rem 0;
   }
-  @media (max-width: 800px) {
+  .mutator-search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--border, #555);
+    background: var(--background, #222);
+    color: var(--foreground, #eee);
+    font-size: 0.9rem;
+  }
+  .mutator-search input:focus {
+    outline: none;
+    border-color: var(--accent, #4a9eff);
+  }
+
+  :global(.modalBody) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mutators {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    gap: 1rem;
+    align-content: start;
+  }
+  @media (max-width: 980px) {
+    .mutators {
+      grid-template-columns: auto auto auto auto;
+    }
+  }
+  @media (max-width: 840px) {
     .mutators {
       grid-template-columns: auto auto auto;
+    }
+  }
+  @media (max-width: 650px) {
+    .mutators {
+      grid-template-columns: auto auto;
     }
   }
   .mutator {
@@ -332,12 +459,24 @@ const ALL_MAPS = getMaps();
   label.mutatorChanged {
     color: var(--orange);
   }
+  .category-header {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border, #555);
+    text-transform: capitalize;
+  }
   .bottomButtons {
     display: flex;
-    margin-top: 1rem;
     gap: 0.5rem;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    bottom: 0;
+    background: var(--background);
+    z-index: 1;
   }
   .bottomButtons :first-child {
     flex-grow: 1;
