@@ -447,30 +447,6 @@ $effect(() => {
       const result = event.data;
       latestPacket = result;
 
-      // Detect match reset: seconds_elapsed dropped significantly (new match)
-      if (result.seconds_elapsed < secondsElapsed - 1) {
-        previousSecondsElapsed = 0;
-        packetHistory = [];
-        hasPacketHistory = false;
-        savedState = null;
-        hasSavedState = false;
-        lastUpdateTime = 0;
-
-        // Reset debug rendering to defaults for the current match config
-        if (matchConfig) {
-          perfMonDisplayMode = matchConfig.performance_monitor;
-
-          const defaultChecked = matchConfig.enable_rendering === 1;
-          renderingDisabled = matchConfig.enable_rendering === 2;
-          const statuses = new Map<string, boolean>();
-          for (const agent of matchConfig.agents) {
-            const key = `${agent.is_bot ? "bot" : "script"}-${agent.index}`;
-            statuses.set(key, defaultChecked);
-          }
-          renderStatuses = statuses;
-        }
-      }
-
       secondsElapsed = result.seconds_elapsed;
 
       // Throttle visual updates to ~20 fps to prevent lag
