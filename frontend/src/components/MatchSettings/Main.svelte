@@ -30,6 +30,12 @@ let {
 let showExtraOptions = $state(false);
 let showMutators = $state(false);
 let mutatorSearchQuery = $state("");
+$effect(() => {
+  if (!showMutators) {
+    mutatorSearchQuery = "";
+  }
+});
+
 let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
