@@ -1,5 +1,10 @@
 <script lang="ts">
-let { value = $bindable(), options = {}, placeholder = "" } = $props();
+let {
+  value = $bindable(),
+  options = {},
+  placeholder = "",
+  on_change = () => {},
+} = $props();
 
 const options_entries = $derived(Object.entries(options));
 $effect(() => {
@@ -14,7 +19,7 @@ $effect(() => {
 </script>
 
 <label class="select" for="slct">
-  <select id="slct" bind:value required>
+  <select id="slct" bind:value onchange={on_change} required>
     <option value="" disabled selected>{placeholder}</option>
     {#each options_entries as option}
       <option value={option[1]}>{option[0]}</option>

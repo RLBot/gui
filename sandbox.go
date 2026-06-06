@@ -83,8 +83,9 @@ type SandboxGameSetting struct {
 
 // SandboxMatchConfig is sent to the frontend with match configuration info for debug rendering.
 type SandboxMatchConfig struct {
-	EnableRendering int                  `json:"enable_rendering"`
-	Agents          []SandboxRenderAgent `json:"agents"`
+	EnableRendering    int                  `json:"enable_rendering"`
+	PerformanceMonitor int                  `json:"performance_monitor"`
+	Agents             []SandboxRenderAgent `json:"agents"`
 }
 
 type SandboxRenderAgent struct {
@@ -386,10 +387,44 @@ func (a *App) SandboxSetRendering(settings []SandboxRenderingStatus) error {
 	return nil
 }
 
+func (a *App) SandboxSetPerfMonDisplayMode(mode int) error {
+	a.sandboxMu.Lock()
+	state := a.sandbox
+	a.sandboxMu.Unlock()
+
+	if state == nil || !state.active {
+		return nil
+	}
+
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
+	if state.conn == nil {
+		return nil
+	}
+
+	var displayMode flat.PerformanceMonitor
+	switch mode {
+	case 0:
+		displayMode = flat.PerformanceMonitorShowWhenSuboptimal
+	case 1:
+		displayMode = flat.PerformanceMonitorAlwaysShow
+	case 2:
+		displayMode = flat.PerformanceMonitorNeverShow
+	default:
+		return nil // invalid mode, ignore
+	}
+
+	return state.conn.SendPacket(&flat.UpdatePerformanceMonitorT{
+		Show: displayMode,
+	})
+}
+
 // simplifyMatchConfig extracts rendering-relevant info from MatchConfigurationT.
 func simplifyMatchConfig(mc *flat.MatchConfigurationT) SandboxMatchConfig {
 	cfg := SandboxMatchConfig{
-		EnableRendering: int(mc.EnableRendering),
+		EnableRendering:    int(mc.EnableRendering),
+		PerformanceMonitor: int(mc.PerformanceMonitor),
 	}
 
 	// Collect bots (players that are not humans)

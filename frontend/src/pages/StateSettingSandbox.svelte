@@ -2,6 +2,8 @@
 import { Browser, Events } from "@wailsio/runtime";
 import { App } from "../../bindings/gui/index.js";
 import arenaDiagramUrl from "../assets/arena_diagram.png";
+import { PerformanceMonitor } from "../../bindings/github.com/RLBot/go-interface/flat/models.js";
+import NiceSelect from "../components/NiceSelect.svelte";
 
 const PIXEL_HEIGHT = 580;
 const CANVAS_WIDTH = 410;
@@ -89,12 +91,22 @@ interface RenderAgent {
 
 interface MatchConfig {
   enable_rendering: number;
+  performance_monitor: number;
   agents: RenderAgent[];
 }
+
+const performanceMonitorOptions: { [n: string]: number } = {
+  "Show when suboptimal": 0,
+  "Always show": 1,
+  "Never show": 2,
+};
 
 let matchConfig = $state<MatchConfig | null>(null);
 let renderStatuses = $state<Map<string, boolean>>(new Map());
 let renderingDisabled = $state(false);
+let perfMonDisplayMode = $state(
+  PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal,
+);
 
 // Drag state
 let dragging = $state(false);
@@ -363,6 +375,7 @@ $effect(() => {
   matchConfig = null;
   renderStatuses = new Map();
   renderingDisabled = false;
+  perfMonDisplayMode = PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal;
   ball = { x: 100, y: 100, vx: 0, vy: 0 };
   cars = [];
   secondsElapsed = 0;
@@ -389,6 +402,8 @@ $effect(() => {
     matchConfig = null;
     renderStatuses = new Map();
     renderingDisabled = false;
+    perfMonDisplayMode =
+      PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal;
   });
 
   const unsubError = Events.On(
@@ -399,6 +414,8 @@ $effect(() => {
       matchConfig = null;
       renderStatuses = new Map();
       renderingDisabled = false;
+      perfMonDisplayMode =
+        PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal;
     },
   );
 
@@ -407,6 +424,8 @@ $effect(() => {
     (event: { data: MatchConfig }) => {
       const mc = event.data;
       matchConfig = mc;
+
+      perfMonDisplayMode = mc.performance_monitor;
 
       // Determine default checked state based on DebugRendering mode
       const defaultChecked = mc.enable_rendering === 1; // DebugRenderingOnByDefault
@@ -438,6 +457,8 @@ $effect(() => {
 
         // Reset debug rendering to defaults for the current match config
         if (matchConfig) {
+          perfMonDisplayMode = matchConfig.performance_monitor;
+
           const defaultChecked = matchConfig.enable_rendering === 1;
           renderingDisabled = matchConfig.enable_rendering === 2;
           const statuses = new Map<string, boolean>();
@@ -538,6 +559,8 @@ $effect(() => {
     matchConfig = null;
     renderStatuses = new Map();
     renderingDisabled = false;
+    perfMonDisplayMode =
+      PerformanceMonitor.PerformanceMonitorShowWhenSuboptimal;
     packetHistory = [];
     hasPacketHistory = false;
     savedState = null;
@@ -865,6 +888,15 @@ function executeCommand() {
           {:else}
             <p class="disabled-hint">Waiting for match config...</p>
           {/if}
+        </div>
+
+        <div class="control-section">
+          <h3>Performance monitor display mode</h3>
+          <NiceSelect bind:value={perfMonDisplayMode} options={performanceMonitorOptions} placeholder="Performance Monitor"
+            on_change={() => {
+              App.SandboxSetPerfMonDisplayMode(perfMonDisplayMode);
+            }}
+            />
         </div>
 
         <p class="hint">
