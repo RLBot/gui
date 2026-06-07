@@ -35,6 +35,9 @@ func main() {
 		os.Setenv("__NV_DISABLE_EXPLICIT_SYNC", "1")
 	}
 
+	// Fixes `bwrap: setting up uid map: Permission denied` on Ubuntu
+	os.Setenv("WEBKIT_DISABLE_SANDBOX", "1")
+
 	// Create an instance of the app structure
 	app := application.New(application.Options{
 		Name: "rlbotgui",
