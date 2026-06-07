@@ -7,6 +7,7 @@ import Events from "./components/Events.svelte";
 import GuiSettings from "./components/GuiSettings.svelte";
 import Home from "./pages/Home.svelte";
 import RocketHost from "./pages/RocketHost.svelte";
+import StateSettingSandbox from "./pages/StateSettingSandbox.svelte";
 import StoryMode from "./pages/StoryMode.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import { parseJSON } from "./index";
@@ -75,6 +76,9 @@ let paths: {
       {#if activePage == "rhost"}
         <h3>&nbsp; / Rocket Host</h3>
       {/if}
+      {#if activePage == "statesettingsandbox"}
+        <h3>&nbsp; / State Setting Sandbox</h3>
+      {/if}
       {#if activePage == "storymode"}
         <h3>&nbsp; / Story Mode</h3>
       {/if}
@@ -110,7 +114,9 @@ let paths: {
         <button>Menu</button>
         <div class="dropmenu right">
           <button
-            onclick={alert.bind(null, "TODO: not implemented yet")}
+            onclick={() => {
+              activePage = "statesettingsandbox"
+            }}
             >State Setting Sandbox</button
           >
           <button
@@ -139,6 +145,12 @@ let paths: {
     class={"pageContainer" + (activePage == "rhost" ? "" : " hidden")}
   >
     <RocketHost />
+  </div>
+
+  <div
+    class={"pageContainer" + (activePage == "statesettingsandbox" ? "" : " hidden")}
+  >
+    <StateSettingSandbox visible={activePage === "statesettingsandbox"} />
   </div>
 
   <div

@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	rlbot "github.com/RLBot/go-interface"
@@ -27,6 +28,8 @@ type App struct {
 	app               *application.App
 	latestReleaseJson []RawReleaseInfo
 	rlbotAddress      string
+	sandbox           *SandboxState
+	sandboxMu         sync.Mutex
 }
 
 func (a *App) IgnoreMe(
@@ -113,9 +116,9 @@ func NewApp() *App {
 
 	var latest_release_json []RawReleaseInfo
 	return &App{
-		nil,
-		latest_release_json,
-		rlbot_address,
+		app:               nil,
+		latestReleaseJson: latest_release_json,
+		rlbotAddress:      rlbot_address,
 	}
 }
 
