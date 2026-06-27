@@ -12,13 +12,17 @@ import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
 
 import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
+import {Browser} from "@wailsio/runtime";
+import warningIcon from "../../assets/exclamation-triangle-fill.svg";
 
 let {
   items = $bindable(),
   globalAutoStart = $bindable(true),
+  duplicateAgentIds = new Set<string>(),
 }: {
   items: DraggablePlayer[];
   globalAutoStart: boolean;
+  duplicateAgentIds: Set<string>;
 } = $props();
 
 function remove(id: string) {
@@ -47,6 +51,16 @@ async function showEditModal(d: DraggablePlayer) {
     editedPlayer = d;
     showEditPrompt = true;
   }
+}
+
+function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
+  if (!(d.info instanceof BotInfo)) return null;
+  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
+
+  const agentId = d.info.config.settings.agentId;
+  return agentId
+          ? `Duplicate agent id "${agentId}" found in another config`
+          : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
 }
 
 function reasonsForManualStart(d: DraggablePlayer): string[] {
@@ -140,6 +154,8 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     {#each items as bot, i (bot.id)}
+      {@const warningText = botDuplicateAgentIdWarning(bot)}
+
       <div
         class="botContainer"
         use:droppable={{
@@ -172,6 +188,9 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
+          <a href="javascript:" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+            <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
+          </a>
           {#if !canAutoStart(bot)}
             <img class="bot-icon" src={cannotAutoRunIcon} alt="No auto-run" title={`Must be launched manually (${reasonsForManualStart(bot).join("; ")})`}>
           {/if}
@@ -294,5 +313,10 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
   }
   .unique-bot-identifier {
     color: #868686;
+  }
+  .duplicate-agent-icon {
+    max-height: 1.5rem;
+    /* filter calculated with https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(83%) sepia(55%) saturate(4490%) hue-rotate(5deg) brightness(103%) contrast(102%);
   }
 </style>

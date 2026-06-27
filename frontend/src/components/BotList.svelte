@@ -209,16 +209,6 @@ function filterBots(
   return filtered;
 }
 
-function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
-  if (!(d.info instanceof BotInfo)) return null;
-  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
-
-  const agentId = d.info.config.settings.agentId;
-  return agentId
-    ? `Duplicate agent id "${agentId}" found in another config`
-    : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
-}
-
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
   if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
 
@@ -374,8 +364,6 @@ function SelectedToggleFavorite() {
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   {#each filteredBots as bot (bot.id)}
-    {@const warningText = botDuplicateAgentIdWarning(bot)}
-
     <div
       class="bot blurred"
       use:draggable={{
@@ -397,11 +385,6 @@ function SelectedToggleFavorite() {
       <p>{bot.displayName}</p>
       {#if bot.uniquePathSegment}
         <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
-      {/if}
-      {#if warningText}
-        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
-          <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
-        </a>
       {/if}
       {#if bot.info && bot.info instanceof BotInfo}
         <button class="info-button" onclick={(e) => {e.stopPropagation();handleBotInfoClick(bot)}}>
@@ -448,8 +431,8 @@ function SelectedToggleFavorite() {
       {#if script.uniquePathSegment}
         <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
       {/if}
-      {#if warningText}
-        <a href="#" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+      {#if warningText && enabledScripts[script.info.config.settings.agentId]}
+        <a href="javascript:" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
           <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
         </a>
       {/if}

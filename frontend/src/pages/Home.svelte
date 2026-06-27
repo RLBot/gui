@@ -215,7 +215,7 @@ function collectDuplicateAgentIds(
 }
 
 const duplicateAgentIds = $derived.by(() =>
-  collectDuplicateAgentIds(players, scripts),
+  collectDuplicateAgentIds(bluePlayers.concat(orangePlayers), scripts),
 );
 
 function updateTeam(team: DraggablePlayer[]) {
@@ -572,6 +572,7 @@ function handleSearch(event: Event) {
       bind:orangePlayers
       bind:selectedTeam
       bind:globalAutoStart={extraOptions.autoStartAgents}
+      {duplicateAgentIds}
     />
   </div>
 
