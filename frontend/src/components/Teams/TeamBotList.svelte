@@ -188,9 +188,11 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
           {#if bot.uniquePathSegment}
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
+          {#if warningText}
           <a href="javascript:" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
             <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
           </a>
+          {/if}
           {#if !canAutoStart(bot)}
             <img class="bot-icon" src={cannotAutoRunIcon} alt="No auto-run" title={`Must be launched manually (${reasonsForManualStart(bot).join("; ")})`}>
           {/if}
