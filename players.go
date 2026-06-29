@@ -166,6 +166,55 @@ type BotInfo struct {
 	Icon     string         `json:"icon"`
 }
 
+// findTorchLibDir walks up the directory tree from the given path,
+// checking each ancestor for a torch-archive/torch/lib directory.
+// Returns the full path to the lib directory if found, or "" if not.
+func findTorchLibDir(fromPath string) string {
+	dir := fromPath
+	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+		dir = filepath.Dir(dir)
+	}
+	for i := 0; i < 5; i++ {
+		candidate := filepath.Join(dir, "torch-archive", "torch", "lib")
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			return candidate
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return ""
+}
+
+// setTorchEnv populates the Environment field with PATH/LD_LIBRARY_PATH
+// pointing to the torch-archive lib directory, if it exists.
+func setTorchEnv(tomlPath string, env *[]*flat.EnvironmentVariableT) {
+	torchLibDir := findTorchLibDir(tomlPath)
+	if torchLibDir == "" {
+		return
+	}
+
+	if runtime.GOOS == "windows" {
+		*env = append(*env, &flat.EnvironmentVariableT{
+			Name:  "PATH",
+			Value: torchLibDir + ";" + os.Getenv("PATH"),
+		})
+	} else {
+		ldLibPath := os.Getenv("LD_LIBRARY_PATH")
+		if ldLibPath != "" {
+			ldLibPath = torchLibDir + ":" + ldLibPath
+		} else {
+			ldLibPath = torchLibDir
+		}
+		*env = append(*env, &flat.EnvironmentVariableT{
+			Name:  "LD_LIBRARY_PATH",
+			Value: ldLibPath,
+		})
+	}
+}
+
 func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 	var runCommand string
 	if runtime.GOOS == "windows" {
@@ -186,17 +235,21 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 		loadout = teamLoadout.ToPlayerLoadout()
 	}
 
+	customBot := &flat.CustomBotT{
+		Name:       botInfo.Config.Settings.Name,
+		AgentId:    botInfo.Config.Settings.AgentId,
+		RootDir:    botInfo.Config.Settings.RootDir,
+		RunCommand: runCommand,
+		Loadout:    loadout,
+		Hivemind:   botInfo.Config.Settings.Hivemind,
+	}
+
+	setTorchEnv(botInfo.TomlPath, &customBot.Environment)
+
 	return &flat.PlayerConfigurationT{
 		Variety: &flat.PlayerClassT{
-			Type: flat.PlayerClassCustomBot,
-			Value: &flat.CustomBotT{
-				Name:       botInfo.Config.Settings.Name,
-				AgentId:    botInfo.Config.Settings.AgentId,
-				RootDir:    botInfo.Config.Settings.RootDir,
-				RunCommand: runCommand,
-				Loadout:    loadout,
-				Hivemind:   botInfo.Config.Settings.Hivemind,
-			},
+			Type:  flat.PlayerClassCustomBot,
+			Value: customBot,
 		},
 		Team:     team,
 		PlayerId: 0, // let core do this
