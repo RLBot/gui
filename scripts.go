@@ -20,13 +20,17 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 		runCommand = botInfo.Config.Settings.RunCommandLinux
 	}
 
-	return &flat.ScriptConfigurationT{
+	scriptConfig := &flat.ScriptConfigurationT{
 		Name:       botInfo.Config.Settings.Name,
 		AgentId:    botInfo.Config.Settings.AgentId,
 		RootDir:    botInfo.Config.Settings.RootDir,
 		RunCommand: runCommand,
 		ScriptId:   0, // let core do this
 	}
+
+	setTorchEnv(botInfo.TomlPath, &scriptConfig.Environment)
+
+	return scriptConfig
 }
 
 func (a *App) GetScripts(paths []string) []BotInfo {
