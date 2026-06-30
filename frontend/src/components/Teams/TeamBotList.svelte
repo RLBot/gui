@@ -59,7 +59,7 @@ function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
 
   const agentId = d.info.config.settings.agentId;
   return agentId
-          ? `Duplicate agent id "${agentId}" found in another config`
+          ? `Duplicate agent id "${agentId}" found in another active config`
           : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
 }
 

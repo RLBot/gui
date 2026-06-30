@@ -186,28 +186,30 @@ function collectDuplicateAgentIds(
   bots: DraggablePlayer[],
   scripts: ToggleableScript[],
 ): Set<string> {
-  const agentIds = new Set<string>();
+  const agentIdTomlMap: { [id: string]: string } = {}
   const duplicateAgentIds = new Set<string>();
 
   for (const bot of bots) {
     if (bot.info instanceof BotInfo) {
       const agentId = bot.info.config.settings.agentId;
+      const path = bot.info.tomlPath;
 
-      if (!agentId || agentIds.has(agentId)) {
+      if (agentId in agentIdTomlMap && agentIdTomlMap[agentId] !== path) {
         duplicateAgentIds.add(agentId);
       } else {
-        agentIds.add(agentId);
+        agentIdTomlMap[agentId] = path;
       }
     }
   }
 
   for (const script of scripts) {
     const agentId = script.info.config.settings.agentId;
+    const path = script.info.tomlPath;
 
-    if (!agentId || agentIds.has(agentId)) {
+    if (agentId in agentIdTomlMap && agentIdTomlMap[agentId] !== path) {
       duplicateAgentIds.add(agentId);
     } else {
-      agentIds.add(agentId);
+      agentIdTomlMap[agentId] = path;
     }
   }
 
