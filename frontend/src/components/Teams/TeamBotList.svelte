@@ -53,14 +53,20 @@ async function showEditModal(d: DraggablePlayer) {
   }
 }
 
-function botDuplicateAgentIdWarning(d: DraggablePlayer): string | null {
+function botAgentIdWarning(d: DraggablePlayer): string | null {
   if (!(d.info instanceof BotInfo)) return null;
-  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
 
   const agentId = d.info.config.settings.agentId;
-  return agentId
-          ? `Duplicate agent id "${agentId}" found in another active config`
-          : "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
+
+  if (!agentId) {
+    return "Empty agent id found. Please add an agent_id field with a unique value to the bot's toml file.";
+  }
+
+  if (duplicateAgentIds.has(d.info.config.settings.agentId)) {
+    return `Duplicate agent id "${agentId}" found in another active config`;
+  }
+
+  return null;
 }
 
 function reasonsForManualStart(d: DraggablePlayer): string[] {
@@ -154,7 +160,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     {#each items as bot, i (bot.id)}
-      {@const warningText = botDuplicateAgentIdWarning(bot)}
+      {@const warningText = botAgentIdWarning(bot)}
 
       <div
         class="botContainer"

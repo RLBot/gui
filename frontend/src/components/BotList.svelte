@@ -210,12 +210,18 @@ function filterBots(
 }
 
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
-  if (!duplicateAgentIds.has(d.info.config.settings.agentId)) return null;
 
   const agentId = d.info.config.settings.agentId;
-  return agentId
-    ? `Duplicate agent id "${agentId}" found in another active config`
-    : "Empty agent id found. Please add an agent_id field with a unique value to the script's toml file.";
+
+  if (!agentId) {
+    return "Empty agent id found. Please add an agent_id field with a unique value to the script's toml file.";
+  }
+
+  if (duplicateAgentIds.has(d.info.config.settings.agentId)) {
+    return `Duplicate agent id "${agentId}" found in another active config`;
+  }
+
+  return null;
 }
 
 function handleTagClick(tag: string) {
