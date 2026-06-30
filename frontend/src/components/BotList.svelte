@@ -210,7 +210,6 @@ function filterBots(
 }
 
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
-
   const agentId = d.info.config.settings.agentId;
 
   if (!agentId) {

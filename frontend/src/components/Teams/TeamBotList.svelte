@@ -12,7 +12,7 @@ import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import defaultIcon from "../../assets/rlbot_mono.png";
 
 import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
-import {Browser} from "@wailsio/runtime";
+import { Browser } from "@wailsio/runtime";
 import warningIcon from "../../assets/exclamation-triangle-fill.svg";
 
 let {

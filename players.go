@@ -244,6 +244,15 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 		Hivemind:   botInfo.Config.Settings.Hivemind,
 	}
 
+	// Add environment variables from the bot's config toml first
+	for k, v := range botInfo.Config.Settings.Environment {
+		customBot.Environment = append(customBot.Environment, &flat.EnvironmentVariableT{
+			Name:  k,
+			Value: v,
+		})
+	}
+
+	// Then append torch paths (if found) so they combine properly with any toml-specified paths
 	setTorchEnv(botInfo.TomlPath, &customBot.Environment)
 
 	return &flat.PlayerConfigurationT{
@@ -279,6 +288,8 @@ type BotSettings struct {
 	RunCommandLinux string `toml:"run_command_linux" json:"runCommandLinux"`
 	// If bot can handle multiple agents with one client
 	Hivemind bool `toml:"hivemind" json:"hivemind"`
+	// Additional environment variables to set for the bot process
+	Environment map[string]string `toml:"environment" json:"environment"`
 }
 
 type BotDetails struct {
