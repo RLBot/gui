@@ -7,11 +7,13 @@ let {
   orangePlayers = $bindable(),
   selectedTeam = $bindable(null),
   globalAutoStart = $bindable(true),
+  duplicateAgentIds = new Set<string>(),
 }: {
   bluePlayers: DraggablePlayer[];
   orangePlayers: DraggablePlayer[];
   selectedTeam: "blue" | "orange" | null;
   globalAutoStart: boolean;
+  duplicateAgentIds: Set<string>;
 } = $props();
 
 function toggleTeam(team: "blue" | "orange") {
@@ -32,7 +34,7 @@ function toggleTeam(team: "blue" | "orange") {
             <div style="flex: 1;"></div>
             <h3 class="dimmed">{bluePlayers?.length || 0} bots</h3>
         </header>
-        <TeamBotList bind:items={bluePlayers} bind:globalAutoStart />
+        <TeamBotList bind:items={bluePlayers} bind:globalAutoStart {duplicateAgentIds} />
     </div>
     <div class="team box blurred orange" onclick={() => toggleTeam('orange')} class:selected={selectedTeam === 'orange'}>
         <header class="orange">
@@ -40,7 +42,7 @@ function toggleTeam(team: "blue" | "orange") {
             <div style="flex: 1;"></div>
             <h3 class="dimmed">{orangePlayers?.length || 0} bots</h3>
         </header>
-        <TeamBotList bind:items={orangePlayers} bind:globalAutoStart />
+        <TeamBotList bind:items={orangePlayers} bind:globalAutoStart {duplicateAgentIds} />
     </div>
 </div>
 
