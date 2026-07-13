@@ -39,6 +39,8 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 	// Then append torch paths (if found) so they combine properly with any toml-specified paths
 	setTorchEnv(botInfo.TomlPath, &scriptConfig.Environment)
 
+	scriptConfig.Environment = resolveEnvironmentVariables(scriptConfig.Environment)
+
 	return scriptConfig
 }
 
