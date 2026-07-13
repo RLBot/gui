@@ -2,22 +2,22 @@
 import { draggable, droppable } from "@thisux/sveltednd";
 import { Browser } from "@wailsio/runtime";
 import SuperJSON from "superjson";
-import toast from "svelte-5-french-toast";
 import { flip } from "svelte/animate";
-import { App, BotInfo, HumanInfo, PsyonixBotInfo } from "../../bindings/gui";
+import toast from "svelte-5-french-toast";
+import { App, BotInfo, HumanInfo } from "../../bindings/gui";
+import warningIcon from "../assets/exclamation-triangle-fill.svg";
 import infoIcon from "../assets/info_icon.svg";
 import defaultIcon from "../assets/rlbot_mono.png";
-import warningIcon from "../assets/exclamation-triangle-fill.svg";
 import starIcon from "../assets/star.svg";
 import filledStarIcon from "../assets/starFilled.svg";
 import { BASE_PLAYERS } from "../base-players";
 import {
-  parseJSON,
   type DraggablePlayer,
+  parseJSON,
   type ToggleableScript,
 } from "../index";
-import LoadoutEditor from "./LoadoutEditor/Main.svelte";
 import { getAndParseItems } from "./LoadoutEditor/items";
+import LoadoutEditor from "./LoadoutEditor/Main.svelte";
 import Modal from "./Modal.svelte";
 import Switch from "./Switch.svelte";
 
@@ -210,7 +210,6 @@ function filterBots(
 }
 
 function scriptDuplicateAgentIdWarning(d: ToggleableScript): string | null {
-
   const agentId = d.info.config.settings.agentId;
 
   if (!agentId) {
@@ -266,7 +265,7 @@ async function handleBotInfoClick(bot: DraggablePlayer) {
         }
       }
     } catch (err) {
-      toast.error("Failed to get latest bot info: " + err, { duration: 10000 });
+      toast.error(`Failed to get latest bot info: ${err}`, { duration: 10000 });
     }
 
     selectedAgent = [bot.info, bot.displayName, bot.icon];
@@ -289,7 +288,7 @@ async function handleScriptInfoClick(script: ToggleableScript) {
       }
     }
   } catch (err) {
-    toast.error("Failed to get latest script info: " + err, {
+    toast.error(`Failed to get latest script info: ${err}`, {
       duration: 10000,
     });
   }
@@ -315,7 +314,7 @@ function EditSelectedBotLoadout() {
 function ShowSelectedBotFiles() {
   if (selectedAgent) {
     App.ShowPathInExplorer(selectedAgent[0].tomlPath).catch((err) => {
-      toast.error("" + err, { duration: 10000 });
+      toast.error(`${err}`, { duration: 10000 });
     });
   }
 }
@@ -438,7 +437,7 @@ function SelectedToggleFavorite() {
         <span class="unique-bot-identifier">({script.uniquePathSegment})</span>
       {/if}
       {#if warningText && enabledScripts[script.info.config.settings.agentId]}
-        <a href="javascript:" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+        <a href="javascript:void(0)" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
           <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
         </a>
       {/if}
@@ -486,7 +485,7 @@ function SelectedToggleFavorite() {
       <p><b>Fun fact:</b> {selectedAgent[0].config.details.funFact}</p>
       <p><b>Source code:</b>
         <!-- svelte-ignore a11y_invalid_attribute -->
-        <a href="javascript:" onclick={OpenSelectedBotSource} target="_blank">
+        <a href="javascript:void(0)" onclick={OpenSelectedBotSource} target="_blank">
           {selectedAgent[0].config.details.sourceLink}
         </a>
       </p>

@@ -1,7 +1,7 @@
 <script lang="ts">
-import Modal from "../Modal.svelte";
-import type { DraggablePlayer } from "../../index";
 import { App, BotInfo, PsyonixBotInfo } from "../../../bindings/gui";
+import type { DraggablePlayer } from "../../index";
+import Modal from "../Modal.svelte";
 
 let {
   player = $bindable(undefined),

@@ -1,17 +1,16 @@
 <script lang="ts">
+import { type DragDropState, draggable, droppable } from "@thisux/sveltednd";
+import { Browser } from "@wailsio/runtime";
+import { flip } from "svelte/animate";
 import toast from "svelte-5-french-toast";
 import { App, RHostBot, RHostServer } from "../../bindings/gui/index.js";
 import { MAPS_STANDARD } from "../arena-names";
 import closeIcon from "../assets/close.svg";
 import heartIcon from "../assets/heart.svg";
-import Plus from "../assets/plus.svg.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
-import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
 import RLLobby from "../components/RLLobby.svelte";
-import { Browser } from "@wailsio/runtime";
-import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
-import { flip } from "svelte/animate";
+import { mapStore } from "../settings";
 
 let waiting = $state(false);
 
@@ -165,7 +164,7 @@ function startRHostMatch() {
     })
     .catch((e) => {
       waiting = false;
-      toast.error("Failed to start Rocket Host game\n" + e, {
+      toast.error(`Failed to start Rocket Host game\n${e}`, {
         position: "top-center",
         duration: 8000,
         id,

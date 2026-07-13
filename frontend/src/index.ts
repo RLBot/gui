@@ -1,4 +1,5 @@
 import "./global.css";
+import SuperJSON from "superjson";
 import { mount } from "svelte";
 import {
   BotInfo,
@@ -8,7 +9,6 @@ import {
   PsyonixBotInfo,
 } from "../bindings/gui";
 import App from "./App.svelte";
-import SuperJSON from "superjson";
 
 SuperJSON.registerClass(BotInfo);
 SuperJSON.registerClass(PsyonixBotInfo);

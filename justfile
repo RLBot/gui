@@ -12,4 +12,4 @@ lint:
 
 format:
     go fmt
-    cd frontend && pnpm biome format --fix
+    cd frontend && pnpm biome check --write --linter-enabled=false

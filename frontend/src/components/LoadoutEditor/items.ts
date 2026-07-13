@@ -1,4 +1,4 @@
-//@ts-ignore
+//@ts-expect-error
 import ItemsCsv from "../../assets/items.csv";
 import { ITEM_TYPES } from "./itemtypes";
 

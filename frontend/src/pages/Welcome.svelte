@@ -1,7 +1,7 @@
 <script lang="ts">
+import logo from "../assets/rlbot_logo.svg";
 import AddBotpack from "../components/AddBotpack.svelte";
 import LauncherSelector from "../components/LauncherSelector.svelte";
-import logo from "../assets/rlbot_logo.svg";
 
 let {
   paths = $bindable([]),

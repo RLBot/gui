@@ -2,8 +2,8 @@
 import type { TeamLoadoutConfig } from "../../../bindings/gui";
 import RandomIcon from "../../assets/random.svg";
 import ColorPicker from "./ColorPicker.svelte";
-import ItemField from "./ItemField.svelte";
 import { COLORS, PAINTS } from "./colors";
+import ItemField from "./ItemField.svelte";
 import type { CsvItem } from "./items";
 import { ITEM_TYPES } from "./itemtypes";
 
@@ -44,7 +44,7 @@ function randomizeTeamLoadout() {
     const items = filterItems(itemType.category);
     const randomItem = items[Math.floor(Math.random() * items.length)];
 
-    // @ts-ignore
+    // @ts-expect-error
     loadout[itemType.itemKey] = randomItem.id;
 
     if (itemType.paintKey) {

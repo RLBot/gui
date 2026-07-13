@@ -17,9 +17,9 @@
     "svelte-portal": "^2.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.1",
+    "@biomejs/biome": "^2.5.3",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite": "npm:vite@7.3.1"
   }
 }

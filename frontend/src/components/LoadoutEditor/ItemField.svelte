@@ -40,7 +40,7 @@ $effect(() => {
 
 $effect(() => {
   if (itemSelection === "") {
-    // @ts-ignore
+    // @ts-expect-error
     value[itemType.itemKey] = 0;
     return;
   }
@@ -50,7 +50,7 @@ $effect(() => {
     return;
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   value[itemType.itemKey] = item.id;
   onchange();
 });
