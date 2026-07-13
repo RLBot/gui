@@ -11,8 +11,8 @@ import ArrowsIcon from "../../assets/arrows.svg";
 import EyeIcon from "../../assets/eye.svg";
 import Modal from "../Modal.svelte";
 import Switch from "../Switch.svelte";
-import TeamEditor from "./TeamEditor.svelte";
 import type { CsvItem } from "./items";
+import TeamEditor from "./TeamEditor.svelte";
 
 let {
   visible = $bindable(false),

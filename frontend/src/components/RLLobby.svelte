@@ -2,7 +2,6 @@
 import toast from "svelte-5-french-toast";
 import { App, RLLobbyListing } from "../../bindings/gui/index.js";
 import reloadIcon from "../assets/reload.svg";
-import Modal from "./Modal.svelte";
 
 let { servers = $bindable(), launcherOptionsVisible = $bindable() } = $props();
 let joiningLobbyId = $state<string | null>(null);
@@ -39,7 +38,7 @@ function getServerName(name: string, ipAddress: string) {
     }
   }
 
-  if (name == undefined) {
+  if (name === undefined) {
     return ipAddress;
   }
 

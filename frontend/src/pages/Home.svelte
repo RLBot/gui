@@ -186,7 +186,7 @@ function collectDuplicateAgentIds(
   bots: DraggablePlayer[],
   scripts: ToggleableScript[],
 ): Set<string> {
-  const agentIdTomlMap: { [id: string]: string } = {}
+  const agentIdTomlMap: { [id: string]: string } = {};
   const duplicateAgentIds = new Set<string>();
 
   for (const bot of bots) {

@@ -14,10 +14,10 @@ function createOneshot<T>(): {
   recver: Promise<T>;
 } {
   let resolve: (value: T) => void;
-  const promise = new Promise((res, rej) => {
+  const promise = new Promise((res, _rej) => {
     resolve = res;
   });
-  // @ts-ignore
+  // @ts-expect-error
   return { sender: resolve, recver: promise };
 }
 

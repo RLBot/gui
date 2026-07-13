@@ -3,10 +3,10 @@ import toast from "svelte-5-french-toast";
 import { App } from "../../bindings/gui";
 import closeIcon from "../assets/close.svg";
 import repairIcon from "../assets/repair.svg";
-import Modal from "./Modal.svelte";
-import Switch from "./Switch.svelte";
-import ProgressBar from "./ProgressBar.svelte";
 import AddBotpack from "./AddBotpack.svelte";
+import Modal from "./Modal.svelte";
+import ProgressBar from "./ProgressBar.svelte";
+import Switch from "./Switch.svelte";
 
 let {
   visible = $bindable(false),

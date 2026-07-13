@@ -1,19 +1,18 @@
 <script lang="ts">
 import { type DragDropState, draggable, droppable } from "@thisux/sveltednd";
+import { Browser } from "@wailsio/runtime";
 import SuperJSON from "superjson";
 import { flip } from "svelte/animate";
 import { fade } from "svelte/transition";
-import type { DraggablePlayer } from "../..";
 import { BotInfo, HumanInfo, PsyonixBotInfo } from "../../../bindings/gui";
+import type { DraggablePlayer } from "../..";
+import cannotAutoRunIcon from "../../assets/cannot_play.svg";
 import closeIcon from "../../assets/close.svg";
 import duplicateIcon from "../../assets/duplicate.svg";
 import editIcon from "../../assets/edit.svg";
-import cannotAutoRunIcon from "../../assets/cannot_play.svg";
-import defaultIcon from "../../assets/rlbot_mono.png";
-
-import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
-import {Browser} from "@wailsio/runtime";
 import warningIcon from "../../assets/exclamation-triangle-fill.svg";
+import defaultIcon from "../../assets/rlbot_mono.png";
+import PlayerOverridesModal from "./PlayerOverridesModal.svelte";
 
 let {
   items = $bindable(),
@@ -116,7 +115,7 @@ function onDragEnd(state: DragDropState) {
   const { targetContainer, sourceContainer } = state;
   if (!targetContainer) return;
   let itemIndex =
-    // @ts-ignore
+    // @ts-expect-error
     +sourceContainer.split("_").at(-1);
   items.splice(itemIndex, 1);
   items = [...items];
@@ -127,7 +126,7 @@ async function onDrop(state: DragDropState<string>) {
   const { targetContainer, sourceContainer } = state;
   if (!targetContainer) return;
   let dropIndex =
-    // @ts-ignore
+    // @ts-expect-error
     +targetContainer.split("_").at(-1);
 
   let val: DraggablePlayer = SuperJSON.parse(state.draggedItem);
@@ -195,7 +194,7 @@ const dnd_container_namespace = `team_${crypto.randomUUID()}`;
             <span class="unique-bot-identifier">({bot.uniquePathSegment})</span>
           {/if}
           {#if warningText}
-          <a href="javascript:" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}} target="_blank">
+          <a href="javascript:void(0)" onclick={() => {Browser.OpenURL("https://wiki.rlbot.org/v5/botmaking/config-files/#bot-script-config-files")}}>
             <img src={warningIcon} class="duplicate-agent-icon" alt={warningText} title={warningText} />
           </a>
           {/if}

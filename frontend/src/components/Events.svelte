@@ -5,8 +5,8 @@ import AlarmIcon from "../assets/alarm.svg";
 import CalendarPlusIcon from "../assets/calendar-plus.svg";
 import GeoIcon from "../assets/geo.svg";
 import InfoIcon from "../assets/info_icon.svg";
-import Modal from "./Modal.svelte";
 import RLBotMono from "../assets/rlbot_mono.png";
+import Modal from "./Modal.svelte";
 
 let {
   visible = $bindable(false),
@@ -159,7 +159,7 @@ async function fetchEvents() {
 
   // sort community events by start time
   events.sort((a, b) => {
-    // @ts-ignore
+    // @ts-expect-error
     return a.date - b.date;
   });
 

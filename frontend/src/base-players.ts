@@ -1,5 +1,5 @@
-import type { DraggablePlayer } from ".";
 import { HumanInfo, PsyonixBotInfo } from "../bindings/gui";
+import type { DraggablePlayer } from ".";
 import controller from "./assets/controller.svg";
 
 export const BASE_PLAYERS: DraggablePlayer[] = [

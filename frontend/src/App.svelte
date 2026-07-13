@@ -1,17 +1,17 @@
 <script lang="ts">
 import { Toaster } from "svelte-5-french-toast";
+import arenaImages from "./arena-images";
 import AlarmIcon from "./assets/alarm.svg";
 import CalendarPlusIcon from "./assets/calendar-plus.svg";
 import logo from "./assets/rlbot_logo.svg";
 import Events from "./components/Events.svelte";
 import GuiSettings from "./components/GuiSettings.svelte";
+import { parseJSON } from "./index";
 import Home from "./pages/Home.svelte";
 import RocketHost from "./pages/RocketHost.svelte";
 import StateSettingSandbox from "./pages/StateSettingSandbox.svelte";
 import StoryMode from "./pages/StoryMode.svelte";
 import Welcome from "./pages/Welcome.svelte";
-import { parseJSON } from "./index";
-import arenaImages from "./arena-images";
 import { currentTheme, THEMES } from "./settings";
 
 const backgroundImage =
@@ -40,7 +40,7 @@ let mainClassString = $derived(
     THEMES[$currentTheme] ??
     (window.matchMedia("(prefers-color-scheme: dark)").matches
       ? THEMES["Dark blurred"]
-      : THEMES["Light"])
+      : THEMES.Light)
   ).join(" "),
 );
 
