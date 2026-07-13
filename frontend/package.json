@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@thisux/sveltednd": "^0.4.1",
-    "@wailsio/runtime": "3.0.0-alpha.72",
+    "@wailsio/runtime": "3.0.0-alpha.97",
     "superjson": "^2.2.6",
     "svelte": "^5.56.4",
     "svelte-5-french-toast": "^2.0.6",

@@ -2,7 +2,7 @@ os_family := if os_family() == "unix" { "linux" } else { os_family() }
 dev := env("DEV", "false")
 
 build OS = os_family:
-    DEV={{dev}} GOOS={{OS}} wails3 build
+    DEV={{dev}} GOOS={{OS}} wails3 build -tags gtk3
 
 dev:
     DEV=true wails3 dev
