@@ -199,8 +199,8 @@ func pathSeparator() string {
 
 // resolveEnvironmentVariables resolves path-like prepend/postpend markers in
 // environment variable values. If a value starts with the platform path
-// separator, it is prepended to the current value (falling back to os.Getenv).
-// If it ends with the separator, it is postpended. Otherwise the value is used
+// separator, it is appended to the current value (falling back to os.Getenv).
+// If it ends with the separator, it is prepended. Otherwise the value is used
 // as-is.
 func resolveEnvironmentVariables(env []*flat.EnvironmentVariableT) []*flat.EnvironmentVariableT {
 	sep := pathSeparator()
@@ -219,14 +219,14 @@ func resolveEnvironmentVariables(env []*flat.EnvironmentVariableT) []*flat.Envir
 			if existing == "" {
 				value = cleanValue
 			} else {
-				value = cleanValue + sep + existing
+				value = existing + sep + cleanValue
 			}
 		} else if strings.HasSuffix(value, sep) {
 			cleanValue := strings.TrimSuffix(value, sep)
 			if existing == "" {
 				value = cleanValue
 			} else {
-				value = existing + sep + cleanValue
+				value = cleanValue + sep + existing
 			}
 		}
 
@@ -242,7 +242,7 @@ func resolveEnvironmentVariables(env []*flat.EnvironmentVariableT) []*flat.Envir
 
 // setTorchEnv appends a PATH/LD_LIBRARY_PATH entry pointing to the
 // torch-archive lib directory, if it exists. The value begins with the
-// platform path separator so resolveEnvironmentVariables prepends it to the
+// platform path separator so resolveEnvironmentVariables appends it to the
 // existing path.
 func setTorchEnv(tomlPath string, env *[]*flat.EnvironmentVariableT) {
 	torchLibDir := findTorchLibDir(tomlPath)
