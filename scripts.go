@@ -28,7 +28,18 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 		ScriptId:   0, // let core do this
 	}
 
+	// Add environment variables from the script's config toml first
+	for k, v := range botInfo.Config.Settings.Environment {
+		scriptConfig.Environment = append(scriptConfig.Environment, &flat.EnvironmentVariableT{
+			Name:  k,
+			Value: v,
+		})
+	}
+
+	// Then append torch paths (if found) so they combine properly with any toml-specified paths
 	setTorchEnv(botInfo.TomlPath, &scriptConfig.Environment)
+
+	scriptConfig.Environment = resolveEnvironmentVariables(scriptConfig.Environment)
 
 	return scriptConfig
 }

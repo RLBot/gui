@@ -462,28 +462,36 @@ func simplifyGamePacket(gp *flat.GamePacketT) SandboxGamePacket {
 
 	if len(gp.Balls) > 0 && gp.Balls[0] != nil && gp.Balls[0].Physics != nil {
 		phys := gp.Balls[0].Physics
-		pkt.Ball.Physics = SandboxPhysics{
-			Location: SandboxVec3{
+		physics := SandboxPhysics{}
+		if phys.Location != nil {
+			physics.Location = SandboxVec3{
 				X: phys.Location.X,
 				Y: phys.Location.Y,
 				Z: phys.Location.Z,
-			},
-			Rotation: SandboxRot3{
+			}
+		}
+		if phys.Rotation != nil {
+			physics.Rotation = SandboxRot3{
 				Pitch: phys.Rotation.Pitch,
 				Yaw:   phys.Rotation.Yaw,
 				Roll:  phys.Rotation.Roll,
-			},
-			Velocity: SandboxVec3{
+			}
+		}
+		if phys.Velocity != nil {
+			physics.Velocity = SandboxVec3{
 				X: phys.Velocity.X,
 				Y: phys.Velocity.Y,
 				Z: phys.Velocity.Z,
-			},
-			AngularVelocity: SandboxVec3{
+			}
+		}
+		if phys.AngularVelocity != nil {
+			physics.AngularVelocity = SandboxVec3{
 				X: phys.AngularVelocity.X,
 				Y: phys.AngularVelocity.Y,
 				Z: phys.AngularVelocity.Z,
-			},
+			}
 		}
+		pkt.Ball.Physics = physics
 	}
 
 	pkt.Cars = make([]SandboxCar, len(gp.Players))
@@ -499,28 +507,36 @@ func simplifyGamePacket(gp *flat.GamePacketT) SandboxGamePacket {
 			Name:  player.Name,
 		}
 		if player.Physics != nil {
-			car.Physics = SandboxPhysics{
-				Location: SandboxVec3{
+			physics := SandboxPhysics{}
+			if player.Physics.Location != nil {
+				physics.Location = SandboxVec3{
 					X: player.Physics.Location.X,
 					Y: player.Physics.Location.Y,
 					Z: player.Physics.Location.Z,
-				},
-				Rotation: SandboxRot3{
+				}
+			}
+			if player.Physics.Rotation != nil {
+				physics.Rotation = SandboxRot3{
 					Pitch: player.Physics.Rotation.Pitch,
 					Yaw:   player.Physics.Rotation.Yaw,
 					Roll:  player.Physics.Rotation.Roll,
-				},
-				Velocity: SandboxVec3{
+				}
+			}
+			if player.Physics.Velocity != nil {
+				physics.Velocity = SandboxVec3{
 					X: player.Physics.Velocity.X,
 					Y: player.Physics.Velocity.Y,
 					Z: player.Physics.Velocity.Z,
-				},
-				AngularVelocity: SandboxVec3{
+				}
+			}
+			if player.Physics.AngularVelocity != nil {
+				physics.AngularVelocity = SandboxVec3{
 					X: player.Physics.AngularVelocity.X,
 					Y: player.Physics.AngularVelocity.Y,
 					Z: player.Physics.AngularVelocity.Z,
-				},
+				}
 			}
+			car.Physics = physics
 		}
 		pkt.Cars[i] = car
 	}

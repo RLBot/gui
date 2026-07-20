@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/RLBot/go-interface/flat"
@@ -188,31 +189,83 @@ func findTorchLibDir(fromPath string) string {
 	return ""
 }
 
-// setTorchEnv populates the Environment field with PATH/LD_LIBRARY_PATH
-// pointing to the torch-archive lib directory, if it exists.
+// pathSeparator returns the platform-specific path list separator as a string.
+func pathSeparator() string {
+	if runtime.GOOS == "windows" {
+		return ";"
+	}
+	return ":"
+}
+
+// resolveEnvironmentVariables resolves path-like prepend/postpend markers in
+// environment variable values. If a value starts with the platform path
+// separator, it is appended to the current value (falling back to os.Getenv).
+// If it ends with the separator, it is prepended. Otherwise the value is used
+// as-is.
+func resolveEnvironmentVariables(env []*flat.EnvironmentVariableT) []*flat.EnvironmentVariableT {
+	sep := pathSeparator()
+	resolvedMap := make(map[string]string)
+	result := make([]*flat.EnvironmentVariableT, 0, len(env))
+
+	for _, ev := range env {
+		existing := resolvedMap[ev.Name]
+		if existing == "" {
+			existing = os.Getenv(ev.Name)
+		}
+
+		value := ev.Value
+		if strings.HasPrefix(value, sep) {
+			cleanValue := strings.TrimPrefix(value, sep)
+			if existing == "" {
+				value = cleanValue
+			} else {
+				value = existing + sep + cleanValue
+			}
+		} else if strings.HasSuffix(value, sep) {
+			cleanValue := strings.TrimSuffix(value, sep)
+			if existing == "" {
+				value = cleanValue
+			} else {
+				value = cleanValue + sep + existing
+			}
+		}
+
+		resolvedMap[ev.Name] = value
+		result = append(result, &flat.EnvironmentVariableT{
+			Name:  ev.Name,
+			Value: value,
+		})
+	}
+
+	return result
+}
+
+// setTorchEnv appends a PATH/LD_LIBRARY_PATH entry pointing to the
+// torch-archive lib directory, if it exists. The value begins with the
+// platform path separator so resolveEnvironmentVariables appends it to the
+// existing path.
 func setTorchEnv(tomlPath string, env *[]*flat.EnvironmentVariableT) {
 	torchLibDir := findTorchLibDir(tomlPath)
 	if torchLibDir == "" {
 		return
 	}
 
+	varName := "LD_LIBRARY_PATH"
 	if runtime.GOOS == "windows" {
-		*env = append(*env, &flat.EnvironmentVariableT{
-			Name:  "PATH",
-			Value: torchLibDir + ";" + os.Getenv("PATH"),
-		})
-	} else {
-		ldLibPath := os.Getenv("LD_LIBRARY_PATH")
-		if ldLibPath != "" {
-			ldLibPath = torchLibDir + ":" + ldLibPath
-		} else {
-			ldLibPath = torchLibDir
-		}
-		*env = append(*env, &flat.EnvironmentVariableT{
-			Name:  "LD_LIBRARY_PATH",
-			Value: ldLibPath,
-		})
+		varName = "PATH"
 	}
+
+	for _, ev := range *env {
+		if ev.Name == varName {
+			return
+		}
+	}
+
+	sep := pathSeparator()
+	*env = append(*env, &flat.EnvironmentVariableT{
+		Name:  varName,
+		Value: sep + torchLibDir,
+	})
 }
 
 func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
@@ -244,7 +297,18 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 		Hivemind:   botInfo.Config.Settings.Hivemind,
 	}
 
+	// Add environment variables from the bot's config toml first
+	for k, v := range botInfo.Config.Settings.Environment {
+		customBot.Environment = append(customBot.Environment, &flat.EnvironmentVariableT{
+			Name:  k,
+			Value: v,
+		})
+	}
+
+	// Then append torch paths (if found) so they combine properly with any toml-specified paths
 	setTorchEnv(botInfo.TomlPath, &customBot.Environment)
+
+	customBot.Environment = resolveEnvironmentVariables(customBot.Environment)
 
 	return &flat.PlayerConfigurationT{
 		Variety: &flat.PlayerClassT{
@@ -279,6 +343,8 @@ type BotSettings struct {
 	RunCommandLinux string `toml:"run_command_linux" json:"runCommandLinux"`
 	// If bot can handle multiple agents with one client
 	Hivemind bool `toml:"hivemind" json:"hivemind"`
+	// Additional environment variables to set for the bot process
+	Environment map[string]string `toml:"environment" json:"environment"`
 }
 
 type BotDetails struct {
