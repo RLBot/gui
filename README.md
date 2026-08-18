@@ -22,6 +22,17 @@ This project is built using a [justfile](https://github.com/casey/just). Run `ju
 `just lint` to lint and `just format` to format. Remember to
 [install dependencies](#Installing-build-dependencies) first.
 
+### Update item data
+
+The game exports `items.csv` in Windows-1252 encoding. Copy the exported file to
+`frontend/src/assets/items.csv`, then run:
+
+```bash
+uv run scripts/reencode_items_csv.py
+```
+
+The script converts the file to UTF-8 in place.
+
 ### Installing build dependencies
 
 1. Install the [wails v3-alpha cli](https://v3alpha.wails.io/getting-started/installation/)
