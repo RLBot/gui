@@ -22,6 +22,24 @@ This project is built using a [justfile](https://github.com/casey/just). Run `ju
 `just lint` to lint and `just format` to format. Remember to
 [install dependencies](#Installing-build-dependencies) first.
 
+### Update item data
+
+Use BakkesMod to update the item list:
+
+1. Install and run BakkesMod.
+2. Start Rocket League.
+3. Press `F6` to open the BakkesMod console.
+4. Enter `dumpitems`.
+5. Copy the generated `items.csv` from the Rocket League `Win64` directory to
+   `frontend/src/assets/items.csv`.
+6. Convert the file to UTF-8:
+
+```bash
+uv run scripts/reencode_items_csv.py
+```
+
+The script converts the Windows-1252 file to UTF-8 in place.
+
 ### Installing build dependencies
 
 1. Install the [wails v3-alpha cli](https://v3alpha.wails.io/getting-started/installation/)
