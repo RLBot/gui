@@ -29,7 +29,7 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 	}
 
 	// Add environment variables from the script's config toml first
-	for k, v := range botInfo.Config.Settings.Environment {
+	for k, v := range botInfo.Config.Settings.Environment.Values() {
 		scriptConfig.Environment = append(scriptConfig.Environment, &flat.EnvironmentVariableT{
 			Name:  k,
 			Value: v,

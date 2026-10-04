@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -167,6 +169,98 @@ type BotInfo struct {
 	Icon     string         `json:"icon"`
 }
 
+type BotEnvironment struct {
+	Common  map[string]string
+	Windows map[string]string
+	Linux   map[string]string
+}
+
+func decodeEnvironmentTable(data any) (map[string]string, error) {
+	table, ok := data.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("environment platform must be a table")
+	}
+
+	values := make(map[string]string, len(table))
+	for name, rawValue := range table {
+		value, ok := rawValue.(string)
+		if !ok {
+			return nil, fmt.Errorf("environment variable %q must have a string value", name)
+		}
+		values[name] = value
+	}
+	return values, nil
+}
+
+func (environment *BotEnvironment) UnmarshalTOML(data any) error {
+	table, ok := data.(map[string]any)
+	if !ok {
+		return fmt.Errorf("environment must be a table")
+	}
+
+	environment.Common = make(map[string]string)
+	for name, rawValue := range table {
+		switch name {
+		case "windows":
+			values, err := decodeEnvironmentTable(rawValue)
+			if err != nil {
+				return fmt.Errorf("environment.windows: %w", err)
+			}
+			environment.Windows = values
+		case "linux":
+			values, err := decodeEnvironmentTable(rawValue)
+			if err != nil {
+				return fmt.Errorf("environment.linux: %w", err)
+			}
+			environment.Linux = values
+		default:
+			value, ok := rawValue.(string)
+			if !ok {
+				return fmt.Errorf("environment variable %q must have a string value", name)
+			}
+			environment.Common[name] = value
+		}
+	}
+
+	return nil
+}
+
+func (environment BotEnvironment) Values() map[string]string {
+	values := make(map[string]string, len(environment.Common))
+	for name, value := range environment.Common {
+		values[name] = value
+	}
+
+	var overrides map[string]string
+	switch runtime.GOOS {
+	case "windows":
+		overrides = environment.Windows
+	case "linux":
+		overrides = environment.Linux
+	}
+	for name, value := range overrides {
+		values[name] = expandEnvironmentValue(value)
+	}
+
+	return values
+}
+
+func (environment BotEnvironment) MarshalJSON() ([]byte, error) {
+	return json.Marshal(environment.Values())
+}
+
+func (environment *BotEnvironment) UnmarshalJSON(data []byte) error {
+	var values map[string]string
+	if err := json.Unmarshal(data, &values); err != nil {
+		return err
+	}
+
+	environment.Common = values
+	environment.Windows = nil
+	environment.Linux = nil
+	return nil
+}
+
 // findTorchLibDir walks up the directory tree from the given path,
 // checking each ancestor for a torch-archive/torch/lib directory.
 // Returns the full path to the lib directory if found, or "" if not.
@@ -197,11 +291,30 @@ func pathSeparator() string {
 	return ":"
 }
 
-// resolveEnvironmentVariables resolves path-like prepend/postpend markers in
-// environment variable values. If a value starts with the platform path
-// separator, it is appended to the current value (falling back to os.Getenv).
-// If it ends with the separator, it is prepended. Otherwise the value is used
-// as-is.
+var windowsEnvironmentVariablePattern = regexp.MustCompile(`%([A-Za-z_][A-Za-z0-9_]*)%`)
+
+func expandWindowsEnvironmentValue(value string) string {
+	return windowsEnvironmentVariablePattern.ReplaceAllStringFunc(value, func(match string) string {
+		name := match[1 : len(match)-1]
+		if replacement, ok := os.LookupEnv(name); ok {
+			return replacement
+		}
+		return match
+	})
+}
+
+func expandEnvironmentValue(value string) string {
+	value = os.ExpandEnv(value)
+	if runtime.GOOS == "windows" {
+		value = expandWindowsEnvironmentValue(value)
+	}
+	return value
+}
+
+// resolveEnvironmentVariables resolves path-list values for each environment variable.
+// A value that starts with the path separator is appended to the existing value.
+// A value that ends with the path separator is prepended to the existing value.
+// If no marker is present, the value is used unchanged.
 func resolveEnvironmentVariables(env []*flat.EnvironmentVariableT) []*flat.EnvironmentVariableT {
 	sep := pathSeparator()
 	resolvedMap := make(map[string]string)
@@ -298,7 +411,7 @@ func (botInfo BotInfo) ToPlayerConfig(team uint32) *flat.PlayerConfigurationT {
 	}
 
 	// Add environment variables from the bot's config toml first
-	for k, v := range botInfo.Config.Settings.Environment {
+	for k, v := range botInfo.Config.Settings.Environment.Values() {
 		customBot.Environment = append(customBot.Environment, &flat.EnvironmentVariableT{
 			Name:  k,
 			Value: v,
@@ -344,7 +457,7 @@ type BotSettings struct {
 	// If bot can handle multiple agents with one client
 	Hivemind bool `toml:"hivemind" json:"hivemind"`
 	// Additional environment variables to set for the bot process
-	Environment map[string]string `toml:"environment" json:"environment"`
+	Environment BotEnvironment `toml:"environment" json:"environment"`
 }
 
 type BotDetails struct {
