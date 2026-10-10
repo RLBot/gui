@@ -36,20 +36,25 @@ $effect(() => {
   }
 });
 
-const RANDOM_MAP = "__random__";
+const RANDOM_STANDARD_MAP = "__random_standard_map__";
 
 let mapOptionSelected = $state<string>(
-  localStorage.getItem("MS_RANDOMIZE_MAP") === "true" ? RANDOM_MAP : map,
+  localStorage.getItem("MS_RANDOMIZE_MAP") === "true"
+    ? RANDOM_STANDARD_MAP
+    : map,
 );
-let randomizeMap = $derived(mapOptionSelected === RANDOM_MAP);
+let randomizeMap = $derived(mapOptionSelected === RANDOM_STANDARD_MAP);
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
 });
 
 // `map` is shared with the rest of the app (rocket host, loadout editor), so it
-// must always hold a concrete map rather than the "Random Map" option.
+// must always hold a concrete map rather than the "Random Standard Map" option.
 $effect(() => {
-  if (mapOptionSelected !== RANDOM_MAP && mapOptionSelected !== map) {
+  if (
+    mapOptionSelected !== RANDOM_STANDARD_MAP &&
+    mapOptionSelected !== map
+  ) {
     map = mapOptionSelected;
   }
 });
@@ -154,7 +159,8 @@ function setPreset(presetData: Gamemode) {
     mode = presetData.match.game_mode;
   }
 
-  mapOptionSelected = presetData.match.game_map_upk ?? RANDOM_MAP;
+  mapOptionSelected =
+    presetData.match.game_map_upk ?? RANDOM_STANDARD_MAP;
 
   for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {
@@ -195,7 +201,10 @@ function getMaps(): { [k: string]: string } {
 }
 
 const ALL_MAPS = getMaps();
-const MAP_OPTIONS = { "Random Map": RANDOM_MAP, ...ALL_MAPS };
+const MAP_OPTIONS = {
+  "Random Standard Map": RANDOM_STANDARD_MAP,
+  ...ALL_MAPS,
+};
 </script>
 
 <div class="matchSettings">
