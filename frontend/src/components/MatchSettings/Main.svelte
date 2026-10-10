@@ -36,9 +36,27 @@ $effect(() => {
   }
 });
 
-let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
+const RANDOM_STANDARD_MAP = "__random_standard_map__";
+
+let mapOptionSelected = $state<string>(
+  localStorage.getItem("MS_RANDOMIZE_MAP") === "true"
+    ? RANDOM_STANDARD_MAP
+    : map,
+);
+let randomizeMap = $derived(mapOptionSelected === RANDOM_STANDARD_MAP);
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
+});
+
+// `map` is shared with the rest of the app (rocket host, loadout editor), so it
+// must always hold a concrete map rather than the "Random Standard Map" option.
+$effect(() => {
+  if (
+    mapOptionSelected !== RANDOM_STANDARD_MAP &&
+    mapOptionSelected !== map
+  ) {
+    map = mapOptionSelected;
+  }
 });
 
 const existingMatchBehaviors: { [n: string]: number } = {
@@ -141,12 +159,8 @@ function setPreset(presetData: Gamemode) {
     mode = presetData.match.game_mode;
   }
 
-  if (presetData.match.game_map_upk !== undefined) {
-    map = presetData.match.game_map_upk;
-    randomizeMap = false;
-  } else {
-    randomizeMap = true;
-  }
+  mapOptionSelected =
+    presetData.match.game_map_upk ?? RANDOM_STANDARD_MAP;
 
   for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {
@@ -187,6 +201,10 @@ function getMaps(): { [k: string]: string } {
 }
 
 const ALL_MAPS = getMaps();
+const MAP_OPTIONS = {
+  "Random Standard Map": RANDOM_STANDARD_MAP,
+  ...ALL_MAPS,
+};
 </script>
 
 <div class="matchSettings">
@@ -195,8 +213,8 @@ const ALL_MAPS = getMaps();
     <div class="settings">
       <div class="left-controls">
         <Select
-          options={ALL_MAPS}
-          bind:value={map}
+          options={MAP_OPTIONS}
+          bind:value={mapOptionSelected}
           placeholder="Select map"
         />
         <Select
@@ -220,12 +238,6 @@ const ALL_MAPS = getMaps();
         <button onclick={() => { showExtraOptions = true; }}>
           Extra
         </button>
-        <input
-          type="checkbox"
-          id="randomizeMap"
-          bind:checked={randomizeMap}
-        />
-        <label for="randomizeMap">Randomize Map</label>
       </div>
       <div class="right-controls">
           <button class="start" onclick={()=>{onStart(randomizeMap)}}>Start Match</button>
@@ -241,36 +253,38 @@ const ALL_MAPS = getMaps();
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
   {#snippet children()}
-    <div class="mutator-search">
-      <input
-        type="search"
-        placeholder="Search mutators…"
-        bind:value={mutatorSearchQuery}
-      />
-    </div>
-    <div class="mutators">
-      {#each searchedMutatorOptions as { name, keys } (name)}
-        <div class="category-header" in:fly={{ duration: 500, y: 8 }}>{cleanCase(name)}</div>
-        {#each keys as mutatorKey (mutatorKey)}
-          <div class="mutator" in:fly={{ duration: 500, y: 8 }}>
-            <label
-              class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
-              for={mutatorKey}>{cleanCase(mutatorKey)}</label
-            >
+    <div class="mutatorsBody">
+      <div class="mutator-search">
+        <input
+          type="search"
+          placeholder="Search mutators…"
+          bind:value={mutatorSearchQuery}
+        />
+      </div>
+      <div class="mutators">
+        {#each searchedMutatorOptions as { name, keys } (name)}
+          <div class="category-header" in:fly={{ duration: 500, y: 8 }}>{cleanCase(name)}</div>
+          {#each keys as mutatorKey (mutatorKey)}
+            <div class="mutator" in:fly={{ duration: 500, y: 8 }}>
+              <label
+                class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
+                for={mutatorKey}>{cleanCase(mutatorKey)}</label
+              >
 
-            <select
-              name={mutatorKey}
-              id={mutatorKey}
-              bind:value={mutators[mutatorKey]}
-              onchange={() => {selectedPreset = ""}}
-            >
-              {#each mutatorOptions[mutatorKey] as value, i}
-                  <option value={i}>{value}</option>
-              {/each}
-            </select>
-          </div>
+              <select
+                name={mutatorKey}
+                id={mutatorKey}
+                bind:value={mutators[mutatorKey]}
+                onchange={() => {selectedPreset = ""}}
+              >
+                {#each mutatorOptions[mutatorKey] as value, i}
+                    <option value={i}>{value}</option>
+                {/each}
+              </select>
+            </div>
+          {/each}
         {/each}
-      {/each}
+      </div>
     </div>
   {/snippet}
   {#snippet footer()}
@@ -339,7 +353,7 @@ const ALL_MAPS = getMaps();
         id="skipReplays"
         bind:checked={extraOptions.skipReplays}
       />
-      <label for="skipReplays"> Skip Replays </label>
+      <label for="skipReplays"> Skip Goal Replays </label>
       <br />
       <input
         type="checkbox"
@@ -373,9 +387,6 @@ const ALL_MAPS = getMaps();
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
-  }
-  #randomizeMap {
-    transform: scale(1.2);
   }
   .controls button span {
     margin-left: 0.5rem;
@@ -419,9 +430,10 @@ const ALL_MAPS = getMaps();
     border-color: var(--accent, #4a9eff);
   }
 
-  :global(.modalBody) {
+  .mutatorsBody {
     display: flex;
     flex-direction: column;
+    height: 100%;
   }
 
   .mutators {
