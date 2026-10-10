@@ -36,9 +36,22 @@ $effect(() => {
   }
 });
 
-let randomizeMap = $state(localStorage.getItem("MS_RANDOMIZE_MAP") === "true");
+const RANDOM_MAP = "__random__";
+
+let mapOptionSelected = $state<string>(
+  localStorage.getItem("MS_RANDOMIZE_MAP") === "true" ? RANDOM_MAP : map,
+);
+let randomizeMap = $derived(mapOptionSelected === RANDOM_MAP);
 $effect(() => {
   localStorage.setItem("MS_RANDOMIZE_MAP", randomizeMap.toString());
+});
+
+// `map` is shared with the rest of the app (rocket host, loadout editor), so it
+// must always hold a concrete map rather than the "Random Map" option.
+$effect(() => {
+  if (mapOptionSelected !== RANDOM_MAP && mapOptionSelected !== map) {
+    map = mapOptionSelected;
+  }
 });
 
 const existingMatchBehaviors: { [n: string]: number } = {
@@ -141,12 +154,7 @@ function setPreset(presetData: Gamemode) {
     mode = presetData.match.game_mode;
   }
 
-  if (presetData.match.game_map_upk !== undefined) {
-    map = presetData.match.game_map_upk;
-    randomizeMap = false;
-  } else {
-    randomizeMap = true;
-  }
+  mapOptionSelected = presetData.match.game_map_upk ?? RANDOM_MAP;
 
   for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {
@@ -187,6 +195,7 @@ function getMaps(): { [k: string]: string } {
 }
 
 const ALL_MAPS = getMaps();
+const MAP_OPTIONS = { "Random Map": RANDOM_MAP, ...ALL_MAPS };
 </script>
 
 <div class="matchSettings">
@@ -195,8 +204,8 @@ const ALL_MAPS = getMaps();
     <div class="settings">
       <div class="left-controls">
         <Select
-          options={ALL_MAPS}
-          bind:value={map}
+          options={MAP_OPTIONS}
+          bind:value={mapOptionSelected}
           placeholder="Select map"
         />
         <Select
@@ -220,12 +229,6 @@ const ALL_MAPS = getMaps();
         <button onclick={() => { showExtraOptions = true; }}>
           Extra
         </button>
-        <input
-          type="checkbox"
-          id="randomizeMap"
-          bind:checked={randomizeMap}
-        />
-        <label for="randomizeMap">Randomize Map</label>
       </div>
       <div class="right-controls">
           <button class="start" onclick={()=>{onStart(randomizeMap)}}>Start Match</button>
@@ -375,9 +378,6 @@ const ALL_MAPS = getMaps();
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
-  }
-  #randomizeMap {
-    transform: scale(1.2);
   }
   .controls button span {
     margin-left: 0.5rem;
