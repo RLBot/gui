@@ -241,36 +241,38 @@ const ALL_MAPS = getMaps();
 
 <Modal title="Rocket League Mutators" bind:visible={showMutators}>
   {#snippet children()}
-    <div class="mutator-search">
-      <input
-        type="search"
-        placeholder="Search mutators…"
-        bind:value={mutatorSearchQuery}
-      />
-    </div>
-    <div class="mutators">
-      {#each searchedMutatorOptions as { name, keys } (name)}
-        <div class="category-header" in:fly={{ duration: 500, y: 8 }}>{cleanCase(name)}</div>
-        {#each keys as mutatorKey (mutatorKey)}
-          <div class="mutator" in:fly={{ duration: 500, y: 8 }}>
-            <label
-              class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
-              for={mutatorKey}>{cleanCase(mutatorKey)}</label
-            >
+    <div class="mutatorsBody">
+      <div class="mutator-search">
+        <input
+          type="search"
+          placeholder="Search mutators…"
+          bind:value={mutatorSearchQuery}
+        />
+      </div>
+      <div class="mutators">
+        {#each searchedMutatorOptions as { name, keys } (name)}
+          <div class="category-header" in:fly={{ duration: 500, y: 8 }}>{cleanCase(name)}</div>
+          {#each keys as mutatorKey (mutatorKey)}
+            <div class="mutator" in:fly={{ duration: 500, y: 8 }}>
+              <label
+                class={mutators[mutatorKey] == 0 ? "" : "mutatorChanged"}
+                for={mutatorKey}>{cleanCase(mutatorKey)}</label
+              >
 
-            <select
-              name={mutatorKey}
-              id={mutatorKey}
-              bind:value={mutators[mutatorKey]}
-              onchange={() => {selectedPreset = ""}}
-            >
-              {#each mutatorOptions[mutatorKey] as value, i}
-                  <option value={i}>{value}</option>
-              {/each}
-            </select>
-          </div>
+              <select
+                name={mutatorKey}
+                id={mutatorKey}
+                bind:value={mutators[mutatorKey]}
+                onchange={() => {selectedPreset = ""}}
+              >
+                {#each mutatorOptions[mutatorKey] as value, i}
+                    <option value={i}>{value}</option>
+                {/each}
+              </select>
+            </div>
+          {/each}
         {/each}
-      {/each}
+      </div>
     </div>
   {/snippet}
   {#snippet footer()}
@@ -419,9 +421,10 @@ const ALL_MAPS = getMaps();
     border-color: var(--accent, #4a9eff);
   }
 
-  :global(.modalBody) {
+  .mutatorsBody {
     display: flex;
     flex-direction: column;
+    height: 100%;
   }
 
   .mutators {
