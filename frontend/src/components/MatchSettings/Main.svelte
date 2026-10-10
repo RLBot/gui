@@ -339,7 +339,7 @@ const ALL_MAPS = getMaps();
         id="skipReplays"
         bind:checked={extraOptions.skipReplays}
       />
-      <label for="skipReplays"> Skip Replays </label>
+      <label for="skipReplays"> Skip Goal Replays </label>
       <br />
       <input
         type="checkbox"
