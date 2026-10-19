@@ -14,6 +14,7 @@ import RLLobby from "../components/RLLobby.svelte";
 import { Browser } from "@wailsio/runtime";
 import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
 import { flip } from "svelte/animate";
+import { rocketHostLogo, isDefaultRocketHostLogo } from "../rockethost-logos";
 
 let waiting = $state(false);
 
@@ -319,6 +320,12 @@ function startRHostMatch() {
               }}
               animate:flip={{ duration: flipDurationMs }}
             >
+              <img
+                class="bot-logo"
+                class:default-logo={isDefaultRocketHostLogo(bot.name)}
+                src={rocketHostLogo(bot.name)}
+                alt=""
+              />
               <p>{bot.display_name || bot.name}</p>
               <button
                 class="info-button"
@@ -346,6 +353,12 @@ function startRHostMatch() {
               use:draggable={{ container: `${containerName}_${i}`, dragData: JSON.stringify({ bot, i }), callbacks: { onDragEnd } }}
               use:droppable={{ container: `${containerName}_${i}`, callbacks: { onDrop } }}
             >
+              <img
+                class="bot-logo"
+                class:default-logo={isDefaultRocketHostLogo(bot)}
+                src={rocketHostLogo(bot)}
+                alt=""
+              />
               <p>{botDisplayName(bot)}</p>
               <button class="close" onclick={()=>{bots.splice(i, 1)}}>
                 <img src={closeIcon} alt="X" />
@@ -429,7 +442,8 @@ function startRHostMatch() {
 <Modal title={botInfoTitle} bind:visible={showBotInfo}>
   {#if selectedBot}
     {@const url = sourceURL(selectedBot.source_link)}
-    <div class="bot-info">
+    <div class="bot-info-layout">
+      <div class="bot-info">
       <p><b>Developers:</b> {selectedBot.developer}</p>
       <p><b>Description:</b> {selectedBot.description}</p>
       <p><b>Fun fact:</b> {selectedBot.fun_fact}</p>
@@ -453,6 +467,13 @@ function startRHostMatch() {
       {#if selectedBot.aliases?.length}
         <p><b>Aliases:</b> {selectedBot.aliases.join(", ")}</p>
       {/if}
+      </div>
+      <img
+        class="bot-info-logo"
+        class:default-logo={isDefaultRocketHostLogo(selectedBot.name)}
+        src={rocketHostLogo(selectedBot.name)}
+        alt={`${selectedBot.display_name || selectedBot.name} logo`}
+      />
     </div>
   {/if}
 </Modal>
@@ -602,6 +623,33 @@ function startRHostMatch() {
     width: 1.2rem;
     height: 1.2rem;
     filter: invert() brightness(var(--icon-brightness));
+  }
+  .bot-logo {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .default-logo {
+    filter: brightness(var(--icon-brightness));
+  }
+  .bot-info-layout {
+    display: grid;
+    gap: 1rem;
+    max-width: 800px;
+  }
+  .bot-info-logo {
+    width: 250px;
+    max-width: 100%;
+    height: 250px;
+    object-fit: contain;
+    align-self: center;
+    justify-self: center;
+  }
+  @media (min-width: 850px) {
+    .bot-info-layout {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
   }
   .bot-info {
     display: flex;
