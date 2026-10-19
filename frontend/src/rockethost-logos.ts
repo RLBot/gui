@@ -6,6 +6,7 @@ import ducky from "./assets/rockethost/Ducky.webp";
 import fury from "./assets/rockethost/Fury.webp";
 import galactus from "./assets/rockethost/GalactusV2.webp";
 import kiyo from "./assets/rockethost/Kiyo3.1.webp";
+import london from "./assets/rockethost/London.webp";
 import necto from "./assets/rockethost/Necto.webp";
 import nexto from "./assets/rockethost/Nexto.webp";
 import opti from "./assets/rockethost/Opti.webp";
@@ -27,6 +28,7 @@ const logoGroups: { names: string[]; logo: string }[] = [
   { names: ["Fury"], logo: fury },
   { names: ["Galactus"], logo: galactus },
   { names: ["Kiyo", "Kiyo3"], logo: kiyo },
+  { names: ["London"], logo: london },
   { names: ["necto"], logo: necto },
   { names: ["nexto", "nextoplus"], logo: nexto },
   { names: ["Opti"], logo: opti },
