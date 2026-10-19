@@ -39,7 +39,9 @@ const logoGroups: { names: string[]; logo: string }[] = [
 ];
 
 const logos = new Map(
-  logoGroups.flatMap(({ names, logo }) => names.map((name) => [name, logo] as const)),
+  logoGroups.flatMap(({ names, logo }) =>
+    names.map((name) => [name, logo] as const),
+  ),
 );
 
 export function rocketHostLogo(name: string): string {

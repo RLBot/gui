@@ -74,7 +74,13 @@ const categories: string[][] = [
 ];
 
 const subCategories: { [x: string]: string[] } = {
-  [Category.Standard]: ["Bots for 1v1", "Bots with teamplay", "Goalie bots"],
+  [Category.Standard]: [
+    "Bots for 1v1",
+    "Bots for 2v2",
+    "Bots for 3v3",
+    "Bots with teamplay",
+    "Goalie bots",
+  ],
   [Category.ExtraModes]: [
     "Hoops",
     "Dropshot",
@@ -86,7 +92,7 @@ const subCategories: { [x: string]: string[] } = {
 };
 
 const subCategoryTags: { [x: string]: string[] } = {
-  [Category.Standard]: ["1v1", "teamplay", "goalie"],
+  [Category.Standard]: ["1v1", "2v2", "3v3", "teamplay", "goalie"],
   [Category.ExtraModes]: [
     "hoops",
     "dropshot",
