@@ -82,7 +82,7 @@ func (a *App) GetScripts(paths []string) []BotInfo {
 		if err != nil {
 			// only warn if the logo file was explicitly set
 			if conf.Settings.LogoFile != "" {
-				println("WARN: failed to read logo file at " + conf.Settings.LogoFile)
+				println("WARN: failed to read logo file at " + conf.Settings.LogoFile + " for " + conf.Settings.Name)
 			}
 		} else {
 			mtype := mimetype.Detect(logo_data)

@@ -4,7 +4,9 @@ import { App, RHostBot, RHostServer } from "../../bindings/gui/index.js";
 import { MAPS_STANDARD } from "../arena-names";
 import closeIcon from "../assets/close.svg";
 import heartIcon from "../assets/heart.svg";
-import Plus from "../assets/plus.svg.svelte";
+import infoIcon from "../assets/info_icon.svg";
+import starIcon from "../assets/star.svg";
+import filledStarIcon from "../assets/starFilled.svg";
 import LauncherSelector from "../components/LauncherSelector.svelte";
 import { mapStore } from "../settings";
 import Modal from "../components/Modal.svelte";
@@ -12,37 +14,76 @@ import RLLobby from "../components/RLLobby.svelte";
 import { Browser } from "@wailsio/runtime";
 import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
 import { flip } from "svelte/animate";
+import { rocketHostLogo, isDefaultRocketHostLogo } from "../rockethost-logos";
 
 let waiting = $state(false);
 
 let bots: RHostBot[] = $state([]);
-let botFamilies = $derived.by(() => {
-  let families: {
-    [name: string]: string[];
-  } = {};
-  for (const bot of bots) {
-    const fam = bot.family !== "" ? bot.family : bot.name;
-    if (!Object.hasOwn(families, fam)) {
-      families[fam] = [];
-    }
-    families[fam].push(bot.name);
+let selectedBot: RHostBot | null = $state(null);
+let showBotInfo = $state(false);
+let selectedTag: string | null = $state(null);
+let favoritesOnly = $state(false);
+let favorites: string[] = $state(loadFavorites());
+
+function loadFavorites(): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem("RHOST_FAVORITES") || "[]");
+    return Array.isArray(saved)
+      ? saved.filter((name) => typeof name === "string")
+      : [];
+  } catch {
+    return [];
   }
-  return families;
+}
+
+$effect(() => {
+  localStorage.setItem("RHOST_FAVORITES", JSON.stringify(favorites));
 });
 
-function refreshRHostBots() {
-  App.GetRHostBots()
-    .then((result) => {
-      bots = result;
-    })
-    .catch((error) => {
-      toast.error(`Couldn't resolve Rocket Host bots\n${error}`, {
-        position: "top-center",
-        duration: 5000,
-      });
-    });
+function toggleFavorite(name: string) {
+  favorites = favorites.includes(name)
+    ? favorites.filter((favorite) => favorite !== name)
+    : [...favorites, name];
 }
-refreshRHostBots();
+const filterTags = [
+  "1v1",
+  "2v2",
+  "3v3",
+  "teamplay",
+  "goalie",
+  "hoops",
+  "dropshot",
+  "snow-day",
+  "rumble",
+  "spike-rush",
+  "heatseeker",
+  "memebot",
+];
+let availableTags = $derived(
+  filterTags.filter((tag) => bots.some((bot) => bot.tags?.includes(tag))),
+);
+let filteredBots = $derived(
+  bots.filter(
+    (bot) =>
+      (selectedTag === null || bot.tags?.includes(selectedTag)) &&
+      (!favoritesOnly || favorites.includes(bot.name)),
+  ),
+);
+
+function botDisplayName(name: string) {
+  return bots.find((bot) => bot.name === name)?.display_name || name;
+}
+
+function sourceURL(source: string): string | null {
+  try {
+    const url = new URL(source);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 let serverAddr: string = $state(
   localStorage.getItem("RHOST_SERVER_ADDR") || "",
@@ -53,9 +94,11 @@ $effect(() => {
 
 let servers: RHostServer[] = $state([]);
 $effect(() => {
-  if (servers.length > 0) {
-    serverAddr =
-      serverAddr === "" ? `${servers[0].ip}:${servers[0].port}` : serverAddr;
+  if (
+    servers.length > 0 &&
+    !servers.some((server) => `${server.ip}:${server.port}` === serverAddr)
+  ) {
+    serverAddr = `${servers[0].ip}:${servers[0].port}`;
   }
 });
 
@@ -75,6 +118,45 @@ refreshRHostServers();
 
 let blueBots: string[] = $state([]);
 let orangeBots: string[] = $state([]);
+let botsLoading = $state(false);
+let botsLoaded = $state(false);
+
+$effect(() => {
+  const server = serverAddr;
+  let cancelled = false;
+  bots = [];
+  selectedTag = null;
+  selectedBot = null;
+  showBotInfo = false;
+  blueBots = [];
+  orangeBots = [];
+  botsLoaded = false;
+  botsLoading = server !== "";
+
+  if (server !== "") {
+    App.GetRHostBots(server)
+      .then((result) => {
+        if (cancelled) return;
+        bots = result;
+        botsLoaded = true;
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        toast.error(`Could not load RocketHost bots\n${error}`, {
+          position: "top-center",
+          duration: 5000,
+        });
+      })
+      .finally(() => {
+        if (!cancelled) botsLoading = false;
+      });
+  }
+
+  return () => {
+    cancelled = true;
+  };
+});
+
 let launcherOptionsVisible = $state(false);
 
 let activePage: "start" | "rllobby" = $state("start");
@@ -100,7 +182,7 @@ async function onDrop(state: DragDropState<string>) {
 
   // biome-ignore format: preserve manual layout
   let sourceItems =
-    sourceContainer.startsWith(RH_BOTLIST) ? Object.values(botFamilies).flat() :
+    sourceContainer.startsWith(RH_BOTLIST) ? bots.map((bot) => bot.name) :
     sourceContainer.startsWith(RH_BLUE) ? blueBots :
     sourceContainer.startsWith(RH_ORANGE) ? orangeBots :
     [];
@@ -188,20 +270,71 @@ function startRHostMatch() {
   <div class={"internalPage " + (activePage !== "start" ? "hidden" : "")}>
     <div class="availableBots">
       <h2>Available bots</h2>
+      {#if botsLoading}
+        <p>Loading bots...</p>
+      {:else if serverAddr === ""}
+        <p>Select a server to load bots.</p>
+      {:else if !botsLoaded}
+        <p>Could not load bots. Select a server to try again.</p>
+      {:else if bots.length === 0}
+        <p>No bots are ready on this server.</p>
+      {/if}
+      {#if botsLoaded && bots.length > 0}
+        <div class="tag-buttons" role="group" aria-label="Filter bots">
+          <div class="tag-group">
+            <button
+              class:selected={selectedTag === null && !favoritesOnly}
+              aria-pressed={selectedTag === null && !favoritesOnly}
+              onclick={() => { selectedTag = null; favoritesOnly = false; }}
+            >All</button>
+          </div>
+          <div class="tag-group">
+            {#each availableTags as tag (tag)}
+              <button
+                class:selected={selectedTag === tag}
+                aria-pressed={selectedTag === tag}
+                onclick={() => { selectedTag = selectedTag === tag ? null : tag; }}
+              >{tag}</button>
+            {/each}
+          </div>
+          <div class="tag-group">
+            <button
+              class:selected={favoritesOnly}
+              aria-pressed={favoritesOnly}
+              onclick={() => { favoritesOnly = !favoritesOnly; }}
+            >Favorites</button>
+          </div>
+        </div>
+      {/if}
+      {#if botsLoaded && bots.length > 0 && filteredBots.length === 0}
+        <p>No bots match these filters.</p>
+      {/if}
       <div class="availableBotsList">
-        {#each Object.keys(botFamilies) as family, _ }
-          {#each botFamilies[family] as version, _ (family + version)}
+        {#each filteredBots as bot (bot.name)}
             <div
               class="botEntry blurred"
               use:draggable={{
                 container: RH_BOTLIST,
-                dragData: JSON.stringify({ bot: version.split("(")[0].trim(), i: null })
+                dragData: JSON.stringify({ bot: bot.name, i: null }),
+                interactive: [".info-button"]
               }}
               animate:flip={{ duration: flipDurationMs }}
             >
-              <p>{version}</p>
+              <img
+                class="bot-logo"
+                class:default-logo={isDefaultRocketHostLogo(bot.name)}
+                src={rocketHostLogo(bot.name)}
+                alt=""
+              />
+              <p>{bot.display_name || bot.name}</p>
+              <button
+                class="info-button"
+                aria-label={`Show details for ${bot.display_name || bot.name}`}
+                onclick={() => { selectedBot = bot; showBotInfo = true; }}
+              >
+                <img src={infoIcon} alt="" />
+              </button>
             </div>
-          {/each}
         {/each}
       </div>
     </div>
@@ -220,7 +353,13 @@ function startRHostMatch() {
               use:draggable={{ container: `${containerName}_${i}`, dragData: JSON.stringify({ bot, i }), callbacks: { onDragEnd } }}
               use:droppable={{ container: `${containerName}_${i}`, callbacks: { onDrop } }}
             >
-              <p>{bot}</p>
+              <img
+                class="bot-logo"
+                class:default-logo={isDefaultRocketHostLogo(bot)}
+                src={rocketHostLogo(bot)}
+                alt=""
+              />
+              <p>{botDisplayName(bot)}</p>
               <button class="close" onclick={()=>{bots.splice(i, 1)}}>
                 <img src={closeIcon} alt="X" />
               </button>
@@ -260,7 +399,7 @@ function startRHostMatch() {
         <div>
           <button onclick={() => { launcherOptionsVisible = true }}>Launcher Options</button>
         </div>
-        <button class="start" disabled={waiting} onclick={startRHostMatch}>
+        <button class="start" disabled={waiting || !botsLoaded} onclick={startRHostMatch}>
           Start
         </button>
       {:else}
@@ -283,11 +422,82 @@ function startRHostMatch() {
   </div>
 </div>
 
+{#snippet botInfoTitle()}
+  <span class="bot-info-title">
+    {selectedBot?.display_name || selectedBot?.name || "Bot details"}
+    {#if selectedBot}
+      {@const isFavorite = favorites.includes(selectedBot.name)}
+      <button
+        class="favorite-button"
+        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        aria-pressed={isFavorite}
+        onclick={() => { if (selectedBot) toggleFavorite(selectedBot.name); }}
+      >
+        <img src={isFavorite ? filledStarIcon : starIcon} alt="" />
+      </button>
+    {/if}
+  </span>
+{/snippet}
+
+<Modal title={botInfoTitle} bind:visible={showBotInfo}>
+  {#if selectedBot}
+    {@const url = sourceURL(selectedBot.source_link)}
+    <div class="bot-info-layout">
+      <div class="bot-info">
+      <p><b>Developers:</b> {selectedBot.developer}</p>
+      <p><b>Description:</b> {selectedBot.description}</p>
+      <p><b>Fun fact:</b> {selectedBot.fun_fact}</p>
+      <p><b>Source code:</b>
+        {#if url}
+          <a href={url} onclick={(event) => { event.preventDefault(); Browser.OpenURL(url); }} target="_blank" rel="noopener noreferrer">{selectedBot.source_link}</a>
+        {:else}
+          {selectedBot.source_link}
+        {/if}
+      </p>
+      <p><b>Language:</b> {selectedBot.language}</p>
+      {#if selectedBot.tags?.length}
+        <div class="tags">
+          <b>Tags:</b>
+          {#each selectedBot.tags as tag}
+            <span class="tag">{tag}</span>
+          {/each}
+        </div>
+      {/if}
+
+      {#if selectedBot.aliases?.length}
+        <p><b>Aliases:</b> {selectedBot.aliases.join(", ")}</p>
+      {/if}
+      </div>
+      <img
+        class="bot-info-logo"
+        class:default-logo={isDefaultRocketHostLogo(selectedBot.name)}
+        src={rocketHostLogo(selectedBot.name)}
+        alt={`${selectedBot.display_name || selectedBot.name} logo`}
+      />
+    </div>
+  {/if}
+</Modal>
+
 <Modal title="Select a launcher" bind:visible={launcherOptionsVisible}>
   <LauncherSelector />
 </Modal>
 
 <style>
+  .bot-info-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .favorite-button {
+    display: flex;
+    padding: 0;
+    background: transparent;
+  }
+  .favorite-button img {
+    width: 24px;
+    height: 24px;
+    filter: invert() brightness(var(--icon-brightness));
+  }
   .page {
     display: flex;
     height: fit-content;
@@ -354,6 +564,30 @@ function startRHostMatch() {
     display: flex;
     flex-direction: column;
   }
+  .tag-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    border: solid 1px gray;
+    border-radius: 0.25rem;
+    overflow: hidden;
+  }
+  .tag-buttons button {
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    cursor: pointer;
+  }
+  .tag-buttons button.selected {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
   .availableBotsList {
     display: flex;
     flex-wrap: wrap;
@@ -378,6 +612,65 @@ function startRHostMatch() {
     margin-left: 0.5rem;
     padding: .2rem;
     font-size: 1.1rem;
+  }
+  .info-button {
+    display: flex;
+    align-items: center;
+    padding: 0.2rem;
+    background: transparent;
+  }
+  .info-button img {
+    width: 1.2rem;
+    height: 1.2rem;
+    filter: invert() brightness(var(--icon-brightness));
+  }
+  .bot-logo {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .default-logo {
+    filter: brightness(var(--icon-brightness));
+  }
+  .bot-info-layout {
+    display: grid;
+    gap: 1rem;
+    max-width: 800px;
+  }
+  .bot-info-logo {
+    width: 250px;
+    max-width: 100%;
+    height: 250px;
+    object-fit: contain;
+    align-self: center;
+    justify-self: center;
+  }
+  @media (min-width: 850px) {
+    .bot-info-layout {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+  .bot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 42rem;
+    overflow-wrap: anywhere;
+  }
+  .bot-info p {
+    white-space: pre-wrap;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .tag {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    background: var(--background-alt);
   }
   .botEntry select {
     margin: 0px;

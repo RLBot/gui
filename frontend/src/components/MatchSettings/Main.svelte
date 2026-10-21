@@ -51,10 +51,7 @@ $effect(() => {
 // `map` is shared with the rest of the app (rocket host, loadout editor), so it
 // must always hold a concrete map rather than the "Random Standard Map" option.
 $effect(() => {
-  if (
-    mapOptionSelected !== RANDOM_STANDARD_MAP &&
-    mapOptionSelected !== map
-  ) {
+  if (mapOptionSelected !== RANDOM_STANDARD_MAP && mapOptionSelected !== map) {
     map = mapOptionSelected;
   }
 });
@@ -159,8 +156,7 @@ function setPreset(presetData: Gamemode) {
     mode = presetData.match.game_mode;
   }
 
-  mapOptionSelected =
-    presetData.match.game_map_upk ?? RANDOM_STANDARD_MAP;
+  mapOptionSelected = presetData.match.game_map_upk ?? RANDOM_STANDARD_MAP;
 
   for (const key of allMutatorKeys) {
     if (presetData.mutators[key] !== undefined) {

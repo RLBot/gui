@@ -404,7 +404,7 @@ func (a *App) GetBots(paths []string) []BotInfo {
 		if err != nil {
 			// only warn if the logo file was explicitly set
 			if conf.Settings.LogoFile != "" {
-				println("WARN: failed to read logo file at " + conf.Settings.LogoFile)
+				println("WARN: failed to read logo file at " + conf.Settings.LogoFile + " for " + conf.Settings.Name)
 			}
 		} else {
 			mtype := mimetype.Detect(logo_data)
@@ -417,7 +417,7 @@ func (a *App) GetBots(paths []string) []BotInfo {
 			loadoutPath := filepath.Join(filepath.Dir(potentialConfigPath), conf.Settings.LoadoutFile)
 			loadout, err = a.GetLoadout(loadoutPath)
 			if err != nil {
-				println("WARN: failed to read loadout file at " + conf.Settings.LoadoutFile)
+				println("WARN: failed to read loadout file at " + conf.Settings.LoadoutFile + " for " + conf.Settings.Name)
 			}
 		}
 

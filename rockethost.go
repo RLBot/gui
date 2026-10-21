@@ -15,61 +15,53 @@ import (
 )
 
 type RHostBot struct {
-	Name   string `json:"name"`
-	Family string `json:"family"`
+	Name        string   `json:"name"`
+	Family      string   `json:"family"`
+	DisplayName string   `json:"display_name"`
+	Description string   `json:"description"`
+	Developer   string   `json:"developer"`
+	Language    string   `json:"language"`
+	FunFact     string   `json:"fun_fact"`
+	SourceLink  string   `json:"source_link"`
+	Tags        []string `json:"tags"`
+	Aliases     []string `json:"aliases"`
 }
 
-func (a *App) GetRHostBots() ([]RHostBot, error) {
-	resp, err := http.Get("https://rockethost.jetfox.ovh/api/botList2.json")
+func (a *App) GetRHostBots(server string) ([]RHostBot, error) {
+	if server == "" {
+		return nil, errors.New("server is required")
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(fmt.Sprintf("http://%s/status", server))
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Error reading body: %v\n", err)
-		return nil, err
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("RocketHost status request failed: %s", resp.Status)
 	}
 
-	var data interface{}
-	if err := json.Unmarshal(body, &data); err != nil {
-		fmt.Printf("Error parsing JSON: %v\n", err)
-		return nil, err
+	var data struct {
+		Bots struct {
+			List []struct {
+				RHostBot
+				Status string `json:"status"`
+			} `json:"list"`
+		} `json:"bots"`
 	}
-
-	jsonBots, ok := data.([]interface{})
-	if !ok {
-		return nil, errors.New("invalid json shape: root isn't array")
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return nil, fmt.Errorf("invalid RocketHost status response: %w", err)
+	}
+	if data.Bots.List == nil {
+		return nil, errors.New("invalid RocketHost status response: bots.list is missing or null")
 	}
 
 	bots := []RHostBot{}
-
-	for _, jsonBotOrFamily := range jsonBots {
-		if botString, ok := jsonBotOrFamily.(string); ok {
-			bots = append(bots, RHostBot{
-				Name:   botString,
-				Family: "",
-			})
-		} else if botFamily, ok := jsonBotOrFamily.(map[string]interface{}); ok {
-			familyName, ok := botFamily["name"].(string)
-			if !ok {
-				return nil, errors.New("invalid json shape: family object doesn't have \"name\"")
-			}
-
-			familyBots, ok := botFamily["versions"].([]interface{})
-			if !ok {
-				return nil, errors.New("invalid json shape: family object doesn't have \"versions\"")
-			}
-			for _, familyBot := range familyBots {
-				familyBotStr, ok := familyBot.(string)
-				if !ok {
-					return nil, errors.New("invalid json shape: \"versions\" isn't an array of strings")
-				}
-				bots = append(bots, RHostBot{
-					Name:   familyBotStr,
-					Family: familyName,
-				})
-			}
+	for _, bot := range data.Bots.List {
+		if bot.Name != "" && bot.Status == "ready" {
+			bots = append(bots, bot.RHostBot)
 		}
 	}
 
