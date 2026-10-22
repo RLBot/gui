@@ -291,24 +291,25 @@ func pathSeparator() string {
 	return ":"
 }
 
-var windowsEnvironmentVariablePattern = regexp.MustCompile(`%([A-Za-z_][A-Za-z0-9_]*)%`)
+var environmentVariablePattern = regexp.MustCompile(`%([^%]+)%|\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))`)
 
-func expandWindowsEnvironmentValue(value string) string {
-	return windowsEnvironmentVariablePattern.ReplaceAllStringFunc(value, func(match string) string {
-		name := match[1 : len(match)-1]
+func expandEnvironmentValue(value string) string {
+	// Scan the input once. Replacement values can contain literal variable references.
+	return environmentVariablePattern.ReplaceAllStringFunc(value, func(match string) string {
+		var name string
+		switch {
+		case match[0] == '%':
+			name = match[1 : len(match)-1]
+		case strings.HasPrefix(match, "${"):
+			name = match[2 : len(match)-1]
+		default:
+			name = match[1:]
+		}
 		if replacement, ok := os.LookupEnv(name); ok {
 			return replacement
 		}
 		return match
 	})
-}
-
-func expandEnvironmentValue(value string) string {
-	value = os.ExpandEnv(value)
-	if runtime.GOOS == "windows" {
-		value = expandWindowsEnvironmentValue(value)
-	}
-	return value
 }
 
 // resolveEnvironmentVariables resolves path-list values for each environment variable.
@@ -499,7 +500,10 @@ func (a *App) GetBots(paths []string) []BotInfo {
 			continue
 		}
 		var conf BotConfig
-		toml.Decode(string(data), &conf)
+		if _, err := toml.Decode(string(data), &conf); err != nil {
+			log.Printf("WARN: skipping config at %s: %v", potentialConfigPath, err)
+			continue
+		}
 
 		// make location path relative to parent of bot.toml
 		conf.Settings.RootDir = filepath.Join(filepath.Dir(potentialConfigPath), conf.Settings.RootDir)
