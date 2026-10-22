@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -29,7 +30,7 @@ func (botInfo BotInfo) ToScriptConfig() *flat.ScriptConfigurationT {
 	}
 
 	// Add environment variables from the script's config toml first
-	for k, v := range botInfo.Config.Settings.Environment {
+	for k, v := range botInfo.Config.Settings.Environment.Values() {
 		scriptConfig.Environment = append(scriptConfig.Environment, &flat.EnvironmentVariableT{
 			Name:  k,
 			Value: v,
@@ -65,7 +66,10 @@ func (a *App) GetScripts(paths []string) []BotInfo {
 			continue
 		}
 		var conf BotConfig
-		toml.Decode(string(data), &conf)
+		if _, err := toml.Decode(string(data), &conf); err != nil {
+			log.Printf("WARN: skipping config at %s: %v", potentialConfigPath, err)
+			continue
+		}
 
 		// make location path relative to parent of bot.toml
 		conf.Settings.RootDir = filepath.Join(filepath.Dir(potentialConfigPath), conf.Settings.RootDir)
